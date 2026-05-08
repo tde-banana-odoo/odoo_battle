@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<odoo>
+    <record id="battle_outcome_view_list" model="ir.ui.view">
+        <field name="name">battle.outcome.view.list</field>
+        <field name="model">battle.outcome</field>
+        <field name="arch" type="xml">
+            <list string="Outcomes" editable="bottom">
+                <field name="score"/>
+                <field name="name"/>
+                <field name="initiator_damage" string="Init. Dmg"/>
+                <field name="initiator_resistance" string="Init. Res"/>
+                <field name="responder_damage" string="Resp. Dmg"/>
+                <field name="responder_resistance" string="Resp. Res"/>
+                <field name="location_shift"/>
+                <field name="battle_trait_ids" widget="many2many_tags" options="{'no_create': True}"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="battle_outcome_action" model="ir.actions.act_window">
+        <field name="name">Outcomes</field>
+        <field name="res_model">battle.outcome</field>
+        <field name="view_mode">list</field>
+        <field name="help" type="html">
+            <p>Outcomes go from major defeat (-4) to major victory (+4), from initiators point of view.</p>
+        </field>
+    </record>
+</odoo>

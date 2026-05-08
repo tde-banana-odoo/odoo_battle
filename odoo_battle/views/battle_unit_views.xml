@@ -1,0 +1,78 @@
+<?xml version="1.0"?>
+<odoo>
+    <record id="battle_unit_view_form" model="ir.ui.view">
+        <field name="name">battle.unit.view.form</field>
+        <field name="model">battle.unit</field>
+        <field name="arch" type="xml">
+            <form string="Unit">
+                <sheet>
+                    <field name="image_1920" widget="image" class="oe_avatar" options="{'preview_image': 'avatar_128'}"/>
+                    <div class="oe_title">
+                        <h1><field name="name" placeholder="e.g. Fianna Pack"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="battle_unit_template_id" widget="many2one_avatar"/>
+                            <field name="unit_type"/>
+                            <field name="origin"/>
+                        </group>
+                        <group>
+                            <field name="battle_faction_id"/>
+                            <field name="battle_location_id"/>
+                        </group>
+                    </group>
+                    <widget name="battle_unit_stats"/>
+                    <group>
+                        <field name="battle_trait_ids" widget="many2many_tags" options="{'no_create': True}"/>
+                    </group>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="battle_unit_view_search" model="ir.ui.view">
+        <field name="name">battle.unit.view.search</field>
+        <field name="model">battle.unit</field>
+        <field name="arch" type="xml">
+            <search string="Search">
+                <field name="name"/>
+                <field name="battle_faction_id"/>
+                <field name="unit_type"/>
+                <field name="origin"/>
+                <field name="battle_unit_template_id"/>
+                <field name="battle_location_id"/>
+                <group>
+                    <filter name="groupby_faction" string="Faction" context="{'group_by': 'battle_faction_id'}"/>
+                    <filter name="groupby_unit_type" string="Unit Type" context="{'group_by': 'unit_type'}"/>
+                    <filter name="groupby_origin" string="Origin" context="{'group_by': 'origin'}"/>
+                    <filter name="groupby_template" string="Template" context="{'group_by': 'battle_unit_template_id'}"/>
+                    <filter name="groupby_location" string="Location" context="{'group_by': 'battle_location_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="battle_unit_view_list" model="ir.ui.view">
+        <field name="name">battle.unit.view.list</field>
+        <field name="model">battle.unit</field>
+        <field name="arch" type="xml">
+            <list string="Units">
+                <field name="avatar_128" widget="image" options="{'size': [24, 24]}" string=" "/>
+                <field name="name"/>
+                <field name="unit_type"/>
+                <field name="battle_faction_id"/>
+                <field name="battle_unit_template_id" optional="hide"/>
+                <field name="battle_location_id"/>
+                <field name="battle_trait_ids" widget="many2many_tags" optional="show"/>
+                <widget name="battle_unit_stats" options="{'compact': True}"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="battle_unit_action" model="ir.actions.act_window">
+        <field name="name">Units</field>
+        <field name="res_model">battle.unit</field>
+        <field name="view_mode">list,form</field>
+    </record>
+</odoo>

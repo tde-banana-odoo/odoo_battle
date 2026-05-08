@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="battle_faction_kiker" model="battle.faction">
+        <field name="name">Kiker</field>
+        <field name="role">aggressor</field>
+        <field name="sequence">1</field>
+    </record>
+    <record id="battle_faction_loch_chon" model="battle.faction">
+        <field name="name">Loch Chon</field>
+        <field name="role">defender</field>
+        <field name="sequence">2</field>
+    </record>
+    <record id="battle_faction_hel" model="battle.faction">
+        <field name="name">Hel</field>
+        <field name="allied_faction_id" ref="battle_faction_loch_chon"/>
+        <field name="sequence">3</field>
+    </record>
+    <record id="battle_faction_weaver" model="battle.faction">
+        <field name="name">Weaver</field>
+        <field name="allied_faction_id" ref="battle_faction_loch_chon"/>
+        <field name="sequence">4</field>
+    </record>
+    <record id="battle_faction_noot" model="battle.faction">
+        <field name="name">Noot</field>
+        <field name="leader_name">Elisabeth Noot</field>
+        <field name="sequence">5</field>
+        <field name="allied_faction_id" ref="battle_faction_kiker"/>
+    </record>
+</odoo>

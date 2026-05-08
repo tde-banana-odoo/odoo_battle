@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="battle_location_hills" model="battle.location">
+        <field name="name">Hills</field>
+        <field name="sequence">10</field>
+    </record>
+    <record id="battle_location_stronachlachar" model="battle.location">
+        <field name="name">Stronachlachar</field>
+        <field name="sequence">20</field>
+    </record>
+    <record id="battle_location_riviere_loch" model="battle.location">
+        <field name="name">Rivière du Loch</field>
+        <field name="sequence">30</field>
+    </record>
+    <record id="battle_location_bois" model="battle.location">
+        <field name="name">Bois</field>
+        <field name="sequence">40</field>
+    </record>
+    <record id="battle_location_bois_umbra" model="battle.location">
+        <field name="name">Bois (Umbra)</field>
+        <field name="is_umbra" eval="True"/>
+        <field name="sequence">50</field>
+    </record>
+    <record id="battle_location_loch_chon" model="battle.location">
+        <field name="name">Loch Chon</field>
+        <field name="sequence">60</field>
+        <field name="battle_trait_ids" eval="[Command.set([ref('battle_trait_barricaded')])]"/>
+    </record>
+    <record id="battle_location_loch_chon_umbra" model="battle.location">
+        <field name="name">Loch Chon (Umbra)</field>
+        <field name="is_umbra" eval="True"/>
+        <field name="sequence">70</field>
+    </record>
+    <record id="battle_location_route_centre" model="battle.location">
+        <field name="name">Route du Centre</field>
+        <field name="sequence">80</field>
+        <field name="battle_trait_ids" eval="[Command.set([ref('battle_trait_fortified')])]"/>
+    </record>
+    <record id="battle_location_marais" model="battle.location">
+        <field name="name">Marais</field>
+        <field name="sequence">90</field>
+    </record>
+    <record id="battle_location_park_center" model="battle.location">
+        <field name="name">Park Center</field>
+        <field name="sequence">100</field>
+    </record>
+    <record id="battle_location_walkhill" model="battle.location">
+        <field name="name">Walkhill</field>
+        <field name="sequence">110</field>
+        <field name="battle_trait_ids" eval="[Command.set([ref('battle_trait_fortified')])]"/>
+    </record>
+    <record id="battle_location_walkhill_umbra" model="battle.location">
+        <field name="name">Walkhill (Umbra)</field>
+        <field name="is_umbra" eval="True"/>
+        <field name="sequence">120</field>
+    </record>
+    <record id="battle_location_king_industries" model="battle.location">
+        <field name="name">King Industries</field>
+        <field name="sequence">130</field>
+    </record>
+    <record id="battle_location_king_industries_umbra" model="battle.location">
+        <field name="name">King Industries (Umbra)</field>
+        <field name="is_umbra" eval="True"/>
+        <field name="sequence">140</field>
+    </record>
+
+    <!-- External: off the battlefield, e.g. reserves -->
+    <record id="battle_location_frontiere_umbrale" model="battle.location">
+        <field name="name">Frontière Umbrale</field>
+        <field name="is_umbra" eval="True"/>
+        <field name="sequence">150</field>
+        <field name="is_external" eval="True"/>
+    </record>
+    <record id="battle_location_loch_chon_park" model="battle.location">
+        <field name="name">Loch Chon Regional Environment Park</field>
+        <field name="sequence">160</field>
+        <field name="is_external" eval="True"/>
+    </record>
+    <record id="battle_location_comte_walkhill" model="battle.location">
+        <field name="name">Comté de Walkhill</field>
+        <field name="sequence">170</field>
+        <field name="is_external" eval="True"/>
+    </record>
+    <record id="battle_location_lommond_hills" model="battle.location">
+        <field name="name">Lommond Hills</field>
+        <field name="sequence">180</field>
+        <field name="is_external" eval="True"/>
+    </record>
+
+    <!-- Realm / Umbra links (reverse link is set automatically) -->
+    <record id="battle_location_bois" model="battle.location">
+        <field name="linked_location_id" ref="battle_location_bois_umbra"/>
+    </record>
+    <record id="battle_location_loch_chon" model="battle.location">
+        <field name="linked_location_id" ref="battle_location_loch_chon_umbra"/>
+    </record>
+    <record id="battle_location_walkhill" model="battle.location">
+        <field name="linked_location_id" ref="battle_location_walkhill_umbra"/>
+    </record>
+    <record id="battle_location_king_industries" model="battle.location">
+        <field name="linked_location_id" ref="battle_location_king_industries_umbra"/>
+    </record>
+</odoo>

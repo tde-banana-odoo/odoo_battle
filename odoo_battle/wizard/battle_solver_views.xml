@@ -1,0 +1,155 @@
+<?xml version="1.0"?>
+<odoo>
+    <record id="battle_solver_view_form" model="ir.ui.view">
+        <field name="name">battle.solver.view.form</field>
+        <field name="model">battle.solver</field>
+        <field name="arch" type="xml">
+            <form string="Battle Solver" dialog_size="xl">
+                <group>
+                    <field name="battle_location_id"/>
+                </group>
+                <field name="battle_location_summary" nolabel="1" readonly="1"
+                    invisible="not battle_location_id"/>
+                <div class="row g-3">
+                    <div class="col-lg">
+                        <h3>Initiators <span class="badge text-bg-secondary">Menace <field name="initiator_menace"/></span></h3>
+                        <group class="mb-0">
+                            <field name="initiator_faction_ids" string="Factions" widget="many2many_tags" options="{'no_create': True}"/>
+                            <field name="initiator_stance" string="Stance" widget="radio" options="{'horizontal': true}"/>
+                        </group>
+                        <field name="initiator_unit_ids" widget="many2many" options="{'no_create': True}">
+                            <list>
+                                <field name="avatar_128" widget="image" options="{'size': [24, 24]}" string=" "/>
+                                <field name="name"/>
+                                <field name="battle_faction_id" optional="hide"/>
+                                <widget name="battle_unit_stats" options="{'compact': True}"/>
+                                <field name="battle_trait_ids" widget="many2many_tags"/>
+                            </list>
+                        </field>
+                    </div>
+                    <div class="col-lg-auto align-self-center fs-3 fw-bold text-muted">VS</div>
+                    <div class="col-lg">
+                        <h3>Responders <span class="badge text-bg-secondary">Menace <field name="responder_menace"/></span></h3>
+                        <group class="mb-0">
+                            <field name="responder_faction_ids" string="Factions" widget="many2many_tags" options="{'no_create': True}"/>
+                            <field name="responder_stance" string="Stance" widget="radio" options="{'horizontal': true}"/>
+                        </group>
+                        <field name="responder_unit_ids" widget="many2many" options="{'no_create': True}">
+                            <list>
+                                <field name="avatar_128" widget="image" options="{'size': [24, 24]}" string=" "/>
+                                <field name="name"/>
+                                <field name="battle_faction_id" optional="hide"/>
+                                <widget name="battle_unit_stats" options="{'compact': True}"/>
+                                <field name="battle_trait_ids" widget="many2many_tags"/>
+                            </list>
+                        </field>
+                    </div>
+                </div>
+                <field name="bonus_summary" nolabel="1" readonly="1"
+                    invisible="not initiator_unit_ids or not responder_unit_ids"/>
+                <div invisible="mode != 'simulate'">
+                    <h4>Simulation</h4>
+                    <field name="simulation_summary" nolabel="1" readonly="1"/>
+                </div>
+                <field name="result_summary" nolabel="1" readonly="1" invisible="mode != 'battle'"/>
+                <footer>
+                    <button name="action_simulate" type="object" string="Simulate" class="btn-primary"/>
+                    <button name="action_battle" type="object" string="Battle" class="btn-secondary"/>
+                    <button special="cancel" string="Close" class="btn-secondary"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <template id="battle_solver_location_summary">
+        <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
+            <span t-att-class="'badge ' + {'free': 'text-bg-success', 'contested': 'text-bg-warning', 'held': 'text-bg-info'}[location.status]">
+                <span t-field="location.status"/>
+                <t t-if="location.held_by_faction_id"> by <t t-out="location.held_by_faction_id.name"/></t>
+            </span>
+            <span t-if="location.is_umbra" class="badge text-bg-primary">Umbra</span>
+            <span t-foreach="location.battle_trait_ids" t-as="trait" class="badge text-bg-secondary" t-out="trait.name"/>
+            <span t-if="location.linked_location_id" class="text-muted small">
+                Linked to <t t-out="location.linked_location_id.name"/>
+            </span>
+        </div>
+    </template>
+
+    <template id="battle_solver_bonus_summary">
+        <table class="table table-sm mt-3">
+            <thead>
+                <tr>
+                    <th>Bonus</th>
+                    <th/>
+                    <th class="text-center">Initiators<div class="small fw-normal text-muted" t-out="', '.join(solver.initiator_faction_ids.sorted().mapped('name'))"/></th>
+                    <th class="text-center">Responders<div class="small fw-normal text-muted" t-out="', '.join(solver.responder_faction_ids.sorted().mapped('name'))"/></th>
+                </tr>
+            </thead>
+            <tbody>
+                <t t-set="categories" t-value="{'forces': 'Opposing Forces', 'leadership': 'Leadership', 'location': 'Location', 'traits': 'Traits'}"/>
+                <t t-foreach="lines" t-as="line">
+                    <tr t-if="line_first or line['category'] != lines[line_index - 1]['category']" class="table-light">
+                        <td colspan="4" class="small text-uppercase text-muted"><t t-out="categories[line['category']]"/></td>
+                    </tr>
+                    <tr>
+                        <td><t t-out="line['name']"/></td>
+                        <td class="text-muted"><t t-out="line['detail']"/></td>
+                        <td class="text-center"><t t-if="line['initiator']" t-out="'%+d' % line['initiator']"/></td>
+                        <td class="text-center"><t t-if="line['responder']" t-out="'%+d' % line['responder']"/></td>
+                    </tr>
+                </t>
+            </tbody>
+            <tfoot>
+                <tr class="fw-bold">
+                    <td>Total</td>
+                    <td class="text-muted">Difference: <t t-out="'%+d' % solver.bonus"/></td>
+                    <td class="text-center"><t t-out="'%+d' % solver.initiator_bonus"/></td>
+                    <td class="text-center"><t t-out="'%+d' % solver.responder_bonus"/></td>
+                </tr>
+            </tfoot>
+        </table>
+    </template>
+
+    <template id="battle_solver_simulation_summary">
+        <table class="table table-sm">
+            <thead>
+                <tr class="small text-muted">
+                    <th colspan="2">Outcome</th>
+                    <th class="text-end">Chance</th>
+                    <th/>
+                    <th class="text-center">Damage to Responders</th>
+                    <th class="text-center">Damage to Initiators</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr t-foreach="rows" t-as="row" t-att-class="'text-muted' if not row[1] else None">
+                    <td class="text-end"><t t-out="'%+d' % row[0].score"/></td>
+                    <td><t t-out="row[0].name"/></td>
+                    <td class="text-end text-nowrap"><t t-out="'%.1f' % (row[1] * 100)"/> %</td>
+                    <td class="w-25 align-middle">
+                        <div t-if="row[1]" class="progress" style="height: .5rem">
+                            <div t-attf-class="progress-bar #{'bg-success' if row[0].score &gt; 0 else 'bg-danger' if row[0].score &lt; 0 else 'bg-secondary'}"
+                                t-attf-style="width: #{row[1] * 100}%"/>
+                        </div>
+                    </td>
+                    <td class="text-center"><t t-out="row[2]"/></td>
+                    <td class="text-center"><t t-out="row[3]"/></td>
+                </tr>
+            </tbody>
+        </table>
+    </template>
+
+    <template id="battle_solver_result_summary">
+        <div role="alert" t-attf-class="alert mt-3 mb-0 #{'alert-success' if solver.result_score &gt; 0 else 'alert-danger' if solver.result_score &lt; 0 else 'alert-secondary'}">
+            <strong class="me-1" t-out="solver.battle_outcome_id.name"/>
+            <t t-out="solver.result_message"/>
+        </div>
+    </template>
+
+    <record id="battle_solver_action" model="ir.actions.act_window">
+        <field name="name">Battle Solver</field>
+        <field name="res_model">battle.solver</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+</odoo>

@@ -1,0 +1,59 @@
+// Wargame-like statistics table, see BattleUnitStats
+.o_battle_unit_stats {
+    border-collapse: separate;
+    border-spacing: 0;
+    border: 2px solid $o-gray-800;
+    border-radius: $border-radius;
+    overflow: hidden;
+
+    th, td {
+        width: 3.5rem;
+        padding: .25rem .5rem;
+        border-right: 1px solid $o-gray-400;
+    }
+    th {
+        font-family: Georgia, 'Times New Roman', serif;
+        font-size: .85rem;
+        background-color: $o-gray-800;
+        color: $o-gray-100;
+    }
+    td {
+        background-color: $o-gray-100;
+        font-size: 1.25rem;
+        font-weight: bold;
+        input {
+            text-align: center;
+            font-weight: bold;
+            -moz-appearance: textfield;
+            &::-webkit-inner-spin-button {
+                -webkit-appearance: none;
+            }
+        }
+    }
+    .o_battle_unit_stats_sep {
+        width: .5rem;
+        padding: 0;
+        background-color: $o-gray-800;
+    }
+}
+
+.o_battle_unit_stats_compact {
+    line-height: 1.1;
+
+    th, td {
+        min-width: 1.75rem;
+        padding: 0 .15rem;
+    }
+    th {
+        color: $o-gray-600;
+        font-weight: normal;
+    }
+    td {
+        font-weight: bold;
+    }
+    .o_battle_unit_stats_sep {
+        min-width: 0;
+        width: .35rem;
+        border-left: 1px solid $border-color;
+    }
+}

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- From initiators point of view -->
+    <record id="battle_outcome_major_defeat" model="battle.outcome">
+        <field name="name">Major Defeat</field>
+        <field name="score">-4</field>
+        <field name="location_shift">-1</field>
+    </record>
+    <record id="battle_outcome_clear_defeat" model="battle.outcome">
+        <field name="name">Clear-Cut Defeat</field>
+        <field name="score">-3</field>
+        <field name="location_shift">-1</field>
+    </record>
+    <record id="battle_outcome_defeat" model="battle.outcome">
+        <field name="name">Defeat</field>
+        <field name="score">-2</field>
+        <field name="location_shift">-1</field>
+    </record>
+    <record id="battle_outcome_narrow_defeat" model="battle.outcome">
+        <field name="name">Narrow Defeat</field>
+        <field name="score">-1</field>
+    </record>
+    <record id="battle_outcome_tie" model="battle.outcome">
+        <field name="name">Tied</field>
+        <field name="score">0</field>
+    </record>
+    <record id="battle_outcome_narrow_victory" model="battle.outcome">
+        <field name="name">Narrow Victory</field>
+        <field name="score">1</field>
+    </record>
+    <record id="battle_outcome_victory" model="battle.outcome">
+        <field name="name">Victory</field>
+        <field name="score">2</field>
+        <field name="location_shift">1</field>
+    </record>
+    <record id="battle_outcome_clear_victory" model="battle.outcome">
+        <field name="name">Clear-Cut Victory</field>
+        <field name="score">3</field>
+        <field name="location_shift">1</field>
+        <field name="battle_trait_ids" eval="[Command.set([ref('battle_trait_breakthrough')])]"/>
+    </record>
+    <record id="battle_outcome_major_victory" model="battle.outcome">
+        <field name="name">Major Victory</field>
+        <field name="score">4</field>
+        <field name="location_shift">1</field>
+        <field name="battle_trait_ids" eval="[Command.set([ref('battle_trait_breakthrough')])]"/>
+    </record>
+</odoo>

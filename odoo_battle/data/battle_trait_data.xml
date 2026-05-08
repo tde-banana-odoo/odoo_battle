@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Unit traits -->
+    <record id="battle_trait_counter_attack" model="battle.trait">
+        <field name="name">Counter-Attack</field>
+        <field name="sequence">10</field>
+        <field name="stance">defense</field>
+        <field name="condition">win</field>
+        <field name="effect">damage</field>
+        <field name="description">+1 damage when defending successfully.</field>
+    </record>
+    <record id="battle_trait_fury" model="battle.trait">
+        <field name="name">Fury</field>
+        <field name="sequence">20</field>
+        <field name="stance">attack</field>
+        <field name="condition">win</field>
+        <field name="effect">damage</field>
+        <field name="description">+1 damage when attacking successfully.</field>
+    </record>
+    <record id="battle_trait_leadership" model="battle.trait">
+        <field name="name">Leadership</field>
+        <field name="sequence">30</field>
+        <field name="effect">bonus</field>
+        <field name="is_unique" eval="True"/>
+        <field name="description">+1 to the battle result, once per side.</field>
+    </record>
+
+    <!-- Location traits -->
+    <record id="battle_trait_fortified" model="battle.trait">
+        <field name="name">Fortified</field>
+        <field name="sequence">50</field>
+        <field name="target">location</field>
+        <field name="side">responder</field>
+        <field name="stance">defense</field>
+        <field name="effect">bonus</field>
+        <field name="description">+1 to holders defending the location.</field>
+    </record>
+    <record id="battle_trait_barricaded" model="battle.trait">
+        <field name="name">Barricaded</field>
+        <field name="sequence">60</field>
+        <field name="target">location</field>
+        <field name="description">Slows down units moving through.</field>
+    </record>
+    <record id="battle_trait_trapped" model="battle.trait">
+        <field name="name">Trapped</field>
+        <field name="sequence">70</field>
+        <field name="target">location</field>
+    </record>
+    <record id="battle_trait_resupplied" model="battle.trait">
+        <field name="name">Resupplied</field>
+        <field name="sequence">80</field>
+        <field name="target">location</field>
+    </record>
+    <record id="battle_trait_breakthrough" model="battle.trait">
+        <field name="name">Breakthrough</field>
+        <field name="sequence">100</field>
+        <field name="target">location</field>
+        <field name="stance">attack</field>
+        <field name="effect">bonus</field>
+        <field name="is_unique" eval="True"/>
+        <field name="description">+1 when attacking in the next round, granted by a clear-cut or major victory.</field>
+    </record>
+</odoo>
