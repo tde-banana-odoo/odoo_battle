@@ -14,19 +14,29 @@
                     <h4>Factions</h4>
                     <table class="table table-sm table-hover">
                         <thead>
-                            <tr><th>Faction</th><th>Role</th><th class="text-end">Units</th><th class="text-end">Morale</th><th class="text-end">Leadership</th></tr>
+                            <tr><th>Faction</th><th>Leader</th><th class="text-end">Units</th><th>Morale</th><th class="text-end">Leadership</th><th/></tr>
                         </thead>
                         <tbody>
                             <tr t-foreach="data.factions" t-as="faction" t-key="faction.id" class="cursor-pointer"
                                 t-on-click="() => this.openRecord('battle.faction', faction.id)">
                                 <td t-out="faction.name"/>
-                                <td>
-                                    <t t-out="faction.role"/>
-                                    <span t-if="faction.ally" class="text-muted"> (ally of <t t-out="faction.ally"/>)</span>
+                                <td t-if="faction.leader">
+                                    <t t-out="faction.leader.name"/>
+                                    <span t-if="faction.leader.state != 'alive'" class="text-danger small"> (<t t-out="faction.leader.state_label"/>)</span>
                                 </td>
+                                <td t-else="" class="text-muted">-</td>
                                 <td class="text-end" t-out="faction.unit_count"/>
-                                <td class="text-end" t-out="faction.morale"/>
+                                <td class="text-nowrap">
+                                    <t t-out="faction.morale"/>
+                                    <i t-if="faction.morale_trend == 'up'" class="oi text-success ms-1" data-icon="arrow_upward" title="Better than last round"/>
+                                    <i t-elif="faction.morale_trend == 'down'" class="oi text-danger ms-1" data-icon="arrow_downward" title="Worse than last round"/>
+                                    <i t-elif="faction.morale_trend == 'same'" class="oi text-muted ms-1" data-icon="remove" title="Same as last round"/>
+                                </td>
                                 <td class="text-end" t-out="faction.leadership ?? '-'"/>
+                                <td class="text-end">
+                                    <button t-if="data.is_admin and data.round" class="btn btn-sm btn-secondary text-nowrap"
+                                        t-on-click.stop="() => this.openLeadership(faction.id)">Roll</button>
+                                </td>
                             </tr>
                         </tbody>
                     </table>
@@ -42,6 +52,28 @@
                     </t>
                 </div>
                 <div class="col-xl-6">
+                    <h4>Locations</h4>
+                    <table class="table table-sm table-hover">
+                        <tbody>
+                            <tr t-foreach="data.locations" t-as="location" t-key="location.id" class="cursor-pointer"
+                                t-on-click="() => this.openRecord('battle.location', location.id)">
+                                <td class="fw-bold" t-out="location.name"/>
+                                <td>
+                                    <span class="badge" t-att-class="{ 'text-bg-success': location.status == 'free', 'text-bg-warning': location.status == 'contested', 'text-bg-info': location.status == 'held' }"
+                                        t-out="location.holder ? location.status_label + ' by ' + location.holder : location.status_label"/>
+                                </td>
+                                <td>
+                                    <t t-foreach="location.forces" t-as="force" t-key="force_index">
+                                        <t t-if="!force_first">, </t><t t-out="force.faction"/> <span class="text-muted" t-out="force.count"/>
+                                    </t>
+                                    <span t-if="location.leaders.length" class="text-muted small ms-2">
+                                        <i class="oi me-1" data-icon="person"/><t t-out="location.leaders.join(', ')"/>
+                                    </span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
                     <h4>Battles to Solve</h4>
                     <p t-if="!data.pending?.length" class="text-muted">No location with opposing forces left to solve this round.</p>
                     <table t-else="" class="table table-sm align-middle">

@@ -15,6 +15,7 @@
                                 <list editable="bottom">
                                     <field name="battle_faction_id"/>
                                     <field name="successes"/>
+                                    <field name="morale"/>
                                 </list>
                             </field>
                         </page>
@@ -32,6 +33,21 @@
                     </notebook>
                 </sheet>
                 <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="battle_round_leadership_view_form" model="ir.ui.view">
+        <field name="name">battle.round.leadership.view.form</field>
+        <field name="model">battle.round.leadership</field>
+        <field name="arch" type="xml">
+            <form string="Leadership Roll">
+                <group>
+                    <field name="battle_round_id" readonly="1"/>
+                    <field name="battle_faction_id" readonly="1"/>
+                    <field name="successes"/>
+                    <field name="morale" widget="radio" options="{'horizontal': true}"/>
+                </group>
             </form>
         </field>
     </record>

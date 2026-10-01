@@ -29,11 +29,16 @@
                         </group>
                     </group>
                     <field name="battle_unit_ids" readonly="1">
-                        <list>
+                        <list decoration-muted="is_dead" decoration-it="is_dead">
+                            <field name="is_dead" column_invisible="1"/>
                             <field name="avatar_128" widget="image" options="{'size': [24, 24]}" string=" "/>
                             <field name="name"/>
                             <field name="unit_type"/>
+                            <field name="origin" optional="show"/>
                             <field name="battle_faction_id"/>
+                            <field name="wound_state" widget="badge"
+                                decoration-success="wound_state == '4'" decoration-warning="wound_state in ('3', '2')"
+                                decoration-danger="wound_state in ('1', '0')"/>
                             <widget name="battle_unit_stats" options="{'compact': True}"/>
                         </list>
                     </field>
@@ -69,18 +74,19 @@
         <field name="name">battle.location.view.list</field>
         <field name="model">battle.location</field>
         <field name="arch" type="xml">
-            <list string="Locations">
+            <list string="Locations" decoration-muted="is_external">
                 <field name="sequence" widget="handle"/>
-                <field name="name"/>
+                <field name="display_name" string="Name"/>
                 <field name="linked_location_id"/>
                 <field name="status" widget="badge"
                     decoration-success="status == 'free'"
                     decoration-warning="status == 'contested'"
                     decoration-info="status == 'held'"/>
                 <field name="held_by_faction_id"/>
+                <field name="forces_summary"/>
                 <field name="battle_trait_ids" widget="many2many_tags"/>
                 <field name="is_umbra" optional="show"/>
-                <field name="is_external" optional="show"/>
+                <field name="is_external" column_invisible="1"/>
             </list>
         </field>
     </record>

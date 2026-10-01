@@ -1,13 +1,12 @@
 from odoo.addons.odoo_battle.tests.common import BattleCommon
 from odoo.exceptions import ValidationError
-from odoo.tests import tagged, users
+from odoo.tests import users
 
 
-@tagged('post_install', '-at_install')
-class TestBattleFaction(BattleCommon):
+class TestBattleFactionInternals(BattleCommon):
 
     @users('battle_admin')
-    def test_faction_camp(self):
+    def test_camp(self):
         """ Camp of a faction: itself, its ally if neutral, and neutral
         factions allied to those """
         good, bad = (self.faction_good + self.faction_bad).with_env(self.env)
@@ -15,15 +14,32 @@ class TestBattleFaction(BattleCommon):
             {'name': 'Test Neutral Good', 'role': 'neutral', 'allied_faction_id': good.id},
             {'name': 'Test Neutral Bad', 'role': 'neutral', 'allied_faction_id': bad.id},
         ])
-        self.assertEqual(good._get_camp(), good + neutral_good)
-        self.assertEqual(neutral_good._get_camp(), good + neutral_good)
-        self.assertEqual(neutral_bad._get_camp(), bad + neutral_bad)
+        for faction, camp in [(good, good + neutral_good), (neutral_good, good + neutral_good), (neutral_bad, bad + neutral_bad)]:
+            with self.subTest(faction=faction.name):
+                self.assertEqual(faction._get_camp(), camp)
 
     @users('battle_admin')
-    def test_faction_ally_constraints(self):
+    def test_constraints_ally(self):
         """ Only neutral factions have allies, never themselves """
         neutral = self.env['battle.faction'].create({'name': 'Test Neutral', 'role': 'neutral'})
         with self.assertRaises(ValidationError):
             self.faction_good.with_env(self.env).allied_faction_id = self.faction_bad
         with self.assertRaises(ValidationError):
             neutral.allied_faction_id = neutral
+
+    @users('battle_admin')
+    def test_morale(self):
+        """ Morale is given by the current round leadership roll, and carried
+        over to the next round """
+        good = self.faction_good.with_env(self.env)
+        line = self.battle_round.battle_round_leadership_ids.filtered(lambda line: line.battle_faction_id == good)
+        self.assertEqual((good.morale, line.morale), ('4', '4'))
+        good.morale = '2'
+        self.assertEqual(line.morale, '2')
+
+        next_round = self.env['battle.round'].create({})
+        self.assertEqual(good.morale, '2')
+        good.morale = '1'
+        self.assertRecordValues(line + next_round.battle_round_leadership_ids.filtered(lambda line: line.battle_faction_id == good), [
+            {'morale': '2'}, {'morale': '1'},
+        ])

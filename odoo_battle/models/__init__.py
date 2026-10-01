@@ -1,4 +1,5 @@
 from . import battle_faction
+from . import battle_leader
 from . import battle_outcome
 from . import battle_unit_stats_mixin
 from . import battle_unit_template

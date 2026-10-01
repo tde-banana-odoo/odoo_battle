@@ -1,4 +1,7 @@
-from odoo.tests import common, new_test_user
+from unittest.mock import patch
+
+from odoo.addons.odoo_battle.wizard.battle_solver import BattleSolver
+from odoo.tests import Form, common, new_test_user
 
 
 class BattleCommon(common.TransactionCase):
@@ -13,10 +16,12 @@ class BattleCommon(common.TransactionCase):
             {'name': 'Isca Augusta'},
             {'name': 'Londinium'},
         ])
+        # current round, holding factions morale
+        cls.battle_round = cls.env['battle.round'].create({})
         # good ones are aggressors, bad ones defend their places
         cls.faction_good, cls.faction_bad = cls.env['battle.faction'].create([
-            {'name': 'Test Good', 'sequence': 1, 'morale': 6, 'role': 'aggressor'},
-            {'name': 'Test Bad', 'sequence': 2, 'morale': 4, 'role': 'defender'},
+            {'name': 'Test Good', 'sequence': 1, 'morale': '4', 'role': 'aggressor'},
+            {'name': 'Test Bad', 'sequence': 2, 'morale': '3', 'role': 'defender'},
         ])
         traits = cls.env['battle.trait'].create([
             {'name': 'Test Fury', 'stance': 'attack', 'condition': 'win', 'effect': 'damage'},
@@ -35,7 +40,6 @@ class BattleCommon(common.TransactionCase):
                 'menace': 1, 'size': 2, 'rage': -1, 'willpower': -1, 'gnosis': -2, 'damage': 1, 'resistance': 0,
             },
         ])
-        cls.battle_round = cls.env['battle.round'].create({})
         # Isca: two good werewolves vs a bad vampire; Londinium: a bad vampire
         cls.unit_werewolf_1, cls.unit_werewolf_2, cls.unit_vampire_1, cls.unit_vampire_2 = cls.env['battle.unit'].create([
             {
@@ -56,3 +60,20 @@ class BattleCommon(common.TransactionCase):
                 'menace': 5, 'size': 3, 'rage': 2, 'willpower': 7, 'gnosis': 0, 'damage': 4, 'resistance': 14,
             },
         ])
+
+    def _new_solver_form(self, location):
+        """ Open solver like the 'Battle' button of location form view """
+        return Form(self.env['battle.solver'].with_context(active_model='battle.location', active_id=location.id))
+
+    def _battle(self, location, roll=(0, 0, 0)):
+        """ Solve a battle in ``location`` with a given dice ``roll`` """
+        solver = self._new_solver_form(location).save()
+        with patch.object(BattleSolver, '_roll_dice', return_value=list(roll)):
+            solver.action_battle()
+        return solver
+
+    def _get_bonus(self, solver):
+        """ Bonus as (initiators, responders, difference); changes on regular
+        models do not invalidate transient ones, as a new request would """
+        solver.invalidate_recordset()
+        return solver.initiator_bonus, solver.responder_bonus, solver.bonus

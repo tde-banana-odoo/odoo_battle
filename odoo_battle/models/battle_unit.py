@@ -1,7 +1,5 @@
 from odoo import api, fields, models
 
-from odoo.addons.odoo_battle.models.battle_unit_stats_mixin import TEMPLATE_FIELDS
-
 
 def _compute_from_template(fname):
     """ One compute per field: values given explicitly (e.g. at create or in
@@ -27,6 +25,13 @@ class BattleUnit(models.Model):
 
     name = fields.Char(required=True, translate=True)
     origin = fields.Char(translate=True)
+    is_dead = fields.Boolean("Dead", tracking=True, help="Dead units do not take part in battles anymore.")
+    wound_state = fields.Selection(
+        [('4', 'Unhurt'), ('3', 'Wounded'), ('2', 'Badly Wounded'), ('1', 'Critical'), ('0', 'Out of Combat')],
+        string="Wounds", default='4', required=True, tracking=True,
+        help="From 4 (unhurt) to 0: out of combat units do not take part in battles.",
+    )
+    is_fighting = fields.Boolean("Fighting", compute='_compute_is_fighting', store=True, help="Alive and not out of combat")
     battle_unit_template_id = fields.Many2one('battle.unit.template', string="Template", tracking=True)
     # type, statistics and traits: from template, editable
     unit_type = _template_field(fields.Selection, 'unit_type')
@@ -52,15 +57,23 @@ class BattleUnit(models.Model):
         for unit in self:
             unit.image_1920 = unit.battle_unit_template_id.image_1920 or unit._get_unit_type_glyph()
 
+    @api.depends('is_dead', 'wound_state')
+    def _compute_is_fighting(self):
+        for unit in self:
+            unit.is_fighting = not unit.is_dead and unit.wound_state != '0'
+
+    @api.depends('name', 'is_dead')
+    def _compute_display_name(self):
+        for unit in self:
+            unit.display_name = f"{unit.name} †" if unit.is_dead else unit.name
+
     def _load_records(self, data_list, update=False):
-        """ Data files (e.g. csv) only override template values they fill:
-        empty cells are loaded as False (while '0' gives 0), skip them. """
+        """ Data files (e.g. csv) only set values they fill: empty cells are
+        loaded as False (while '0' gives 0) and skipped. New units then get
+        template or default values, existing ones keep their current values
+        (e.g. wounds updated during the game). """
         for data in data_list:
-            if data['values'].get('battle_unit_template_id'):
-                data['values'] = {
-                    fname: value for fname, value in data['values'].items()
-                    if not (fname in TEMPLATE_FIELDS and value is False)
-                }
+            data['values'] = {fname: value for fname, value in data['values'].items() if value is not False}
         return super()._load_records(data_list, update=update)
 
     def write(self, vals):

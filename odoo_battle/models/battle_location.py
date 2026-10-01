@@ -35,6 +35,7 @@ class BattleLocation(models.Model):
     battle_unit_ids = fields.One2many(
         'battle.unit', 'battle_location_id', string="Units",
     )
+    forces_summary = fields.Char("Forces", compute='_compute_forces_summary', help="Fighting units per faction")
 
     @api.depends('status')
     def _compute_held_by_faction_id(self):
@@ -52,12 +53,28 @@ class BattleLocation(models.Model):
             if location.linked_location_id == location:
                 raise ValidationError(_("Location %s cannot be linked to itself.", location.name))
 
+    @api.depends('battle_unit_ids.is_fighting', 'battle_unit_ids.battle_faction_id')
+    def _compute_forces_summary(self):
+        for location in self:
+            location.forces_summary = ', '.join(f"{faction.name} {count}" for faction, count in location._get_forces())
+
+    def _get_forces(self):
+        """ Fighting units per faction, as a list of (faction, count) """
+        self.ensure_one()
+        units = self.battle_unit_ids.filtered(lambda unit: unit.is_fighting and unit.battle_faction_id)
+        return [(faction, len(faction_units)) for faction, faction_units in units.grouped('battle_faction_id').items()]
+
+    @api.depends('name', 'is_external')
+    def _compute_display_name(self):
+        for location in self:
+            location.display_name = _("%s (External)", location.name) if location.is_external else location.name
+
     def _get_battle_sides(self):
         """ Factions fighting in the location, as (initiators, responders).
         Responders: holders and their allies, or the defender camp if not
         held. Initiators: other factions present. """
         self.ensure_one()
-        factions = self.battle_unit_ids.battle_faction_id
+        factions = self.battle_unit_ids.filtered('is_fighting').battle_faction_id
         holders = self.held_by_faction_id or self.env['battle.faction'].search([('role', '=', 'defender')])
         camp = holders._get_camp()
         return factions - camp, factions & camp

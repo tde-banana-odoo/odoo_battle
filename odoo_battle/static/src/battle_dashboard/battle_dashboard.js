@@ -31,6 +31,11 @@ export class BattleDashboard extends Component {
         });
     }
 
+    async openLeadership(factionId) {
+        const action = await this.orm.call("battle.round", "action_open_leadership", [factionId]);
+        this.action.doAction(action, { onClose: () => this.load() });
+    }
+
     async startNextRound() {
         await this.orm.call("battle.round", "action_start_next_round", []);
         await this.load();

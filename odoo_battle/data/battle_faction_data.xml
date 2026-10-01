@@ -22,8 +22,12 @@
     </record>
     <record id="battle_faction_noot" model="battle.faction">
         <field name="name">Noot</field>
-        <field name="leader_name">Elisabeth Noot</field>
         <field name="sequence">5</field>
+        <field name="allied_faction_id" ref="battle_faction_kiker"/>
+    </record>
+    <record id="battle_faction_scotland" model="battle.faction">
+        <field name="name">Scotland</field>
+        <field name="sequence">6</field>
         <field name="allied_faction_id" ref="battle_faction_kiker"/>
     </record>
 </odoo>

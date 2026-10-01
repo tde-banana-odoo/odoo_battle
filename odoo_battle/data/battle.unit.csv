@@ -1,15 +1,15 @@
-id,name,origin,battle_unit_template_id/id,battle_faction_id/id,battle_location_id/id,unit_type,menace,size,rage,willpower,gnosis,damage,resistance,battle_trait_ids/id
-battle_unit_kiker_damnes,Les Damnés de Y Ddraig Wen,Isca Augusta,battle_unit_template_bsd_rank_3,battle_faction_kiker,battle_location_marais,,,,4,,,,,
-battle_unit_kiker_couvee_caerleon,Couvée de Caerleon,,battle_unit_template_bsd_rank_3,battle_faction_kiker,battle_location_marais,,,,,,,,,
-battle_unit_kiker_french_connection,French Connection,,battle_unit_template_bsd_rank_3,battle_faction_kiker,battle_location_marais,,,,2,2,,,,
-battle_unit_kiker_coterie_vieux,Coterie du Vieux,,battle_unit_template_vampire_coterie_g7,battle_faction_kiker,battle_location_hills,,,,,,,,,
-battle_unit_kiker_coterie_malk_nosfe,Coterie Malk/Nosfe,,battle_unit_template_vampire_coterie_g7,battle_faction_kiker,battle_location_hills,,,,,,,,,
-battle_unit_kiker_coterie_bru_gan,Coterie Bru/Gan,,battle_unit_template_vampire_coterie_g7,battle_faction_kiker,battle_location_hills,,,,,,,,,
-battle_unit_kiker_serviteurs_police,Serviteurs Police,,battle_unit_template_human_henchman,battle_faction_kiker,battle_location_hills,,,,,,,,,
-battle_unit_loch_chon_valkyries_tisiphone,Les Valkyries de Tisiphone,,battle_unit_template_werewolf_offense_rank_3,battle_faction_loch_chon,battle_location_king_industries,,,,,,,,,
-battle_unit_loch_chon_caches_voile,Cachés dans le Voile,,battle_unit_template_werewolf_defense_rank_3,battle_faction_loch_chon,battle_location_king_industries,,,,,,,,,
-battle_unit_loch_chon_griffes_nuit,Les Griffes de la Nuit,,battle_unit_template_werewolf_offense_rank_3,battle_faction_loch_chon,battle_location_hills,,,,,,,,,
-battle_unit_loch_chon_seconds_couteaux,Les Seconds Couteaux,,battle_unit_template_werewolf_defense_rank_3,battle_faction_loch_chon,battle_location_hills,,,,,,,,,
-battle_unit_loch_chon_serre_corbeau_tempete,Serre du Corbeau-Tempête,,battle_unit_template_werewolf_offense_rank_3,battle_faction_loch_chon,,,,,,,,,,
-battle_unit_loch_chon_parentele_walkhill,Parentèle Walkhill,,battle_unit_template_human_henchman,battle_faction_loch_chon,battle_location_route_centre,,,,,,,,,
-battle_unit_loch_chon_parentele_perth,Parentèle Perth,,battle_unit_template_human_henchman,battle_faction_loch_chon,battle_location_route_centre,,,,,,,,,
+id,name,origin,battle_unit_template_id/id,battle_faction_id/id,battle_location_id/id,is_dead,wound_state,unit_type,menace,size,rage,willpower,gnosis,damage,resistance,battle_trait_ids/id
+battle_unit_kiker_damnes,Les Damnés de Y Ddraig Wen,Isca Augusta,battle_unit_template_bsd_rank_3,battle_faction_kiker,battle_location_marais,,,,,,4,,,,,
+battle_unit_kiker_couvee_caerleon,Couvée de Caerleon,,battle_unit_template_bsd_rank_3,battle_faction_kiker,battle_location_marais,,,,,,,,,,,
+battle_unit_kiker_french_connection,French Connection,,battle_unit_template_bsd_rank_3,battle_faction_kiker,battle_location_marais,,,,,,2,2,,,,
+battle_unit_kiker_coterie_vieux,Coterie du Vieux,,battle_unit_template_vampire_coterie_g7,battle_faction_kiker,battle_location_hills,,,,,,,,,,,
+battle_unit_kiker_coterie_malk_nosfe,Coterie Malk/Nosfe,,battle_unit_template_vampire_coterie_g7,battle_faction_kiker,battle_location_hills,,,,,,,,,,,
+battle_unit_kiker_coterie_bru_gan,Coterie Bru/Gan,,battle_unit_template_vampire_coterie_g7,battle_faction_kiker,battle_location_hills,,,,,,,,,,,
+battle_unit_kiker_serviteurs_police,Serviteurs Police,,battle_unit_template_human_henchman,battle_faction_kiker,battle_location_hills,,,,,,,,,,,
+battle_unit_loch_chon_valkyries_tisiphone,Les Valkyries de Tisiphone,,battle_unit_template_werewolf_rank_3,battle_faction_loch_chon,battle_location_king_industries,,,,,,3,1,,,,battle_trait_fury
+battle_unit_loch_chon_caches_voile,Cachés dans le Voile,,battle_unit_template_werewolf_rank_3,battle_faction_loch_chon,battle_location_king_industries,,,,,,,,,,,battle_trait_counter_attack
+battle_unit_loch_chon_griffes_nuit,Les Griffes de la Nuit,,battle_unit_template_werewolf_rank_3,battle_faction_loch_chon,battle_location_hills,,,,,,3,1,,,,battle_trait_fury
+battle_unit_loch_chon_seconds_couteaux,Les Seconds Couteaux,,battle_unit_template_werewolf_rank_3,battle_faction_loch_chon,battle_location_hills,,,,,,,,,,,battle_trait_counter_attack
+battle_unit_loch_chon_serre_corbeau_tempete,Serre du Corbeau-Tempête,,battle_unit_template_werewolf_rank_3,battle_faction_loch_chon,,,,,,,3,1,,,,battle_trait_fury
+battle_unit_loch_chon_parentele_walkhill,Parentèle Walkhill,,battle_unit_template_human_henchman,battle_faction_loch_chon,battle_location_route_centre,,,,,,,,,,,
+battle_unit_loch_chon_parentele_perth,Parentèle Perth,,battle_unit_template_human_henchman,battle_faction_loch_chon,battle_location_route_centre,,,,,,,,,,,

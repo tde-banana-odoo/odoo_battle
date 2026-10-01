@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="battle_leader_kiker" model="battle.leader">
+        <field name="name">Kiker</field>
+        <field name="battle_faction_id" ref="battle_faction_kiker"/>
+    </record>
+    <record id="battle_leader_calamity_jane" model="battle.leader">
+        <field name="name">Calamity Jane</field>
+        <field name="battle_faction_id" ref="battle_faction_loch_chon"/>
+    </record>
+    <record id="battle_leader_hel" model="battle.leader">
+        <field name="name">Hel</field>
+        <field name="battle_faction_id" ref="battle_faction_hel"/>
+    </record>
+    <record id="battle_leader_retour_de_force" model="battle.leader">
+        <field name="name">Retour de Force</field>
+        <field name="battle_faction_id" ref="battle_faction_weaver"/>
+    </record>
+    <record id="battle_leader_elisabeth_noot" model="battle.leader">
+        <field name="name">Elisabeth Noot</field>
+        <field name="battle_faction_id" ref="battle_faction_noot"/>
+    </record>
+    <record id="battle_leader_byron_johnson" model="battle.leader">
+        <field name="name">Byron Johnson</field>
+        <field name="battle_faction_id" ref="battle_faction_scotland"/>
+    </record>
+
+    <!-- Faction leaders -->
+    <record id="battle_faction_kiker" model="battle.faction">
+        <field name="leader_id" ref="battle_leader_kiker"/>
+    </record>
+    <record id="battle_faction_loch_chon" model="battle.faction">
+        <field name="leader_id" ref="battle_leader_calamity_jane"/>
+    </record>
+    <record id="battle_faction_hel" model="battle.faction">
+        <field name="leader_id" ref="battle_leader_hel"/>
+    </record>
+    <record id="battle_faction_weaver" model="battle.faction">
+        <field name="leader_id" ref="battle_leader_retour_de_force"/>
+    </record>
+    <record id="battle_faction_noot" model="battle.faction">
+        <field name="leader_id" ref="battle_leader_elisabeth_noot"/>
+    </record>
+    <record id="battle_faction_scotland" model="battle.faction">
+        <field name="leader_id" ref="battle_leader_byron_johnson"/>
+    </record>
+</odoo>

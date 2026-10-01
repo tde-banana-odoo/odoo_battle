@@ -1,0 +1,63 @@
+<?xml version="1.0"?>
+<odoo>
+    <record id="battle_leader_view_form" model="ir.ui.view">
+        <field name="name">battle.leader.view.form</field>
+        <field name="model">battle.leader</field>
+        <field name="arch" type="xml">
+            <form string="Character">
+                <header>
+                    <field name="state" widget="statusbar" options="{'clickable': '1'}"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name" placeholder="e.g. Calamity Jane"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="battle_faction_id"/>
+                            <field name="battle_location_id"/>
+                        </group>
+                    </group>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="battle_leader_view_search" model="ir.ui.view">
+        <field name="name">battle.leader.view.search</field>
+        <field name="model">battle.leader</field>
+        <field name="arch" type="xml">
+            <search string="Search">
+                <field name="name"/>
+                <field name="battle_faction_id"/>
+                <field name="battle_location_id"/>
+                <group>
+                    <filter name="groupby_faction" string="Faction" context="{'group_by': 'battle_faction_id'}"/>
+                    <filter name="groupby_state" string="Status" context="{'group_by': 'state'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="battle_leader_view_list" model="ir.ui.view">
+        <field name="name">battle.leader.view.list</field>
+        <field name="model">battle.leader</field>
+        <field name="arch" type="xml">
+            <list string="Characters" decoration-muted="state in ('dead', 'mia')">
+                <field name="name"/>
+                <field name="battle_faction_id"/>
+                <field name="battle_location_id"/>
+                <field name="state" widget="badge"
+                    decoration-success="state == 'alive'" decoration-warning="state == 'routing'"
+                    decoration-danger="state == 'dead'"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="battle_leader_action" model="ir.actions.act_window">
+        <field name="name">Characters</field>
+        <field name="res_model">battle.leader</field>
+        <field name="view_mode">list,form</field>
+    </record>
+</odoo>

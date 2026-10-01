@@ -53,13 +53,13 @@ class BattleSolver(models.TransientModel):
         'battle.unit', 'battle_solver_initiator_unit_rel', 'solver_id', 'unit_id',
         string="Initiator Units",
         compute='_compute_initiator_unit_ids', store=True, readonly=False,
-        domain="[('battle_location_id', '=', battle_location_id), ('battle_faction_id', 'in', initiator_faction_ids)]",
+        domain="[('battle_location_id', '=', battle_location_id), ('battle_faction_id', 'in', initiator_faction_ids), ('is_fighting', '=', True)]",
     )
     responder_unit_ids = fields.Many2many(
         'battle.unit', 'battle_solver_responder_unit_rel', 'solver_id', 'unit_id',
         string="Responder Units",
         compute='_compute_responder_unit_ids', store=True, readonly=False,
-        domain="[('battle_location_id', '=', battle_location_id), ('battle_faction_id', 'in', responder_faction_ids)]",
+        domain="[('battle_location_id', '=', battle_location_id), ('battle_faction_id', 'in', responder_faction_ids), ('is_fighting', '=', True)]",
     )
     initiator_menace = fields.Integer("Initiators Menace", compute='_compute_menace')
     responder_menace = fields.Integer("Responders Menace", compute='_compute_menace')
@@ -135,15 +135,16 @@ class BattleSolver(models.TransientModel):
         for solver in self:
             solver.responder_unit_ids = solver._get_location_units(solver.responder_faction_ids)
 
-    def _get_location_units(self, factions=None):
-        """ Units in the location, optionally restricted to some factions """
+    def _get_location_units(self, factions):
+        """ Fighting units of ``factions`` in the location """
         self.ensure_one()
-        if not self.battle_location_id or (factions is not None and not factions):
+        if not self.battle_location_id or not factions:
             return self.env['battle.unit']
-        domain = [('battle_location_id', '=', self.battle_location_id.id)]
-        if factions is not None:
-            domain.append(('battle_faction_id', 'in', factions.ids))
-        return self.env['battle.unit'].search(domain)
+        return self.env['battle.unit'].search([
+            ('battle_location_id', '=', self.battle_location_id.id),
+            ('battle_faction_id', 'in', factions.ids),
+            ('is_fighting', '=', True),
+        ])
 
     @api.depends('initiator_unit_ids.menace', 'responder_unit_ids.menace')
     def _compute_menace(self):
@@ -245,6 +246,7 @@ class BattleSolver(models.TransientModel):
         # leadership
         morale_initiator = self._get_side_morale(initiators, self.initiator_faction_ids)
         morale_responder = self._get_side_morale(responders, self.responder_faction_ids)
+        morale_labels = dict(self.env['battle.faction']._fields['morale']._description_selection(self.env))
 
         return [
             self._bonus_line(
@@ -261,7 +263,7 @@ class BattleSolver(models.TransientModel):
             ),
             self._bonus_line(
                 'leadership', _("Morale"),
-                _("%(initiator)s vs %(responder)s", initiator=morale_initiator, responder=morale_responder),
+                _("%(initiator)s vs %(responder)s", initiator=morale_labels[str(morale_initiator)], responder=morale_labels[str(morale_responder)]),
                 -1 if morale_initiator <= 2 else 0, -1 if morale_responder <= 2 else 0,
             ),
         ] + self._get_trait_bonus_lines()
@@ -311,12 +313,11 @@ class BattleSolver(models.TransientModel):
 
     @api.model
     def _get_side_morale(self, units, factions):
-        """ Morale of the faction having most units in the side (first faction
-        in case of tie), defaulting to the first side faction. """
+        """ Morale (0 to 4) of the faction having most units in the side
+        (first faction in case of tie), defaulting to the first side faction. """
         counts = Counter(unit.battle_faction_id for unit in units if unit.battle_faction_id)
-        if counts:
-            return max(units.battle_faction_id.sorted(), key=lambda f: counts[f]).morale
-        return factions.sorted()[:1].morale
+        faction = max(units.battle_faction_id.sorted(), key=lambda f: counts[f]) if counts else factions.sorted()[:1]
+        return int(faction.morale or 3)
 
     # ------------------------------------------------------------
     # TRAITS AND DAMAGE

@@ -3,9 +3,6 @@ from odoo.exceptions import ValidationError
 from odoo.tools import BinaryBytes
 from odoo.tools.misc import file_open
 
-# fields a unit gets from its template
-TEMPLATE_FIELDS = ['image_1920', 'unit_type', 'menace', 'size', 'rage', 'willpower', 'gnosis', 'damage', 'resistance', 'battle_trait_ids']
-
 
 class BattleUnitStatsMixin(models.AbstractModel):
     """ Type, image, statistics and traits of units, shared by units and
@@ -19,9 +16,12 @@ class BattleUnitStatsMixin(models.AbstractModel):
             ('werewolf', 'Werewolf'),
             ('bsd', 'Black Spiral Dancer'),
             ('vampire', 'Vampire'),
+            ('ghoul', 'Ghoul'),
             ('human', 'Human'),
+            ('human_armored', 'Armored Human'),
             ('spirit', 'Spirit'),
             ('possessed', 'Possessed'),
+            ('fomori', 'Fomori'),
         ], string="Unit Type", required=True,
     )
     image_1920 = fields.Image(compute='_compute_image_1920', store=True, readonly=False)

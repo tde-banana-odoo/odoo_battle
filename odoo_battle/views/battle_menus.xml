@@ -6,20 +6,21 @@
         web_icon="odoo_battle,static/img/beastmen.png"
         sequence="5">
         <menuitem id="battle_dashboard_menu" name="Dashboard" action="odoo_battle.battle_dashboard_action" sequence="0"/>
-        <menuitem id="battle_unit_menu_head" name="Units" sequence="1">
-            <menuitem id="battle_unit_menu" name="Units" action="odoo_battle.battle_unit_action" sequence="1"/>
-            <menuitem id="battle_faction_menu" name="Factions" action="odoo_battle.battle_faction_action" sequence="2"/>
-            <menuitem id="battle_unit_template_menu" name="Templates" action="odoo_battle.battle_unit_template_action" sequence="3"/>
-            <menuitem id="battle_trait_menu" name="Traits" action="odoo_battle.battle_trait_action" sequence="4"/>
+        <menuitem id="battle_unit_menu_head" name="Units" sequence="10">
+            <menuitem id="battle_unit_menu" name="Units" action="odoo_battle.battle_unit_action" sequence="10"/>
+            <menuitem id="battle_faction_menu" name="Factions" action="odoo_battle.battle_faction_action" sequence="20"/>
+            <menuitem id="battle_leader_menu" name="Characters" action="odoo_battle.battle_leader_action" sequence="30"/>
+            <menuitem id="battle_unit_template_menu" name="Templates" action="odoo_battle.battle_unit_template_action" sequence="40"/>
         </menuitem>
-        <menuitem id="battle_location_menu" name="Locations" action="odoo_battle.battle_location_action" sequence="10"/>
-        <menuitem id="battle_menu_head" name="Battles" sequence="20">
-            <menuitem id="battle_solver_menu" name="Battle Solver" action="odoo_battle.battle_solver_action" groups="base.group_system" sequence="1"/>
-            <menuitem id="battle_round_menu" name="Rounds" action="odoo_battle.battle_round_action" sequence="2"/>
-            <menuitem id="battle_result_menu" name="Results" action="odoo_battle.battle_result_action" sequence="3"/>
+        <menuitem id="battle_location_menu" name="Locations" action="odoo_battle.battle_location_action" sequence="20"/>
+        <menuitem id="battle_menu_head" name="Battles" sequence="30">
+            <menuitem id="battle_round_menu" name="Rounds" action="odoo_battle.battle_round_action" sequence="10"/>
+            <menuitem id="battle_result_menu" name="Results" action="odoo_battle.battle_result_action" sequence="20"/>
+            <menuitem id="battle_solver_menu" name="Solver" action="odoo_battle.battle_solver_action" groups="base.group_system" sequence="30"/>
         </menuitem>
         <menuitem id="battle_config_menu_head" name="Configuration" groups="base.group_system" sequence="100">
-            <menuitem id="battle_outcome_menu" name="Outcomes" action="odoo_battle.battle_outcome_action" sequence="10"/>
+            <menuitem id="battle_trait_menu" name="Traits" action="odoo_battle.battle_trait_action" sequence="10"/>
+            <menuitem id="battle_outcome_menu" name="Outcomes" action="odoo_battle.battle_outcome_action" sequence="20"/>
         </menuitem>
     </menuitem>
 </odoo>
