@@ -1,0 +1,55 @@
+<?xml version="1.0"?>
+<odoo>
+    <record id="battle_round_view_form" model="ir.ui.view">
+        <field name="name">battle.round.view.form</field>
+        <field name="model">battle.round</field>
+        <field name="arch" type="xml">
+            <form string="Round">
+                <sheet>
+                    <div class="oe_title">
+                        <h1>Round <field name="round_number" class="oe_inline"/></h1>
+                    </div>
+                    <notebook>
+                        <page string="Leadership" name="leadership">
+                            <field name="battle_round_leadership_ids">
+                                <list editable="bottom">
+                                    <field name="battle_faction_id"/>
+                                    <field name="successes"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Battles" name="battles">
+                            <field name="battle_result_ids" readonly="1">
+                                <list decoration-muted="state == 'cancel'">
+                                    <field name="battle_location_id"/>
+                                    <field name="initiator_faction_ids" widget="many2many_tags"/>
+                                    <field name="responder_faction_ids" widget="many2many_tags"/>
+                                    <field name="battle_outcome_id"/>
+                                    <field name="state" widget="badge" decoration-success="state == 'done'"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+                <chatter/>
+            </form>
+        </field>
+    </record>
+
+    <record id="battle_round_view_list" model="ir.ui.view">
+        <field name="name">battle.round.view.list</field>
+        <field name="model">battle.round</field>
+        <field name="arch" type="xml">
+            <list string="Rounds">
+                <field name="round_number"/>
+                <field name="battle_result_ids" string="Battles" widget="many2many_tags"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="battle_round_action" model="ir.actions.act_window">
+        <field name="name">Rounds</field>
+        <field name="res_model">battle.round</field>
+        <field name="view_mode">list,form</field>
+    </record>
+</odoo>

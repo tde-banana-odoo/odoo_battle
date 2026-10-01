@@ -10,12 +10,15 @@
     'data': [
         'security/ir.access.csv',
         'wizard/battle_solver_views.xml',
+        'views/battle_result_views.xml',
+        'views/battle_round_views.xml',
         'views/battle_faction_views.xml',
         'views/battle_outcome_views.xml',
         'views/battle_location_views.xml',
         'views/battle_trait_views.xml',
         'views/battle_unit_template_views.xml',
         'views/battle_unit_views.xml',
+        'views/battle_dashboard_views.xml',
         'views/battle_menus.xml',
         'data/battle_trait_data.xml',
         'data/battle_location_data.xml',
@@ -23,6 +26,8 @@
         'data/battle_outcome_data.xml',
         'data/battle.unit.template.csv',
         'data/battle.unit.csv',
+        'data/battle_round_data.xml',
+        'data/battle.round.leadership.csv',
     ],
     'assets': {
         'web.assets_backend': [

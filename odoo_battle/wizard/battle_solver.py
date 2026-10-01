@@ -6,13 +6,13 @@ from odoo import api, fields, models, _
 from odoo.exceptions import UserError
 
 from odoo.addons.odoo_battle.models.battle_outcome import OUTCOME_SCORE_MAX, OUTCOME_SCORE_MIN
+from odoo.addons.odoo_battle.models.battle_result import STANCES
 
 # a battle is solved using a single throw of DICE_COUNT dice, each giving one of DICE_FACES
 DICE_FACES = (-1, 0, 1)
 DICE_COUNT = 3
 
 SIDES = ('initiator', 'responder')
-STANCES = [('attack', 'Attack'), ('defense', 'Defend')]
 
 
 class BattleSolver(models.TransientModel):
@@ -23,6 +23,10 @@ class BattleSolver(models.TransientModel):
     _name = 'battle.solver'
     _description = "Battle Solver"
 
+    battle_round_id = fields.Many2one(
+        'battle.round', string="Round",
+        default=lambda self: self.env['battle.round']._get_current(),
+    )
     # localization
     battle_location_id = fields.Many2one(
         'battle.location', string="Location", required=True,
@@ -85,6 +89,11 @@ class BattleSolver(models.TransientModel):
         "Result", compute='_compute_result', store=True, readonly=False,
     )
     result_summary = fields.Html("Result Summary", compute='_compute_result_summary', sanitize=False)
+    battle_result_id = fields.Many2one('battle.result', string="Logged Result", readonly=True)
+    existing_battle_result_id = fields.Many2one(
+        'battle.result', string="Existing Result", compute='_compute_existing_battle_result_id',
+        help="Battle already solved in this location for this round, replaced if battling again.",
+    )
 
     def _default_battle_location_id(self):
         if self.env.context.get('active_model') == 'battle.location':
@@ -99,17 +108,22 @@ class BattleSolver(models.TransientModel):
                 {'location': solver.battle_location_id},
             ) if solver.battle_location_id else False
 
+    @api.depends('battle_round_id', 'battle_location_id', 'battle_result_id')
+    def _compute_existing_battle_result_id(self):
+        for solver in self:
+            solver.existing_battle_result_id = self.env['battle.result'].search([
+                ('battle_round_id', '=', solver.battle_round_id.id),
+                ('battle_location_id', '=', solver.battle_location_id.id),
+                ('state', '=', 'done'),
+            ], limit=1) if solver.battle_round_id and solver.battle_location_id else False
+
     @api.depends('battle_location_id')
     def _compute_faction_ids(self):
-        """ Responders: holders of the location and their allies, or the
-        defender camp if the location is not held. Initiators: other factions
-        present in the location. """
         for solver in self:
-            factions = solver._get_location_units().battle_faction_id
-            holder = solver.battle_location_id.held_by_faction_id
-            camp = (holder or self.env['battle.faction'].search([('role', '=', 'defender')]))._get_camp()
-            solver.responder_faction_ids = factions & camp
-            solver.initiator_faction_ids = factions - camp
+            if solver.battle_location_id:
+                solver.initiator_faction_ids, solver.responder_faction_ids = solver.battle_location_id._get_battle_sides()
+            else:
+                solver.initiator_faction_ids = solver.responder_faction_ids = False
 
     @api.depends('battle_location_id', 'initiator_faction_ids')
     def _compute_initiator_unit_ids(self):
@@ -390,6 +404,8 @@ class BattleSolver(models.TransientModel):
         """ Roll the dice """
         # TDE TODO: apply battle consequences on units
         self._check_battle()
+        if any(not solver.battle_round_id for solver in self):
+            raise UserError(_("Battles are logged in a round: please create one first."))
         outcomes = self.env['battle.outcome'].search([])
         for solver in self:
             roll = solver._roll_dice()
@@ -413,7 +429,30 @@ class BattleSolver(models.TransientModel):
                     to_responders=to_responders, to_initiators=to_initiators,
                 ),
             })
+            # replace result already solved for this round, if any
+            solver.existing_battle_result_id.action_cancel()
+            self.env['battle.result'].flush_model(['state'])
+            solver.battle_result_id = self.env['battle.result'].create(solver._prepare_battle_result_values())
         return self._action_reopen()
+
+    def _prepare_battle_result_values(self):
+        self.ensure_one()
+        return {
+            'battle_round_id': self.battle_round_id.id,
+            'battle_location_id': self.battle_location_id.id,
+            **{
+                fname: self[fname].ids if self._fields[fname].type == 'many2many' else self[fname]
+                for side in SIDES
+                for fname in (f'{side}_faction_ids', f'{side}_stance', f'{side}_unit_ids')
+            },
+            'bonus': self.bonus,
+            'dice_roll': self.dice_roll,
+            'result_score': self.result_score,
+            'battle_outcome_id': self.battle_outcome_id.id,
+            'damage_to_initiators': self.damage_to_initiators,
+            'damage_to_responders': self.damage_to_responders,
+            'result_message': self.result_message,
+        }
 
     def _check_battle(self):
         for solver in self:

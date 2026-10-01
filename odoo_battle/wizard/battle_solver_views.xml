@@ -6,8 +6,18 @@
         <field name="arch" type="xml">
             <form string="Battle Solver" dialog_size="xl">
                 <group>
-                    <field name="battle_location_id"/>
+                    <group>
+                        <field name="battle_location_id"/>
+                    </group>
+                    <group>
+                        <field name="battle_round_id"/>
+                        <field name="battle_result_id" invisible="not battle_result_id"/>
+                    </group>
                 </group>
+                <div role="alert" class="alert alert-warning"
+                    invisible="not existing_battle_result_id or existing_battle_result_id == battle_result_id">
+                    A battle has already been solved here for this round: battling again replaces it.
+                </div>
                 <field name="battle_location_summary" nolabel="1" readonly="1"
                     invisible="not battle_location_id"/>
                 <div class="row g-3">
@@ -54,7 +64,11 @@
                 <field name="result_summary" nolabel="1" readonly="1" invisible="mode != 'battle'"/>
                 <footer>
                     <button name="action_simulate" type="object" string="Simulate" class="btn-primary"/>
-                    <button name="action_battle" type="object" string="Battle" class="btn-secondary"/>
+                    <button name="action_battle" type="object" string="Battle" class="btn-secondary"
+                        invisible="existing_battle_result_id"/>
+                    <button name="action_battle" type="object" string="Replace Battle" class="btn-secondary"
+                        invisible="not existing_battle_result_id"
+                        confirm="This cancels the result already solved here for this round. Continue?"/>
                     <button special="cancel" string="Close" class="btn-secondary"/>
                 </footer>
             </form>

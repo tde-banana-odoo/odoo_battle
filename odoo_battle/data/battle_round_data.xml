@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- leadership rolls are in battle.round.leadership.csv -->
+    <record id="battle_round_1" model="battle.round">
+        <field name="round_number">1</field>
+        <field name="battle_round_leadership_ids" eval="[]"/>
+    </record>
+    <record id="battle_round_2" model="battle.round">
+        <field name="round_number">2</field>
+        <field name="battle_round_leadership_ids" eval="[]"/>
+    </record>
+    <record id="battle_round_3" model="battle.round">
+        <field name="round_number">3</field>
+        <field name="battle_round_leadership_ids" eval="[]"/>
+    </record>
+</odoo>

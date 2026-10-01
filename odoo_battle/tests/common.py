@@ -35,6 +35,7 @@ class BattleCommon(common.TransactionCase):
                 'menace': 1, 'size': 2, 'rage': -1, 'willpower': -1, 'gnosis': -2, 'damage': 1, 'resistance': 0,
             },
         ])
+        cls.battle_round = cls.env['battle.round'].create({})
         # Isca: two good werewolves vs a bad vampire; Londinium: a bad vampire
         cls.unit_werewolf_1, cls.unit_werewolf_2, cls.unit_vampire_1, cls.unit_vampire_2 = cls.env['battle.unit'].create([
             {

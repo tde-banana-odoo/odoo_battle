@@ -5,3 +5,5 @@ from . import battle_unit_template
 from . import battle_unit
 from . import battle_location
 from . import battle_trait
+from . import battle_round
+from . import battle_result

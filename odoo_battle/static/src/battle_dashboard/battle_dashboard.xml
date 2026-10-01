@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="odoo_battle.BattleDashboard">
+        <t t-set="data" t-value="this.state.data"/>
+        <div class="o_action h-100 overflow-auto bg-view p-4">
+            <div class="d-flex flex-wrap align-items-center gap-3 mb-4">
+                <h1 class="mb-0" t-out="data.round ? data.round.name : 'No round yet'"/>
+                <button t-if="data.round" class="btn btn-secondary" t-on-click="() => this.openRecord('battle.round', data.round.id)">Open Round</button>
+                <button t-if="data.is_admin" class="btn btn-primary" t-on-click="() => this.startNextRound()">Start Next Round</button>
+            </div>
+            <div class="row g-4">
+                <div class="col-xl-6">
+                    <h4>Factions</h4>
+                    <table class="table table-sm table-hover">
+                        <thead>
+                            <tr><th>Faction</th><th>Role</th><th class="text-end">Units</th><th class="text-end">Morale</th><th class="text-end">Leadership</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr t-foreach="data.factions" t-as="faction" t-key="faction.id" class="cursor-pointer"
+                                t-on-click="() => this.openRecord('battle.faction', faction.id)">
+                                <td t-out="faction.name"/>
+                                <td>
+                                    <t t-out="faction.role"/>
+                                    <span t-if="faction.ally" class="text-muted"> (ally of <t t-out="faction.ally"/>)</span>
+                                </td>
+                                <td class="text-end" t-out="faction.unit_count"/>
+                                <td class="text-end" t-out="faction.morale"/>
+                                <td class="text-end" t-out="faction.leadership ?? '-'"/>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <t t-if="data.unplaced_units?.length">
+                        <h4>Unplaced Units</h4>
+                        <div class="d-flex flex-wrap gap-2">
+                            <button t-foreach="data.unplaced_units" t-as="unit" t-key="unit.id" class="btn btn-sm btn-secondary"
+                                t-on-click="() => this.openRecord('battle.unit', unit.id)">
+                                <t t-out="unit.name"/> <span class="text-muted" t-out="unit.faction"/>
+                            </button>
+                        </div>
+                    </t>
+                </div>
+                <div class="col-xl-6">
+                    <h4>Battles to Solve</h4>
+                    <p t-if="!data.pending?.length" class="text-muted">No location with opposing forces left to solve this round.</p>
+                    <table t-else="" class="table table-sm align-middle">
+                        <tbody>
+                            <tr t-foreach="data.pending" t-as="location" t-key="location.id">
+                                <td class="fw-bold" t-out="location.name"/>
+                                <td><t t-out="location.initiators.join(', ')"/> <span class="text-muted">vs</span> <t t-out="location.responders.join(', ')"/></td>
+                                <td class="text-end">
+                                    <button t-if="data.is_admin and data.round" class="btn btn-sm btn-primary" t-on-click="() => this.openSolver(location.id)">Solve</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h4>Battles Solved</h4>
+                    <p t-if="!data.results?.length" class="text-muted">No battle solved yet this round.</p>
+                    <table t-else="" class="table table-sm table-hover">
+                        <thead>
+                            <tr><th>Location</th><th>Sides</th><th>Outcome</th><th class="text-end">Damage</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr t-foreach="data.results" t-as="result" t-key="result.id" class="cursor-pointer"
+                                t-on-click="() => this.openRecord('battle.result', result.id)">
+                                <td t-out="result.location"/>
+                                <td><t t-out="result.initiators.join(', ')"/> <span class="text-muted">vs</span> <t t-out="result.responders.join(', ')"/></td>
+                                <td t-att-class="result.score > 0 ? 'text-success' : result.score &lt; 0 ? 'text-danger' : ''">
+                                    <t t-out="result.outcome"/> (<t t-out="result.score > 0 ? '+' + result.score : result.score"/>)
+                                </td>
+                                <td class="text-end text-nowrap" title="Damage to responders / to initiators">
+                                    <t t-out="result.damage_to_responders"/> / <t t-out="result.damage_to_initiators"/>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </t>
+
+</templates>

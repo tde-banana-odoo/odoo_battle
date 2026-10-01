@@ -52,6 +52,16 @@ class BattleLocation(models.Model):
             if location.linked_location_id == location:
                 raise ValidationError(_("Location %s cannot be linked to itself.", location.name))
 
+    def _get_battle_sides(self):
+        """ Factions fighting in the location, as (initiators, responders).
+        Responders: holders and their allies, or the defender camp if not
+        held. Initiators: other factions present. """
+        self.ensure_one()
+        factions = self.battle_unit_ids.battle_faction_id
+        holders = self.held_by_faction_id or self.env['battle.faction'].search([('role', '=', 'defender')])
+        camp = holders._get_camp()
+        return factions - camp, factions & camp
+
     @api.model_create_multi
     def create(self, vals_list):
         locations = super().create(vals_list)
