@@ -12,7 +12,8 @@
     </record>
     <record id="battle_faction_hel" model="battle.faction">
         <field name="name">Hel</field>
-        <field name="allied_faction_id" ref="battle_faction_loch_chon"/>
+        <!-- officially with Kiker, secretly allied to Loch Chon -->
+        <field name="allied_faction_id" ref="battle_faction_kiker"/>
         <field name="sequence">3</field>
     </record>
     <record id="battle_faction_weaver" model="battle.faction">
