@@ -10,6 +10,8 @@
     'data': [
         'security/ir.access.csv',
         'wizard/battle_solver_views.xml',
+        'wizard/battle_unit_sheet_wizard_views.xml',
+        'report/battle_unit_sheet_templates.xml',
         'views/battle_result_views.xml',
         'views/battle_round_views.xml',
         'views/battle_faction_views.xml',

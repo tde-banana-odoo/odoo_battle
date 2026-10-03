@@ -11,6 +11,7 @@
             <menuitem id="battle_faction_menu" name="Factions" action="odoo_battle.battle_faction_action" sequence="20"/>
             <menuitem id="battle_leader_menu" name="Characters" action="odoo_battle.battle_leader_action" sequence="30"/>
             <menuitem id="battle_unit_template_menu" name="Templates" action="odoo_battle.battle_unit_template_action" sequence="40"/>
+            <menuitem id="battle_unit_sheet_wizard_menu" name="Print Blank Sheets" action="odoo_battle.battle_unit_sheet_wizard_action" sequence="50"/>
         </menuitem>
         <menuitem id="battle_location_menu" name="Locations" action="odoo_battle.battle_location_action" sequence="20"/>
         <menuitem id="battle_menu_head" name="Battles" sequence="30">

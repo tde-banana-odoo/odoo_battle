@@ -21,3 +21,4 @@ access_battle_result_user,battle.result.user,battle.result,base.group_user_regul
 access_battle_result_admin,battle.result.admin,battle.result,base.group_system,crud,
 access_battle_leader_user,battle.leader.user,battle.leader,base.group_user_regular,r,
 access_battle_leader_admin,battle.leader.admin,battle.leader,base.group_system,crud,
+access_battle_unit_sheet_wizard_user,battle.unit.sheet.wizard.user,battle.unit.sheet.wizard,base.group_user_regular,crud,
