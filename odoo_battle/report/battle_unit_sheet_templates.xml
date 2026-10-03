@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="paperformat_unit_sheet" model="report.paperformat">
+        <field name="name">Unit Sheets (A4, 10 per page)</field>
+        <field name="format">A4</field>
+        <field name="orientation">Portrait</field>
+        <field name="margin_top">10</field>
+        <field name="margin_bottom">10</field>
+        <field name="margin_left">10</field>
+        <field name="margin_right">10</field>
+        <field name="header_spacing">0</field>
+        <field name="disable_shrinking" eval="True"/>
+        <field name="dpi">96</field>
+    </record>
+
+    <record id="action_report_unit_sheet" model="ir.actions.report">
+        <field name="name">Unit Sheets</field>
+        <field name="model">battle.unit</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">odoo_battle.report_unit_sheet</field>
+        <field name="print_report_name">'Unit Sheets'</field>
+        <field name="paperformat_id" ref="paperformat_unit_sheet"/>
+        <field name="binding_model_id" ref="model_battle_unit"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <!-- One card: 70x50mm, absolute positioning (in mm) for reliable printing -->
+    <template id="report_unit_sheet_card">
+        <div class="o_bs_card" t-att-style="'left: %smm; top: %smm' % (sheet_left, sheet_top)">
+            <!-- header -->
+            <div class="o_bs_head">
+                <span class="o_bs_name" t-out="sheet['name']"
+                    t-att-style="'font-size: %spt' % (8.5 if len(sheet['name']) &lt;= 24 else 7 if len(sheet['name']) &lt;= 30 else 6)"/>
+                <span t-if="sheet['template']" class="o_bs_template" t-out="sheet['template']"/>
+                <span t-else="" class="o_bs_faction" t-out="sheet['faction']"/>
+                <span t-if="sheet['blank']" class="o_bs_fill"/>
+            </div>
+            <!-- left: size (NATO-like dots), glyph, menace (stars) -->
+            <div class="o_bs_size" title="Size">
+                <t t-if="sheet['size'] is None">&#9675;&#9675;&#9675;</t>
+                <t t-else="" t-out="'&#9679;' * max(sheet['size'], 0)"/>
+            </div>
+            <img t-if="sheet['image']" class="o_bs_glyph" t-att-src="sheet['image']"/>
+            <div t-else="" class="o_bs_glyph o_bs_glyph_empty"/>
+            <div class="o_bs_menace" title="Menace">
+                <t t-if="sheet['menace'] is None">&#9734;&#9734;&#9734;&#9734;</t>
+                <t t-else="" t-out="'&#9733;' * max(sheet['menace'], 0)"/>
+            </div>
+            <!-- center: Rage / Gnose / Volonté, then Dégâts / Résistance -->
+            <t t-foreach="[('R', 'Rage', 'rage'), ('G', 'Gnose', 'gnosis'), ('V', 'Volonté', 'willpower')]" t-as="stat">
+                <div class="o_bs_label" t-att-style="'left: %smm; top: 8.3mm; width: 9mm' % (18.5 + stat_index * 9.6)" t-out="stat[1]"/>
+                <div class="o_bs_stat" t-att-style="'left: %smm; top: 11.5mm; width: 9mm' % (18.5 + stat_index * 9.6)">
+                    <t t-if="sheet[stat[2]] is not None" t-out="sheet[stat[2]]"/>
+                </div>
+            </t>
+            <t t-foreach="[('Dégâts', 'damage'), ('Résistance', 'resistance')]" t-as="stat">
+                <div class="o_bs_label" t-att-style="'left: %smm; top: 21.3mm; width: 13.9mm' % (18.5 + stat_index * 14.4)" t-out="stat[0]"/>
+                <div class="o_bs_stat o_bs_stat_combat" t-att-style="'left: %smm; top: 24.5mm; width: 13.9mm' % (18.5 + stat_index * 14.4)">
+                    <t t-if="sheet[stat[1]] is not None" t-out="sheet[stat[1]]"/>
+                </div>
+            </t>
+            <!-- right: wounds track, tokens zone -->
+            <div class="o_bs_label o_bs_label_left" style="left: 48.5mm; top: 8.3mm">Blessures</div>
+            <t t-foreach="['Blessé', 'Grave', 'Critique', 'Hors combat']" t-as="wound">
+                <div class="o_bs_wound" t-att-style="'top: %smm' % (11.6 + wound_index * 4.2)">
+                    <span t-attf-class="o_bs_box #{'o_bs_box_checked' if wound_index &lt; sheet['wounds'] else ''}"/>
+                    <t t-out="wound"/>
+                </div>
+            </t>
+            <div class="o_bs_tokens">Marqueurs</div>
+            <!-- bottom: traits -->
+            <div class="o_bs_traits" style="top: 38.6mm">
+                <b>Combat</b> <t t-out="', '.join(sheet['battle_traits'])"/>
+            </div>
+            <div class="o_bs_traits o_bs_traits_lore" style="top: 43.8mm">
+                <b>Lore</b> <t t-out="', '.join(sheet['lore_traits'])"/>
+            </div>
+        </div>
+    </template>
+
+    <template id="report_unit_sheet">
+        <t t-call="web.basic_layout">
+            <style>
+                .o_bs_page { position: relative; width: 190mm; height: 277mm; page-break-after: always; }
+                .o_bs_page:last-child { page-break-after: auto; }
+                .o_bs_card {
+                    position: absolute; width: 70mm; height: 50mm; box-sizing: border-box;
+                    border: 0.3mm solid #444; border-radius: 2mm; overflow: hidden;
+                    font-family: 'DejaVu Sans', sans-serif; color: #222;
+                }
+                .o_bs_card div, .o_bs_card img { position: absolute; box-sizing: border-box; }
+                .o_bs_head { left: 0; top: 0; width: 70mm; height: 7mm; background: #e6e6e6; border-bottom: 0.3mm solid #444; }
+                .o_bs_name { position: absolute; left: 2mm; top: 1.2mm; width: 47mm; font-size: 8.5pt; font-weight: bold; white-space: nowrap; overflow: hidden; }
+                .o_bs_faction { position: absolute; right: 2mm; top: 1.8mm; max-width: 24mm; font-size: 6pt; color: #555; white-space: nowrap; overflow: hidden; }
+                .o_bs_fill { position: absolute; left: 2mm; top: 5.2mm; width: 36mm; border-bottom: 0.3mm solid #aaa; }
+                .o_bs_template { position: absolute; right: 1.5mm; top: 2.2mm; width: 29mm; text-align: right; font-size: 4.8pt; color: #777; white-space: nowrap; overflow: hidden; }
+                .o_bs_size { left: 1.5mm; top: 8.5mm; width: 15mm; text-align: center; font-size: 6pt; letter-spacing: 0.5mm; }
+                .o_bs_glyph { left: 2.5mm; top: 12mm; width: 13mm; height: 13mm; border-radius: 1.5mm; }
+                .o_bs_glyph_empty { border: 0.3mm dashed #999; }
+                .o_bs_menace { left: 0.5mm; top: 26.5mm; width: 17mm; text-align: center; font-size: 7.5pt; letter-spacing: 0.2mm; }
+                .o_bs_label { font-size: 4.6pt; text-align: center; text-transform: uppercase; color: #555; }
+                .o_bs_label_left { text-align: left; }
+                .o_bs_stat {
+                    height: 8.5mm; border: 0.3mm solid #444; border-radius: 1mm;
+                    font-size: 13pt; font-weight: bold; text-align: center; line-height: 8mm;
+                }
+                .o_bs_stat_combat { background: #f0f0f0; }
+                .o_bs_wound { left: 48.5mm; width: 21mm; height: 4mm; font-size: 5.5pt; line-height: 3.4mm; white-space: nowrap; }
+                .o_bs_box { display: inline-block; width: 3mm; height: 3mm; border: 0.3mm solid #444; margin-right: 0.8mm; vertical-align: middle; }
+                .o_bs_box_checked { background: #444; }
+                .o_bs_tokens {
+                    left: 48.5mm; top: 29.2mm; width: 19.5mm; height: 8mm; border: 0.3mm dashed #999; border-radius: 1mm;
+                    font-size: 4.6pt; color: #999; text-align: center; text-transform: uppercase; padding-top: 0.5mm;
+                }
+                .o_bs_traits {
+                    left: 2mm; width: 66mm; height: 5mm; font-size: 6pt; line-height: 4.6mm;
+                    border-bottom: 0.3mm solid #ccc; white-space: nowrap; overflow: hidden;
+                }
+                .o_bs_traits b { font-size: 4.6pt; text-transform: uppercase; color: #555; margin-right: 1mm; }
+                .o_bs_traits_lore { font-style: italic; }
+            </style>
+            <div t-foreach="pages" t-as="page" class="o_bs_page">
+                <t t-foreach="page" t-as="sheet">
+                    <t t-set="sheet_left" t-value="20 + (sheet_index % 2) * 80"/>
+                    <t t-set="sheet_top" t-value="(sheet_index // 2) * 55"/>
+                    <t t-call="odoo_battle.report_unit_sheet_card"/>
+                </t>
+            </div>
+        </t>
+    </template>
+</odoo>

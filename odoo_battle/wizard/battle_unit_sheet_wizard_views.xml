@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<odoo>
+    <record id="battle_unit_sheet_wizard_view_form" model="ir.ui.view">
+        <field name="name">battle.unit.sheet.wizard.view.form</field>
+        <field name="model">battle.unit.sheet.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Print Blank Unit Sheets">
+                <p class="text-muted">
+                    Sheets of 70x50mm, 10 per A4 page, to cut and fill in by hand. Template sheets come with
+                    the template glyph, statistics and traits: only name and faction are left to fill in.
+                </p>
+                <group>
+                    <field name="battle_unit_template_ids" widget="many2many_tags" options="{'no_create': True}"/>
+                    <field name="copies" invisible="not battle_unit_template_ids"/>
+                    <field name="blank_copies"/>
+                </group>
+                <footer>
+                    <button name="action_print" type="object" string="Print" class="btn-primary"/>
+                    <button special="cancel" string="Cancel" class="btn-secondary"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="battle_unit_sheet_wizard_action" model="ir.actions.act_window">
+        <field name="name">Print Blank Unit Sheets</field>
+        <field name="res_model">battle.unit.sheet.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="binding_model_id" ref="model_battle_unit_template"/>
+        <field name="binding_view_types">list</field>
+    </record>
+</odoo>
