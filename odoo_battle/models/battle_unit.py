@@ -51,16 +51,16 @@ class BattleUnit(models.Model):
     # localization
     battle_location_id = fields.Many2one('battle.location', string="Location", tracking=True)
 
+    @api.depends('is_dead', 'wound_state')
+    def _compute_is_fighting(self):
+        for unit in self:
+            unit.is_fighting = not unit.is_dead and unit.wound_state != '0'
+
     @api.depends('battle_unit_template_id', 'unit_type')
     def _compute_image_1920(self):
         """ Template image, or unit type glyph """
         for unit in self:
             unit.image_1920 = unit.battle_unit_template_id.image_1920 or unit._get_unit_type_glyph()
-
-    @api.depends('is_dead', 'wound_state')
-    def _compute_is_fighting(self):
-        for unit in self:
-            unit.is_fighting = not unit.is_dead and unit.wound_state != '0'
 
     @api.depends('name', 'is_dead')
     def _compute_display_name(self):

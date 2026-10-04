@@ -108,15 +108,6 @@ class BattleSolver(models.TransientModel):
                 {'location': solver.battle_location_id},
             ) if solver.battle_location_id else False
 
-    @api.depends('battle_round_id', 'battle_location_id', 'battle_result_id')
-    def _compute_existing_battle_result_id(self):
-        for solver in self:
-            solver.existing_battle_result_id = self.env['battle.result'].search([
-                ('battle_round_id', '=', solver.battle_round_id.id),
-                ('battle_location_id', '=', solver.battle_location_id.id),
-                ('state', '=', 'done'),
-            ], limit=1) if solver.battle_round_id and solver.battle_location_id else False
-
     @api.depends('battle_location_id')
     def _compute_faction_ids(self):
         for solver in self:
@@ -134,17 +125,6 @@ class BattleSolver(models.TransientModel):
     def _compute_responder_unit_ids(self):
         for solver in self:
             solver.responder_unit_ids = solver._get_location_units(solver.responder_faction_ids)
-
-    def _get_location_units(self, factions):
-        """ Fighting units of ``factions`` in the location """
-        self.ensure_one()
-        if not self.battle_location_id or not factions:
-            return self.env['battle.unit']
-        return self.env['battle.unit'].search([
-            ('battle_location_id', '=', self.battle_location_id.id),
-            ('battle_faction_id', 'in', factions.ids),
-            ('is_fighting', '=', True),
-        ])
 
     @api.depends('initiator_unit_ids.menace', 'responder_unit_ids.menace')
     def _compute_menace(self):
@@ -197,21 +177,108 @@ class BattleSolver(models.TransientModel):
                 'odoo_battle.battle_solver_result_summary', {'solver': solver},
             ) if solver.mode == 'battle' else False
 
-    @api.model
-    def _get_result_reset_values(self):
+    @api.depends('battle_round_id', 'battle_location_id', 'battle_result_id')
+    def _compute_existing_battle_result_id(self):
+        for solver in self:
+            solver.existing_battle_result_id = self.env['battle.result'].search([
+                ('battle_round_id', '=', solver.battle_round_id.id),
+                ('battle_location_id', '=', solver.battle_location_id.id),
+                ('state', '=', 'done'),
+            ], limit=1) if solver.battle_round_id and solver.battle_location_id else False
+
+
+    # ------------------------------------------------------------
+    # ACTIONS
+    # ------------------------------------------------------------
+
+    def action_simulate(self):
+        """ Display every possible outcome with its probability """
+        self._check_battle()
+        self.write({**self._get_result_reset_values(), 'mode': 'simulate'})
+        return self._action_reopen()
+
+    def action_battle(self):
+        """ Roll the dice """
+        # TDE TODO: apply battle consequences on units
+        self._check_battle()
+        if any(not solver.battle_round_id for solver in self):
+            raise UserError(_("Battles are logged in a round: please create one first."))
+        outcomes = self.env['battle.outcome'].search([])
+        for solver in self:
+            roll = solver._roll_dice()
+            score = solver._get_score(sum(roll))
+            outcome = outcomes.filtered(lambda o: o.score == score)
+            to_responders, to_initiators = solver._get_damage(outcome)
+            dice_roll = ' '.join(f'{value:+d}' for value in roll)
+            solver.write({
+                'mode': 'battle',
+                'dice_roll': dice_roll,
+                'result_score': score,
+                'battle_outcome_id': outcome.id,
+                'damage_to_initiators': to_initiators,
+                'damage_to_responders': to_responders,
+                'result_message': _(
+                    "Roll %(roll)s (%(total)+d), bonus %(bonus)+d, score %(score)+d. "
+                    "Damage: %(to_responders)s to %(responders)s, %(to_initiators)s to %(initiators)s.",
+                    roll=dice_roll, total=sum(roll), bonus=solver.bonus, score=score,
+                    initiators=', '.join(solver.initiator_faction_ids.sorted().mapped('name')),
+                    responders=', '.join(solver.responder_faction_ids.sorted().mapped('name')),
+                    to_responders=to_responders, to_initiators=to_initiators,
+                ),
+            })
+            # replace result already solved for this round, if any
+            solver.existing_battle_result_id.action_cancel()
+            self.env['battle.result'].flush_model(['state'])
+            solver.battle_result_id = self.env['battle.result'].create(solver._prepare_battle_result_values())
+        return self._action_reopen()
+
+    def _check_battle(self):
+        for solver in self:
+            if solver.battle_location_id.is_external:
+                raise UserError(_("No battle can take place in %(location_name)s, which is off the battlefield.", location_name=solver.battle_location_id.name))
+            if not solver.initiator_faction_ids or not solver.responder_faction_ids:
+                raise UserError(_("A battle requires initiator and responder factions."))
+            if solver.initiator_faction_ids & solver.responder_faction_ids:
+                raise UserError(_("A faction cannot fight on both sides."))
+            if not solver.initiator_unit_ids or not solver.responder_unit_ids:
+                raise UserError(_("A battle requires units on both sides."))
+            if solver.initiator_unit_ids & solver.responder_unit_ids:
+                raise UserError(_("A unit cannot fight on both sides."))
+
+    def _prepare_battle_result_values(self):
+        self.ensure_one()
         return {
-            'mode': False,
-            'dice_roll': False,
-            'result_score': 0,
-            'battle_outcome_id': False,
-            'damage_to_initiators': 0,
-            'damage_to_responders': 0,
-            'result_message': False,
+            'battle_round_id': self.battle_round_id.id,
+            'battle_location_id': self.battle_location_id.id,
+            **{
+                fname: self[fname].ids if self._fields[fname].type == 'many2many' else self[fname]
+                for side in SIDES
+                for fname in (f'{side}_faction_ids', f'{side}_stance', f'{side}_unit_ids')
+            },
+            'bonus': self.bonus,
+            'dice_roll': self.dice_roll,
+            'result_score': self.result_score,
+            'battle_outcome_id': self.battle_outcome_id.id,
+            'damage_to_initiators': self.damage_to_initiators,
+            'damage_to_responders': self.damage_to_responders,
+            'result_message': self.result_message,
         }
+
 
     # ------------------------------------------------------------
     # SIDES
     # ------------------------------------------------------------
+
+    def _get_location_units(self, factions):
+        """ Fighting units of ``factions`` in the location """
+        self.ensure_one()
+        if not self.battle_location_id or not factions:
+            return self.env['battle.unit']
+        return self.env['battle.unit'].search([
+            ('battle_location_id', '=', self.battle_location_id.id),
+            ('battle_faction_id', 'in', factions.ids),
+            ('is_fighting', '=', True),
+        ])
 
     @api.model
     def _get_side_result(self, side, score):
@@ -221,6 +288,7 @@ class BattleSolver(models.TransientModel):
         if score == 0:
             return 'tie'
         return 'win' if (score > 0) == (side == 'initiator') else 'lose'
+
 
     # ------------------------------------------------------------
     # BONUSES
@@ -319,6 +387,7 @@ class BattleSolver(models.TransientModel):
         faction = max(units.battle_faction_id.sorted(), key=lambda f: counts[f]) if counts else factions.sorted()[:1]
         return int(faction.morale or 3)
 
+
     # ------------------------------------------------------------
     # TRAITS AND DAMAGE
     # ------------------------------------------------------------
@@ -364,6 +433,7 @@ class BattleSolver(models.TransientModel):
             max(0, self._get_side_damage('responder', outcome) - self._get_side_resistance('initiator', outcome)),
         )
 
+
     # ------------------------------------------------------------
     # DICE
     # ------------------------------------------------------------
@@ -391,82 +461,22 @@ class BattleSolver(models.TransientModel):
     def _roll_dice(self):
         return [random.choice(DICE_FACES) for _dice in range(DICE_COUNT)]
 
+
     # ------------------------------------------------------------
-    # ACTIONS
+    # TOOLS
     # ------------------------------------------------------------
 
-    def action_simulate(self):
-        """ Display every possible outcome with its probability """
-        self._check_battle()
-        self.write({**self._get_result_reset_values(), 'mode': 'simulate'})
-        return self._action_reopen()
-
-    def action_battle(self):
-        """ Roll the dice """
-        # TDE TODO: apply battle consequences on units
-        self._check_battle()
-        if any(not solver.battle_round_id for solver in self):
-            raise UserError(_("Battles are logged in a round: please create one first."))
-        outcomes = self.env['battle.outcome'].search([])
-        for solver in self:
-            roll = solver._roll_dice()
-            score = solver._get_score(sum(roll))
-            outcome = outcomes.filtered(lambda o: o.score == score)
-            to_responders, to_initiators = solver._get_damage(outcome)
-            dice_roll = ' '.join(f'{value:+d}' for value in roll)
-            solver.write({
-                'mode': 'battle',
-                'dice_roll': dice_roll,
-                'result_score': score,
-                'battle_outcome_id': outcome.id,
-                'damage_to_initiators': to_initiators,
-                'damage_to_responders': to_responders,
-                'result_message': _(
-                    "Roll %(roll)s (%(total)+d), bonus %(bonus)+d, score %(score)+d. "
-                    "Damage: %(to_responders)s to %(responders)s, %(to_initiators)s to %(initiators)s.",
-                    roll=dice_roll, total=sum(roll), bonus=solver.bonus, score=score,
-                    initiators=', '.join(solver.initiator_faction_ids.sorted().mapped('name')),
-                    responders=', '.join(solver.responder_faction_ids.sorted().mapped('name')),
-                    to_responders=to_responders, to_initiators=to_initiators,
-                ),
-            })
-            # replace result already solved for this round, if any
-            solver.existing_battle_result_id.action_cancel()
-            self.env['battle.result'].flush_model(['state'])
-            solver.battle_result_id = self.env['battle.result'].create(solver._prepare_battle_result_values())
-        return self._action_reopen()
-
-    def _prepare_battle_result_values(self):
-        self.ensure_one()
+    @api.model
+    def _get_result_reset_values(self):
         return {
-            'battle_round_id': self.battle_round_id.id,
-            'battle_location_id': self.battle_location_id.id,
-            **{
-                fname: self[fname].ids if self._fields[fname].type == 'many2many' else self[fname]
-                for side in SIDES
-                for fname in (f'{side}_faction_ids', f'{side}_stance', f'{side}_unit_ids')
-            },
-            'bonus': self.bonus,
-            'dice_roll': self.dice_roll,
-            'result_score': self.result_score,
-            'battle_outcome_id': self.battle_outcome_id.id,
-            'damage_to_initiators': self.damage_to_initiators,
-            'damage_to_responders': self.damage_to_responders,
-            'result_message': self.result_message,
+            'mode': False,
+            'dice_roll': False,
+            'result_score': 0,
+            'battle_outcome_id': False,
+            'damage_to_initiators': 0,
+            'damage_to_responders': 0,
+            'result_message': False,
         }
-
-    def _check_battle(self):
-        for solver in self:
-            if solver.battle_location_id.is_external:
-                raise UserError(_("No battle can take place in %s, which is off the battlefield.", solver.battle_location_id.name))
-            if not solver.initiator_faction_ids or not solver.responder_faction_ids:
-                raise UserError(_("A battle requires initiator and responder factions."))
-            if solver.initiator_faction_ids & solver.responder_faction_ids:
-                raise UserError(_("A faction cannot fight on both sides."))
-            if not solver.initiator_unit_ids or not solver.responder_unit_ids:
-                raise UserError(_("A battle requires units on both sides."))
-            if solver.initiator_unit_ids & solver.responder_unit_ids:
-                raise UserError(_("A unit cannot fight on both sides."))
 
     def _action_reopen(self):
         """ Keep the wizard open to display the result """

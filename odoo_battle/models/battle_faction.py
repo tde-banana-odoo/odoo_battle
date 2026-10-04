@@ -35,10 +35,13 @@ class BattleFaction(models.Model):
         "Unit Count", compute='_compute_battle_unit_count', help="Alive units",
     )
 
-    @api.depends('battle_unit_ids.is_dead')
-    def _compute_battle_unit_count(self):
-        for faction in self:
-            faction.battle_unit_count = len(faction.battle_unit_ids.filtered(lambda unit: not unit.is_dead))
+    @api.constrains('role', 'allied_faction_id')
+    def _check_allied_faction_id(self):
+        for faction in self.filtered('allied_faction_id'):
+            if faction.role != 'neutral':
+                raise ValidationError(_("Only neutral factions have allies, %(faction_name)s is not neutral.", faction_name=faction.name))
+            if faction.allied_faction_id == faction:
+                raise ValidationError(_("Faction %(faction_name)s cannot be allied to itself.", faction_name=faction.name))
 
     def _compute_morale(self):
         lines = self.env['battle.round']._get_current().battle_round_leadership_ids
@@ -54,13 +57,10 @@ class BattleFaction(models.Model):
             elif current:
                 current.battle_round_leadership_ids = [(0, 0, {'battle_faction_id': faction.id, 'morale': faction.morale})]
 
-    @api.constrains('role', 'allied_faction_id')
-    def _check_allied_faction_id(self):
-        for faction in self.filtered('allied_faction_id'):
-            if faction.role != 'neutral':
-                raise ValidationError(_("Only neutral factions have allies, %s is not neutral.", faction.name))
-            if faction.allied_faction_id == faction:
-                raise ValidationError(_("Faction %s cannot be allied to itself.", faction.name))
+    @api.depends('battle_unit_ids.is_dead')
+    def _compute_battle_unit_count(self):
+        for faction in self:
+            faction.battle_unit_count = len(faction.battle_unit_ids.filtered(lambda unit: not unit.is_dead))
 
     def _get_camp(self):
         """ Factions fighting together with ``self``: the factions they are

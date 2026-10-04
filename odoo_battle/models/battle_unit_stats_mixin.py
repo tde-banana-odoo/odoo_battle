@@ -34,6 +34,14 @@ class BattleUnitStatsMixin(models.AbstractModel):
     resistance = fields.Integer()
     battle_trait_ids = fields.Many2many('battle.trait', string="Traits", domain="[('target', '=', 'unit')]")
 
+    @api.constrains('battle_trait_ids')
+    def _check_battle_trait_ids(self):
+        for record in self:
+            if len(record.battle_trait_ids) > 3:
+                raise ValidationError(_("%(unit_name)s cannot have more than 3 traits.", unit_name=record.display_name))
+            if any(trait.target != 'unit' for trait in record.battle_trait_ids):
+                raise ValidationError(_("%(unit_name)s can only have unit traits.", unit_name=record.display_name))
+
     @api.depends('unit_type')
     def _compute_image_1920(self):
         for record in self:
@@ -44,11 +52,3 @@ class BattleUnitStatsMixin(models.AbstractModel):
             return False
         with file_open(f'odoo_battle/static/img/unit_type/{self.unit_type}.svg', 'rb') as glyph:
             return BinaryBytes(glyph.read(), filename=f'{self.unit_type}.svg')
-
-    @api.constrains('battle_trait_ids')
-    def _check_battle_trait_ids(self):
-        for record in self:
-            if len(record.battle_trait_ids) > 3:
-                raise ValidationError(_("%s cannot have more than 3 traits.", record.display_name))
-            if any(trait.target != 'unit' for trait in record.battle_trait_ids):
-                raise ValidationError(_("%s can only have unit traits.", record.display_name))

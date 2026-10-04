@@ -29,11 +29,7 @@ class BattleRound(models.Model):
     @api.depends('round_number')
     def _compute_display_name(self):
         for battle_round in self:
-            battle_round.display_name = _("Round %s", battle_round.round_number)
-
-    @api.model
-    def _get_current(self):
-        return self.search([], limit=1)
+            battle_round.display_name = _("Round %(round_number)s", round_number=battle_round.round_number)
 
     @api.model
     def action_start_next_round(self):
@@ -128,6 +124,10 @@ class BattleRound(models.Model):
                 for unit in self.env['battle.unit'].search([('battle_location_id', '=', False), ('is_dead', '=', False)])
             ],
         }
+
+    @api.model
+    def _get_current(self):
+        return self.search([], limit=1)
 
 
 class BattleRoundLeadership(models.Model):

@@ -48,7 +48,8 @@ class BattleTrait(models.Model):
         for trait in self:
             if trait.effect == 'bonus' and trait.condition != 'any':
                 raise ValidationError(_(
-                    "Trait %s gives a battle bonus, applied before rolling: it cannot depend on win or loss.", trait.name
+                    "Trait %(trait_name)s gives a battle bonus, applied before rolling: it cannot depend on win or loss.",
+                    trait_name=trait.name,
                 ))
 
     def _applies(self, side, stance, result=None):
