@@ -1,48 +1,106 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- From initiators point of view -->
+    <!-- For the side getting the score: initiators read the battle score, responders its opposite.
+         Rates (%) of frontline damage / resistance depend on the side stance: attacking exposes
+         (lower resistance), defending protects (lower damage, higher resistance, which falls
+         with the defeat, never below 100%). -->
     <record id="battle_outcome_major_defeat" model="battle.outcome">
         <field name="name">Major Defeat</field>
         <field name="score">-4</field>
-        <field name="location_shift">-1</field>
+        <field name="attack_damage_rate">100</field>
+        <field name="attack_resistance_rate">50</field>
+        <field name="defense_damage_rate">50</field>
+        <field name="defense_resistance_rate">100</field>
+        <field name="location_shift">0</field>
+        <field name="attack_trait_ids" eval="[Command.set([ref('battle_trait_wavering_morale')])]"/>
+        <field name="defense_trait_ids" eval="[Command.set([ref('battle_trait_wavering_morale')])]"/>
     </record>
     <record id="battle_outcome_clear_defeat" model="battle.outcome">
         <field name="name">Clear-Cut Defeat</field>
         <field name="score">-3</field>
-        <field name="location_shift">-1</field>
+        <field name="attack_damage_rate">100</field>
+        <field name="attack_resistance_rate">50</field>
+        <field name="defense_damage_rate">50</field>
+        <field name="defense_resistance_rate">100</field>
+        <field name="location_shift">0</field>
+        <field name="attack_trait_ids" eval="[Command.clear()]"/>
+        <field name="defense_trait_ids" eval="[Command.clear()]"/>
     </record>
     <record id="battle_outcome_defeat" model="battle.outcome">
         <field name="name">Defeat</field>
         <field name="score">-2</field>
-        <field name="location_shift">-1</field>
+        <field name="attack_damage_rate">100</field>
+        <field name="attack_resistance_rate">50</field>
+        <field name="defense_damage_rate">50</field>
+        <field name="defense_resistance_rate">125</field>
+        <field name="location_shift">0</field>
+        <field name="attack_trait_ids" eval="[Command.clear()]"/>
+        <field name="defense_trait_ids" eval="[Command.clear()]"/>
     </record>
     <record id="battle_outcome_narrow_defeat" model="battle.outcome">
         <field name="name">Narrow Defeat</field>
         <field name="score">-1</field>
+        <field name="attack_damage_rate">100</field>
+        <field name="attack_resistance_rate">50</field>
+        <field name="defense_damage_rate">50</field>
+        <field name="defense_resistance_rate">125</field>
+        <field name="location_shift">0</field>
+        <field name="attack_trait_ids" eval="[Command.clear()]"/>
+        <field name="defense_trait_ids" eval="[Command.clear()]"/>
     </record>
     <record id="battle_outcome_tie" model="battle.outcome">
         <field name="name">Tied</field>
         <field name="score">0</field>
+        <field name="attack_damage_rate">100</field>
+        <field name="attack_resistance_rate">50</field>
+        <field name="defense_damage_rate">50</field>
+        <field name="defense_resistance_rate">150</field>
+        <field name="location_shift">0</field>
+        <field name="attack_trait_ids" eval="[Command.clear()]"/>
+        <field name="defense_trait_ids" eval="[Command.clear()]"/>
     </record>
     <record id="battle_outcome_narrow_victory" model="battle.outcome">
         <field name="name">Narrow Victory</field>
         <field name="score">1</field>
+        <field name="attack_damage_rate">100</field>
+        <field name="attack_resistance_rate">50</field>
+        <field name="defense_damage_rate">100</field>
+        <field name="defense_resistance_rate">150</field>
+        <field name="location_shift">0</field>
+        <field name="attack_trait_ids" eval="[Command.clear()]"/>
+        <field name="defense_trait_ids" eval="[Command.clear()]"/>
     </record>
     <record id="battle_outcome_victory" model="battle.outcome">
         <field name="name">Victory</field>
         <field name="score">2</field>
+        <field name="attack_damage_rate">150</field>
+        <field name="attack_resistance_rate">100</field>
+        <field name="defense_damage_rate">100</field>
+        <field name="defense_resistance_rate">200</field>
         <field name="location_shift">1</field>
+        <field name="attack_trait_ids" eval="[Command.clear()]"/>
+        <field name="defense_trait_ids" eval="[Command.clear()]"/>
     </record>
     <record id="battle_outcome_clear_victory" model="battle.outcome">
         <field name="name">Clear-Cut Victory</field>
         <field name="score">3</field>
+        <field name="attack_damage_rate">150</field>
+        <field name="attack_resistance_rate">100</field>
+        <field name="defense_damage_rate">150</field>
+        <field name="defense_resistance_rate">200</field>
         <field name="location_shift">1</field>
-        <field name="battle_trait_ids" eval="[Command.set([ref('battle_trait_breakthrough')])]"/>
+        <field name="attack_trait_ids" eval="[Command.set([ref('battle_trait_breakthrough')])]"/>
+        <field name="defense_trait_ids" eval="[Command.set([ref('battle_trait_heroic_defense')])]"/>
     </record>
     <record id="battle_outcome_major_victory" model="battle.outcome">
         <field name="name">Major Victory</field>
         <field name="score">4</field>
+        <field name="attack_damage_rate">200</field>
+        <field name="attack_resistance_rate">150</field>
+        <field name="defense_damage_rate">200</field>
+        <field name="defense_resistance_rate">250</field>
         <field name="location_shift">1</field>
-        <field name="battle_trait_ids" eval="[Command.set([ref('battle_trait_breakthrough')])]"/>
+        <field name="attack_trait_ids" eval="[Command.set([ref('battle_trait_breakthrough')])]"/>
+        <field name="defense_trait_ids" eval="[Command.set([ref('battle_trait_heroic_defense')])]"/>
     </record>
 </odoo>

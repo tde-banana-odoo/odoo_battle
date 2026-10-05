@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="action_report_location_sheet" model="ir.actions.report">
+        <field name="name">Location Sheets</field>
+        <field name="model">battle.location</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">odoo_battle.report_location_sheet</field>
+        <field name="print_report_name">'Location Sheets'</field>
+        <field name="paperformat_id" ref="paperformat_unit_sheet"/>
+        <field name="binding_model_id" ref="model_battle_location"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <!-- One card: 70x50mm, as unit sheets -->
+    <template id="report_location_sheet_card">
+        <div class="o_bs_card" t-att-style="'left: %smm; top: %smm' % (sheet_left, sheet_top)">
+            <!-- header -->
+            <div class="o_bs_head">
+                <span class="o_bs_name" t-out="sheet['name']"
+                    t-att-style="'font-size: %spt' % (8.5 if len(sheet['name']) &lt;= 24 else 7 if len(sheet['name']) &lt;= 30 else 6)"/>
+                <span t-if="sheet['is_umbra']" class="o_bs_faction">UMBRA</span>
+            </div>
+            <!-- status and holder, filled in by hand during play -->
+            <div class="o_bs_label o_bs_label_left" style="left: 2mm; top: 8.3mm">Statut</div>
+            <t t-foreach="[('Libre', 2), ('Contesté', 15.5), ('Tenu par', 33)]" t-as="status">
+                <div class="o_ls_status" t-att-style="'left: %smm' % status[1]">
+                    <span class="o_bs_box"/><t t-out="status[0]"/>
+                </div>
+            </t>
+            <div class="o_ls_holder"/>
+            <!-- twin location, if any (does not change during play) -->
+            <div t-if="sheet['linked']" class="o_ls_line" style="top: 16.6mm">
+                <b>Lié à</b> <t t-out="sheet['linked']"/>
+            </div>
+            <!-- traits, with their rules -->
+            <div class="o_bs_label o_bs_label_left" style="left: 2mm; top: 21.6mm">Traits</div>
+            <t t-foreach="sheet['traits'][:5]" t-as="trait">
+                <div class="o_ls_trait" t-att-style="'top: %smm' % (24.4 + trait_index * 3.6)">
+                    <b t-out="trait[0]"/><t t-if="trait[1]"> — <t t-out="trait[1]"/></t>
+                </div>
+            </t>
+            <!-- right: traits granted by battles for the next round, marked by hand -->
+            <div class="o_bs_label o_bs_label_left" style="left: 51mm; top: 21.6mm">Prochain tour</div>
+            <t t-foreach="['Percée', 'Déf. Héroïque']" t-as="granted">
+                <div class="o_ls_granted" t-att-style="'top: %smm' % (24.4 + granted_index * 4.2)">
+                    <span class="o_bs_box"/><t t-out="granted"/>
+                </div>
+            </t>
+            <div class="o_ls_tokens">Marqueurs</div>
+        </div>
+    </template>
+
+    <template id="report_location_sheet">
+        <t t-call="web.basic_layout">
+            <t t-call="odoo_battle.report_sheet_style"/>
+            <style>
+                .o_ls_status { top: 11.4mm; height: 4mm; font-size: 6pt; line-height: 3.4mm; white-space: nowrap; }
+                .o_ls_holder { left: 49mm; top: 11.4mm; width: 19mm; height: 3.6mm; font-size: 6pt; font-weight: bold; border-bottom: 0.3mm solid #aaa; white-space: nowrap; overflow: hidden; }
+                .o_ls_line { left: 2mm; width: 66mm; height: 4mm; font-size: 6pt; white-space: nowrap; overflow: hidden; }
+                .o_ls_line b { font-size: 4.6pt; text-transform: uppercase; color: #555; margin-right: 1mm; }
+                .o_ls_granted { left: 51mm; width: 17mm; height: 4mm; font-size: 5.5pt; line-height: 3.4mm; white-space: nowrap; }
+                .o_ls_trait { left: 2mm; width: 48mm; height: 3.6mm; font-size: 5.5pt; line-height: 3.4mm; white-space: nowrap; overflow: hidden; }
+                .o_ls_tokens {
+                    left: 2mm; top: 42.4mm; width: 66mm; height: 5.8mm; border: 0.3mm dashed #999; border-radius: 1mm;
+                    font-size: 4.6pt; color: #999; text-align: center; text-transform: uppercase; padding-top: 0.5mm;
+                }
+            </style>
+            <div t-foreach="pages" t-as="page" class="o_bs_page">
+                <t t-foreach="page" t-as="sheet">
+                    <t t-set="sheet_left" t-value="20 + (sheet_index % 2) * 80"/>
+                    <t t-set="sheet_top" t-value="(sheet_index // 2) * 55"/>
+                    <t t-call="odoo_battle.report_location_sheet_card"/>
+                </t>
+            </div>
+        </t>
+    </template>
+</odoo>

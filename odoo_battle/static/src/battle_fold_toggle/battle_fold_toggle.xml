@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="odoo_battle.BattleFoldToggle">
+        <button type="button" class="btn btn-link p-0 text-reset fs-4 lh-1" t-att-title="this.title" t-on-click="() => this.onClick()">
+            <i class="oi" t-att-data-icon="this.folded ? 'keyboard_arrow_right' : 'keyboard_arrow_down'"/>
+        </button>
+    </t>
+
+</templates>

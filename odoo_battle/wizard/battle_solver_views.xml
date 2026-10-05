@@ -5,70 +5,165 @@
         <field name="model">battle.solver</field>
         <field name="arch" type="xml">
             <form string="Battle Solver" dialog_size="xl">
-                <group>
-                    <group>
-                        <field name="battle_location_id"/>
-                    </group>
-                    <group>
-                        <field name="battle_round_id"/>
-                        <field name="battle_result_id" invisible="not battle_result_id"/>
-                    </group>
-                </group>
-                <div role="alert" class="alert alert-warning"
+                <div class="o_battle_solver_row d-flex flex-wrap align-items-center gap-3">
+                    <field name="battle_location_id" context="{'battle_round_id': battle_round_id}" class="w-auto fs-4 fw-bold"
+                        placeholder="Location" options="{'no_open': True}"/>
+                    <field name="battle_location_summary" nolabel="1" readonly="1" class="w-auto" invisible="not battle_location_id"/>
+                    <field name="battle_round_id" class="w-auto ms-auto" options="{'no_open': True}"/>
+                    <field name="battle_result_id" invisible="not battle_result_id" class="w-auto"/>
+                    <span invisible="not cancelled_result_count" class="text-muted small">
+                        <field name="cancelled_result_count" class="d-inline"/> cancelled result(s) here this round
+                    </span>
+                </div>
+                <div role="alert" class="alert alert-warning d-flex align-items-center gap-3 mt-2 mb-0"
                     invisible="not existing_battle_result_id or existing_battle_result_id == battle_result_id">
-                    A battle has already been solved here for this round: battling again replaces it.
+                    <span>A battle has already been solved here for this round: cancel it to battle again.</span>
+                    <button name="action_cancel_existing_result" type="object" string="Cancel Result" class="btn btn-sm btn-secondary"
+                        confirm="Cancel this result? Damage and wounds it applied on units are reverted."/>
                 </div>
-                <field name="battle_location_summary" nolabel="1" readonly="1"
+                <field name="battle_location_traits" nolabel="1" readonly="1" class="mt-2"
                     invisible="not battle_location_id"/>
-                <div class="row g-3">
-                    <div class="col-lg">
-                        <h3>Initiators <span class="badge text-bg-secondary">Menace <field name="initiator_menace"/></span></h3>
-                        <group class="mb-0">
-                            <field name="initiator_faction_ids" string="Factions" widget="many2many_tags" options="{'no_create': True}"/>
-                            <field name="initiator_stance" string="Stance" widget="radio" options="{'horizontal': true}"/>
-                        </group>
-                        <field name="initiator_unit_ids" widget="many2many" options="{'no_create': True}">
-                            <list>
-                                <field name="avatar_128" widget="image" options="{'size': [24, 24]}" string=" "/>
-                                <field name="name"/>
-                                <field name="battle_faction_id" optional="hide"/>
-                                <widget name="battle_unit_stats" options="{'compact': True}"/>
-                                <field name="battle_trait_ids" widget="many2many_tags"/>
-                            </list>
-                        </field>
-                    </div>
-                    <div class="col-lg-auto align-self-center fs-3 fw-bold text-muted">VS</div>
-                    <div class="col-lg">
-                        <h3>Responders <span class="badge text-bg-secondary">Menace <field name="responder_menace"/></span></h3>
-                        <group class="mb-0">
-                            <field name="responder_faction_ids" string="Factions" widget="many2many_tags" options="{'no_create': True}"/>
-                            <field name="responder_stance" string="Stance" widget="radio" options="{'horizontal': true}"/>
-                        </group>
-                        <field name="responder_unit_ids" widget="many2many" options="{'no_create': True}">
-                            <list>
-                                <field name="avatar_128" widget="image" options="{'size': [24, 24]}" string=" "/>
-                                <field name="name"/>
-                                <field name="battle_faction_id" optional="hide"/>
-                                <widget name="battle_unit_stats" options="{'compact': True}"/>
-                                <field name="battle_trait_ids" widget="many2many_tags"/>
-                            </list>
-                        </field>
-                    </div>
+                <div class="o_battle_solver_row o_battle_solver_side d-flex flex-wrap align-items-center gap-3 mt-3 mb-1">
+                    <field name="initiator_folded" widget="battle_fold_toggle" class="w-auto"/>
+                    <h4 class="mb-0">Initiators</h4>
+                    <span class="badge text-bg-secondary">Menace <field name="initiator_menace"/></span>
+                    <field name="initiator_faction_ids" widget="many2many_tags" options="{'no_create': True, 'color_field': 'color'}" placeholder="Factions" class="w-auto"
+                        readonly="mode == 'done'"/>
+                    <field name="initiator_stance" widget="radio" options="{'horizontal': true}" class="w-auto" readonly="mode == 'done'"/>
+                    <span class="o_battle_solver_bonus text-nowrap" title="Bonus given by the DM to the compared characteristic of the side (e.g. a good idea)">
+                        <span class="text-muted small">Bonus Characteristic</span>
+                        <field name="initiator_characteristic_bonus" class="o_battle_solver_bonus_input" readonly="mode == 'done'"/>
+                    </span>
+                    <field name="initiator_lines_summary" class="w-auto text-muted small" invisible="not initiator_folded"/>
                 </div>
+                <field name="initiator_line_ids" context="{'default_side': 'initiator'}" invisible="initiator_folded" readonly="mode == 'done'">
+                    <list editable="bottom" decoration-muted="position == 'support' or is_out" decoration-it="is_out"
+                        decoration-warning="needs_target">
+                        <field name="side" column_invisible="1"/>
+                        <field name="can_target" column_invisible="1"/>
+                        <field name="is_out" column_invisible="1"/>
+                        <field name="needs_target" column_invisible="1"/>
+                        <field name="battle_unit_id" widget="many2one_avatar" width="210px" options="{'no_create': True}"
+                            domain="[('battle_location_id', '=', parent.battle_location_id), ('battle_faction_id', 'in', parent.initiator_faction_ids), ('is_fighting', '=', True)]"/>
+                        <field name="position" width="95px"/>
+                        <field name="is_excluded" widget="boolean_toggle" width="45px"/>
+                        <field name="wound_state" string="Wounds" widget="badge" width="115px"
+                            decoration-success="wound_state == '4'" decoration-warning="wound_state in ('3', '2')"
+                            decoration-danger="wound_state in ('1', '0')"/>
+                        <field name="damage_counter" string="Dmg" width="45px"/>
+                        <field name="damage_received" string="+Dmg" width="55px" readonly="parent.mode != 'launched'"
+                            column_invisible="parent.mode not in ('launched', 'done')"/>
+                        <field name="wounds_received" string="+Wnd" width="55px" readonly="parent.mode != 'launched'"
+                            column_invisible="parent.mode not in ('launched', 'done')"/>
+                        <field name="wound_state_after" string="After" widget="badge" width="115px"
+                            column_invisible="parent.mode != 'launched'"
+                            decoration-success="wound_state_after == '4'" decoration-warning="wound_state_after in ('3', '2')"
+                            decoration-danger="wound_state_after in ('1', '0')"/>
+                        <widget name="battle_unit_stats" options="{'compact': True}"/>
+                        <field name="target_unit_id" widget="many2one_avatar" readonly="not can_target" optional="show" width="170px" options="{'no_create': True, 'no_open': True}"
+                            domain="[('battle_location_id', '=', parent.battle_location_id), ('battle_faction_id', 'in', parent.responder_faction_ids), ('is_fighting', '=', True)]"/>
+                        <field name="battle_status" string="Status" class="small" width="85px"/>
+                        <field name="battle_faction_id" optional="hide"/>
+                        <field name="battle_trait_ids" widget="many2many_tags" optional="show"/>
+                    </list>
+                </field>
+                <div class="o_battle_solver_row o_battle_solver_side d-flex flex-wrap align-items-center gap-3 mt-3 mb-1">
+                    <field name="responder_folded" widget="battle_fold_toggle" class="w-auto"/>
+                    <h4 class="mb-0">Responders</h4>
+                    <span class="badge text-bg-secondary">Menace <field name="responder_menace"/></span>
+                    <field name="responder_faction_ids" widget="many2many_tags" options="{'no_create': True, 'color_field': 'color'}" placeholder="Factions" class="w-auto"
+                        readonly="mode == 'done'"/>
+                    <field name="responder_stance" widget="radio" options="{'horizontal': true}" class="w-auto" readonly="mode == 'done'"/>
+                    <span class="o_battle_solver_bonus text-nowrap" title="Bonus given by the DM to the compared characteristic of the side (e.g. a good idea)">
+                        <span class="text-muted small">Bonus Characteristic</span>
+                        <field name="responder_characteristic_bonus" class="o_battle_solver_bonus_input" readonly="mode == 'done'"/>
+                    </span>
+                    <field name="responder_lines_summary" class="w-auto text-muted small" invisible="not responder_folded"/>
+                </div>
+                <field name="responder_line_ids" context="{'default_side': 'responder'}" invisible="responder_folded" readonly="mode == 'done'">
+                    <list editable="bottom" decoration-muted="position == 'support' or is_out" decoration-it="is_out"
+                        decoration-warning="needs_target">
+                        <field name="side" column_invisible="1"/>
+                        <field name="can_target" column_invisible="1"/>
+                        <field name="is_out" column_invisible="1"/>
+                        <field name="needs_target" column_invisible="1"/>
+                        <field name="battle_unit_id" widget="many2one_avatar" width="210px" options="{'no_create': True}"
+                            domain="[('battle_location_id', '=', parent.battle_location_id), ('battle_faction_id', 'in', parent.responder_faction_ids), ('is_fighting', '=', True)]"/>
+                        <field name="position" width="95px"/>
+                        <field name="is_excluded" widget="boolean_toggle" width="45px"/>
+                        <field name="wound_state" string="Wounds" widget="badge" width="115px"
+                            decoration-success="wound_state == '4'" decoration-warning="wound_state in ('3', '2')"
+                            decoration-danger="wound_state in ('1', '0')"/>
+                        <field name="damage_counter" string="Dmg" width="45px"/>
+                        <field name="damage_received" string="+Dmg" width="55px" readonly="parent.mode != 'launched'"
+                            column_invisible="parent.mode not in ('launched', 'done')"/>
+                        <field name="wounds_received" string="+Wnd" width="55px" readonly="parent.mode != 'launched'"
+                            column_invisible="parent.mode not in ('launched', 'done')"/>
+                        <field name="wound_state_after" string="After" widget="badge" width="115px"
+                            column_invisible="parent.mode != 'launched'"
+                            decoration-success="wound_state_after == '4'" decoration-warning="wound_state_after in ('3', '2')"
+                            decoration-danger="wound_state_after in ('1', '0')"/>
+                        <widget name="battle_unit_stats" options="{'compact': True}"/>
+                        <field name="target_unit_id" widget="many2one_avatar" readonly="not can_target" optional="show" width="170px" options="{'no_create': True, 'no_open': True}"
+                            domain="[('battle_location_id', '=', parent.battle_location_id), ('battle_faction_id', 'in', parent.initiator_faction_ids), ('is_fighting', '=', True)]"/>
+                        <field name="battle_status" string="Status" class="small" width="85px"/>
+                        <field name="battle_faction_id" optional="hide"/>
+                        <field name="battle_trait_ids" widget="many2many_tags" optional="show"/>
+                    </list>
+                </field>
+                <hr class="o_battle_solver_separator" invisible="not initiator_line_ids or not responder_line_ids"/>
                 <field name="bonus_summary" nolabel="1" readonly="1"
-                    invisible="not initiator_unit_ids or not responder_unit_ids"/>
-                <div invisible="mode != 'simulate'">
+                    invisible="not initiator_line_ids or not responder_line_ids"/>
+                <field name="is_outdated" invisible="1"/>
+                <div role="alert" class="alert alert-warning mt-3 mb-0" invisible="not is_outdated">
+                    Sides, stances or units changed since the battle was <span invisible="mode != 'simulate'">simulated</span><span invisible="mode != 'launched'">launched</span>:
+                    <span invisible="mode != 'simulate'">simulate</span><span invisible="mode != 'launched'">launch</span> it again.
+                </div>
+                <div invisible="mode != 'simulate' or is_outdated">
                     <h4>Simulation</h4>
                     <field name="simulation_summary" nolabel="1" readonly="1"/>
                 </div>
-                <field name="result_summary" nolabel="1" readonly="1" invisible="mode != 'battle'"/>
+                <group invisible="not initiator_line_ids or not responder_line_ids">
+                    <group>
+                        <field name="dice_input" placeholder="e.g. -1 0 +1, or roll them"/>
+                        <field name="dice_input_preview" nolabel="1" colspan="2" invisible="not dice_input" class="text-muted"/>
+                    </group>
+                    <group>
+                        <field name="initiator_rerolls" invisible="not initiator_rerolls and not responder_rerolls"/>
+                        <field name="responder_rerolls" invisible="not initiator_rerolls and not responder_rerolls"/>
+                        <field name="initiator_forced_rerolls" string="Initiators Forced Rerolls (highest)"
+                            invisible="not initiator_forced_rerolls and not responder_forced_rerolls"/>
+                        <field name="responder_forced_rerolls" string="Responders Forced Rerolls (lowest)"
+                            invisible="not initiator_forced_rerolls and not responder_forced_rerolls"/>
+                    </group>
+                </group>
+                <field name="result_summary" nolabel="1" readonly="1" invisible="mode not in ('launched', 'done')"/>
+                <group invisible="mode != 'launched'" string="Heal and Mend">
+                    <field name="battle_unit_ids" invisible="1"/>
+                    <field name="heal_unit_ids" widget="many2many_tags_avatar" placeholder="Units with one wound less..."
+                        domain="[('id', 'in', battle_unit_ids)]" options="{'no_create': True}"/>
+                    <field name="mend_unit_ids" widget="many2many_tags_avatar" placeholder="Units with damage counter reset..."
+                        domain="[('id', 'in', battle_unit_ids)]" options="{'no_create': True}"/>
+                </group>
+                <group invisible="mode != 'launched'" string="Location Consequences">
+                    <group>
+                        <field name="location_status_after" string="Status After" required="mode == 'launched'"/>
+                        <field name="held_by_faction_after_id" string="Held By After" invisible="location_status_after == 'free'"
+                            required="location_status_after == 'held'" options="{'no_create': True, 'no_open': True}"/>
+                    </group>
+                    <group>
+                        <field name="initiator_granted_trait_ids" string="Initiators Gain" widget="many2many_tags" options="{'no_create': True}"/>
+                        <field name="responder_granted_trait_ids" string="Responders Gain" widget="many2many_tags" options="{'no_create': True}"/>
+                    </group>
+                </group>
                 <footer>
-                    <button name="action_simulate" type="object" string="Simulate" class="btn-primary"/>
-                    <button name="action_battle" type="object" string="Battle" class="btn-secondary"
-                        invisible="existing_battle_result_id"/>
-                    <button name="action_battle" type="object" string="Replace Battle" class="btn-secondary"
-                        invisible="not existing_battle_result_id"
-                        confirm="This cancels the result already solved here for this round. Continue?"/>
+                    <button name="action_simulate" type="object" string="Simulate" class="btn-primary" invisible="mode in ('launched', 'done')"/>
+                    <button name="action_simulate" type="object" string="Simulate" class="btn-secondary" invisible="mode != 'launched'"/>
+                    <button name="action_roll" type="object" string="Roll Dice" class="btn-secondary" invisible="mode == 'done'"/>
+                    <button name="action_launch" type="object" string="Launch Battle" class="btn-secondary"
+                        invisible="mode == 'done' or existing_battle_result_id"/>
+                    <button name="action_apply" type="object" string="Apply Results" class="btn-primary" invisible="mode != 'launched' or is_outdated"
+                        confirm="Apply damage and wounds on units, and consequences on the location?"/>
                     <button special="cancel" string="Close" class="btn-secondary"/>
                 </footer>
             </form>
@@ -76,16 +171,28 @@
     </record>
 
     <template id="battle_solver_location_summary">
-        <div class="d-flex flex-wrap align-items-center gap-2 mb-3">
-            <span t-att-class="'badge ' + {'free': 'text-bg-success', 'contested': 'text-bg-warning', 'held': 'text-bg-info'}[location.status]">
+        <div class="d-flex flex-wrap align-items-center gap-2">
+            <span t-att-class="'badge fs-6 ' + {'free': 'text-bg-success', 'contested': 'text-bg-warning', 'held': 'text-bg-info'}[location.status]">
                 <span t-field="location.status"/>
                 <t t-if="location.held_by_faction_id"> by <t t-out="location.held_by_faction_id.name"/></t>
             </span>
             <span t-if="location.is_umbra" class="badge text-bg-primary">Umbra</span>
-            <span t-foreach="location.battle_trait_ids" t-as="trait" class="badge text-bg-secondary" t-out="trait.name"/>
             <span t-if="location.linked_location_id" class="text-muted small">
                 Linked to <t t-out="location.linked_location_id.name"/>
             </span>
+        </div>
+    </template>
+
+    <template id="battle_solver_location_traits">
+        <div t-if="location.battle_trait_ids or effects" class="o_battle_solver_traits small">
+            <div t-foreach="location.battle_trait_ids" t-as="trait" class="o_battle_solver_trait">
+                <b t-out="trait.name"/>
+                <span t-if="trait.description" class="text-muted"> — <t t-out="trait.description"/></span>
+            </div>
+            <div t-foreach="effects" t-as="effect" class="o_battle_solver_trait" title="Effect applying this round">
+                <span class="badge text-bg-warning"><t t-out="effect.battle_faction_id.name"/>: <t t-out="effect.battle_trait_id.name"/></span>
+                <span t-if="effect.battle_trait_id.description" class="text-muted"> — <t t-out="effect.battle_trait_id.description"/></span>
+            </div>
         </div>
     </template>
 
@@ -156,7 +263,36 @@
     <template id="battle_solver_result_summary">
         <div role="alert" t-attf-class="alert mt-3 mb-0 #{'alert-success' if solver.result_score &gt; 0 else 'alert-danger' if solver.result_score &lt; 0 else 'alert-secondary'}">
             <strong class="me-1" t-out="solver.battle_outcome_id.name"/>
-            <t t-out="solver.result_message"/>
+            <span style="white-space: pre-line" t-out="solver.result_message"/>
+            <div t-if="solver.mode == 'launched'" class="small mt-1">
+                <b>Not applied yet</b>: check (and adjust) damage and wounds of units, units to heal and mend, and
+                location consequences, then apply results.
+            </div>
+            <div t-if="lore_reminders" class="small mt-1">
+                <b>To resolve</b>: <t t-out="', '.join(lore_reminders)"/>
+            </div>
+            <div t-if="heal_mend_reminders" class="small mt-1">
+                <b>Heal / Mend</b> (prefilled, change at will): <t t-out="', '.join(heal_mend_reminders)"/>
+            </div>
+            <ul t-if="solver.battle_result_id" class="mb-0 mt-1 small">
+                <t t-foreach="solver.battle_result_id.battle_result_line_ids.filtered(lambda line: line.damage or line.wounds)" t-as="line">
+                    <li>
+                        <b t-out="line.battle_unit_id.name"/>:
+                        <t t-if="line.damage"><t t-out="line.damage"/> damage</t><t t-if="line.damage and line.wounds">, </t>
+                        <t t-if="line.wounds &gt; 0"><t t-out="line.wounds"/> wound(s)</t>
+                        <t t-if="line.wounds &lt; 0"><t t-out="-line.wounds"/> healed</t>
+                        <span class="text-muted">(now <span t-field="line.battle_unit_id.wound_state"/>)</span>
+                    </li>
+                </t>
+                <li t-if="solver.battle_result_id.location_status_before">
+                    <b>Location</b>: <span t-field="solver.battle_location_id.status"/>
+                    <t t-if="solver.battle_location_id.held_by_faction_id"> (<t t-out="solver.battle_location_id.held_by_faction_id.name"/>)</t>
+                </li>
+                <li t-foreach="solver.battle_result_id.battle_location_effect_ids" t-as="effect">
+                    <b t-out="effect.battle_faction_id.name"/>: <t t-out="effect.battle_trait_id.name"/>
+                    <span class="text-muted">(round <t t-out="effect.round_number"/>)</span>
+                </li>
+            </ul>
         </div>
     </template>
 

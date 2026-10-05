@@ -1,16 +1,268 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- leadership rolls are in battle.round.leadership.csv -->
+    <!-- leadership per camp: morale and command actions (successes) -->
     <record id="battle_round_1" model="battle.round">
         <field name="round_number">1</field>
-        <field name="battle_round_leadership_ids" eval="[]"/>
+        <field name="caern_state">4</field>
+        <field name="aggressor_morale">4</field>
+        <field name="aggressor_command_action_count">4</field>
+        <field name="defender_morale">4</field>
+        <field name="defender_command_action_count">2</field>
     </record>
+        <record id="battle_round_1_result_king_industries" model="battle.result">
+            <field name="battle_location_id" ref="battle_location_king_industries"/>
+            <field name="battle_outcome_id" ref="battle_outcome_tie"/>
+            <field name="result_score">0</field>
+            <field name="battle_round_id" ref="battle_round_1"/>
+            <field name="initiator_faction_ids" eval="[(4, ref('battle_faction_kiker'))]"/>
+            <field name="initiator_stance">attack</field>
+            <field name="responder_faction_ids" eval="[(4, ref('battle_faction_loch_chon'))]"/>
+            <field name="responder_stance">defense</field>
+        </record>
+        <record id="battle_round_1_result_enclos" model="battle.result">
+            <field name="battle_location_id" ref="battle_location_enclos"/>
+            <field name="battle_outcome_id" ref="battle_outcome_narrow_victory"/>
+            <field name="result_score">1</field>
+            <field name="battle_round_id" ref="battle_round_1"/>
+            <field name="initiator_faction_ids" eval="[(4, ref('battle_faction_kiker'))]"/>
+            <field name="initiator_stance">attack</field>
+            <field name="responder_faction_ids" eval="[(4, ref('battle_faction_loch_chon'))]"/>
+            <field name="responder_stance">defense</field>
+        </record>
+        <record id="battle_round_1_result_stronachlachar" model="battle.result">
+            <field name="battle_location_id" ref="battle_location_stronachlachar"/>
+            <field name="battle_outcome_id" ref="battle_outcome_narrow_defeat"/>
+            <field name="result_score">-1</field>
+            <field name="battle_round_id" ref="battle_round_1"/>
+            <field name="initiator_faction_ids" eval="[(4, ref('battle_faction_kiker'))]"/>
+            <field name="initiator_stance">attack</field>
+            <field name="responder_faction_ids" eval="[(4, ref('battle_faction_loch_chon'))]"/>
+            <field name="responder_stance">defense</field>
+        </record>
     <record id="battle_round_2" model="battle.round">
         <field name="round_number">2</field>
-        <field name="battle_round_leadership_ids" eval="[]"/>
+        <field name="caern_state">4</field>
+        <field name="aggressor_morale">4</field>
+        <field name="aggressor_command_action_count">4</field>
+        <field name="defender_morale">4</field>
+        <field name="defender_command_action_count">2</field>
     </record>
+        <record id="battle_round_2_result_king_industries" model="battle.result">
+            <field name="battle_location_id" ref="battle_location_king_industries"/>
+            <field name="battle_outcome_id" ref="battle_outcome_narrow_defeat"/>
+            <field name="result_score">-1</field>
+            <field name="battle_round_id" ref="battle_round_2"/>
+            <field name="initiator_faction_ids" eval="[(4, ref('battle_faction_kiker'))]"/>
+            <field name="initiator_stance">attack</field>
+            <field name="responder_faction_ids" eval="[(4, ref('battle_faction_loch_chon'))]"/>
+            <field name="responder_stance">defense</field>
+        </record>
+        <record id="battle_round_2_result_enclos" model="battle.result">
+            <field name="battle_location_id" ref="battle_location_enclos"/>
+            <field name="battle_outcome_id" ref="battle_outcome_clear_victory"/>
+            <field name="result_score">3</field>
+            <field name="battle_round_id" ref="battle_round_2"/>
+            <field name="initiator_faction_ids" eval="[(4, ref('battle_faction_kiker'))]"/>
+            <field name="initiator_stance">attack</field>
+            <field name="responder_faction_ids" eval="[(4, ref('battle_faction_loch_chon'))]"/>
+            <field name="responder_stance">defense</field>
+        </record>
+        <record id="battle_round_2_result_stronachlachar" model="battle.result">
+            <field name="battle_location_id" ref="battle_location_stronachlachar"/>
+            <field name="battle_outcome_id" ref="battle_outcome_narrow_defeat"/>
+            <field name="result_score">-1</field>
+            <field name="battle_round_id" ref="battle_round_2"/>
+            <field name="initiator_faction_ids" eval="[(4, ref('battle_faction_kiker'))]"/>
+            <field name="initiator_stance">attack</field>
+            <field name="responder_faction_ids" eval="[(4, ref('battle_faction_loch_chon'))]"/>
+            <field name="responder_stance">defense</field>
+        </record>
     <record id="battle_round_3" model="battle.round">
         <field name="round_number">3</field>
-        <field name="battle_round_leadership_ids" eval="[]"/>
+        <field name="caern_state">4</field>
+        <field name="aggressor_morale">4</field>
+        <field name="aggressor_command_action_count">4</field>
+        <field name="defender_morale">4</field>
+        <field name="defender_command_action_count">2</field>
     </record>
+        <record id="battle_round_3_result_king_industries" model="battle.result">
+            <field name="battle_location_id" ref="battle_location_king_industries"/>
+            <field name="battle_outcome_id" ref="battle_outcome_clear_defeat"/>
+            <field name="result_score">-3</field>
+            <field name="battle_round_id" ref="battle_round_3"/>
+            <field name="initiator_faction_ids" eval="[(4, ref('battle_faction_kiker'))]"/>
+            <field name="initiator_stance">attack</field>
+            <field name="responder_faction_ids" eval="[(4, ref('battle_faction_loch_chon'))]"/>
+            <field name="responder_stance">defense</field>
+        </record>
+        <record id="battle_round_3_result_enclos" model="battle.result">
+            <field name="battle_location_id" ref="battle_location_enclos"/>
+            <field name="battle_outcome_id" ref="battle_outcome_clear_victory"/>
+            <field name="result_score">3</field>
+            <field name="battle_round_id" ref="battle_round_3"/>
+            <field name="initiator_faction_ids" eval="[(4, ref('battle_faction_kiker'))]"/>
+            <field name="initiator_stance">attack</field>
+            <field name="responder_faction_ids" eval="[(4, ref('battle_faction_loch_chon'))]"/>
+            <field name="responder_stance">defense</field>
+        </record>
+        <record id="battle_round_3_result_stronachlachar" model="battle.result">
+            <field name="battle_location_id" ref="battle_location_stronachlachar"/>
+            <field name="battle_outcome_id" ref="battle_outcome_defeat"/>
+            <field name="result_score">-2</field>
+            <field name="battle_round_id" ref="battle_round_3"/>
+            <field name="initiator_faction_ids" eval="[(4, ref('battle_faction_kiker'))]"/>
+            <field name="initiator_stance">attack</field>
+            <field name="responder_faction_ids" eval="[(4, ref('battle_faction_loch_chon'))]"/>
+            <field name="responder_stance">defense</field>
+        </record>
+        <record id="battle_round_3_result_marais" model="battle.result">
+            <field name="battle_location_id" ref="battle_location_marais"/>
+            <field name="battle_location_effect_ids" eval="[
+                (5, 0),
+                (0, 0, {
+                    'battle_faction_id': ref('battle_faction_kiker'),
+                    'battle_trait_id': ref('battle_trait_breakthrough'),
+                }),
+            ]"/>
+            <field name="battle_outcome_id" ref="battle_outcome_major_victory"/>
+            <field name="result_score">4</field>
+            <field name="battle_round_id" ref="battle_round_3"/>
+            <field name="initiator_faction_ids" eval="[(4, ref('battle_faction_kiker'))]"/>
+            <field name="initiator_stance">attack</field>
+            <field name="responder_faction_ids" eval="[(4, ref('battle_faction_loch_chon'))]"/>
+            <field name="responder_stance">defense</field>
+        </record>
+        <record id="battle_round_3_result_walkhill" model="battle.result">
+            <field name="battle_location_id" ref="battle_location_walkhill"/>
+            <field name="battle_location_effect_ids" eval="[
+                (5, 0),
+                (0, 0, {
+                    'battle_faction_id': ref('battle_faction_kiker'),
+                    'battle_trait_id': ref('battle_trait_breakthrough'),
+                }),
+            ]"/>
+            <field name="battle_outcome_id" ref="battle_outcome_clear_victory"/>
+            <field name="result_score">3</field>
+            <field name="battle_round_id" ref="battle_round_3"/>
+            <field name="initiator_faction_ids" eval="[(4, ref('battle_faction_kiker'))]"/>
+            <field name="initiator_stance">attack</field>
+            <field name="responder_faction_ids" eval="[(4, ref('battle_faction_loch_chon'))]"/>
+            <field name="responder_stance">defense</field>
+        </record>
+    <record id="battle_round_4" model="battle.round">
+        <field name="round_number">4</field>
+        <field name="caern_state">3</field>
+        <field name="aggressor_morale">4</field>
+        <field name="aggressor_command_action_count">3</field>
+        <field name="defender_morale">3</field>
+        <field name="defender_command_action_count">1</field>
+    </record>
+        <record id="battle_round_4_result_hills" model="battle.result">
+            <field name="battle_location_id" ref="battle_location_hills"/>
+            <field name="battle_location_effect_ids" eval="[
+                (5, 0),
+                (0, 0, {
+                    'battle_faction_id': ref('battle_faction_kiker'),
+                    'battle_trait_id': ref('battle_trait_breakthrough'),
+                }),
+            ]"/>
+            <field name="battle_outcome_id" ref="battle_outcome_clear_victory"/>
+            <field name="result_score">3</field>
+            <field name="battle_round_id" ref="battle_round_4"/>
+            <field name="initiator_faction_ids" eval="[(4, ref('battle_faction_kiker'))]"/>
+            <field name="initiator_stance">attack</field>
+            <field name="responder_faction_ids" eval="[(4, ref('battle_faction_loch_chon'))]"/>
+            <field name="responder_stance">defense</field>
+        </record>
+        <record id="battle_round_4_result_hills_umbra" model="battle.result">
+            <field name="battle_location_id" ref="battle_location_hills_umbra"/>
+            <field name="battle_location_effect_ids" eval="[
+                (5, 0),
+                (0, 0, {
+                    'battle_faction_id': ref('battle_faction_loch_chon'),
+                    'battle_trait_id': ref('battle_trait_heroic_defense'),
+                }),
+            ]"/>
+            <field name="battle_outcome_id" ref="battle_outcome_clear_defeat"/>
+            <field name="result_score">-3</field>
+            <field name="battle_round_id" ref="battle_round_4"/>
+            <field name="initiator_faction_ids" eval="[(4, ref('battle_faction_kiker'))]"/>
+            <field name="initiator_stance">attack</field>
+            <field name="responder_faction_ids" eval="[(4, ref('battle_faction_loch_chon'))]"/>
+            <field name="responder_stance">defense</field>
+        </record>
+        <record id="battle_round_4_result_bois" model="battle.result">
+            <field name="battle_location_id" ref="battle_location_bois"/>
+            <!-- held by Loch Chon, who attacked leftover Kiker units: narrow defeat for Kiker (initiators) -->
+            <field name="battle_outcome_id" ref="battle_outcome_narrow_defeat"/>
+            <field name="result_score">-1</field>
+            <field name="battle_result_line_ids" eval="[
+                (5, 0),
+                (0, 0, {
+                    'battle_unit_id': ref('battle_unit_loch_chon_eliud_drifteurs'),
+                    'side': 'responder',
+                }),
+                (0, 0, {
+                    'battle_unit_id': ref('battle_unit_loch_chon_manouches_1'),
+                    'side': 'responder',
+                }),
+                (0, 0, {
+                    'battle_unit_id': ref('battle_unit_kiker_coterie_vykos_goules_1'),
+                    'side': 'initiator',
+                }),
+                (0, 0, {
+                    'battle_unit_id': ref('battle_unit_kiker_coterie_vykos_goules_2'),
+                    'side': 'initiator',
+                }),
+            ]"/>
+            <field name="battle_round_id" ref="battle_round_4"/>
+            <field name="initiator_faction_ids" eval="[(6, 0, [ref('battle_faction_kiker')])]"/>
+            <field name="initiator_stance">defense</field>
+            <field name="responder_faction_ids" eval="[(6, 0, [ref('battle_faction_loch_chon')])]"/>
+            <field name="responder_stance">attack</field>
+        </record>
+        <record id="battle_round_4_result_marais" model="battle.result">
+            <field name="battle_location_id" ref="battle_location_marais"/>
+            <field name="battle_location_effect_ids" eval="[
+                (5, 0),
+                (0, 0, {
+                    'battle_faction_id': ref('battle_faction_loch_chon'),
+                    'battle_trait_id': ref('battle_trait_heroic_defense'),
+                }),
+            ]"/>
+            <!-- held by Kiker, who attacked; tie, Défense Héroïque granted by role-play: a single player held against Kiker -->
+            <field name="battle_outcome_id" ref="battle_outcome_tie"/>
+            <field name="result_score">0</field>
+            <field name="battle_round_id" ref="battle_round_4"/>
+            <field name="initiator_faction_ids" eval="[(6, 0, [ref('battle_faction_loch_chon')])]"/>
+            <field name="initiator_stance">defense</field>
+            <field name="responder_faction_ids" eval="[(6, 0, [ref('battle_faction_kiker')])]"/>
+            <field name="responder_stance">attack</field>
+        </record>
+        <!-- command actions -->
+        <record id="battle_round_4_command_loch_chon_support_walkhill" model="battle.command.action">
+            <field name="battle_round_id" ref="battle_round_4"/>
+            <field name="camp">defender</field>
+            <field name="command_type">location_support</field>
+            <field name="battle_location_id" ref="battle_location_hills"/>
+        </record>
+        <record id="battle_round_4_command_kiker_support_walkhill" model="battle.command.action">
+            <field name="battle_round_id" ref="battle_round_4"/>
+            <field name="camp">aggressor</field>
+            <field name="command_type">location_support</field>
+            <field name="battle_location_id" ref="battle_location_walkhill"/>
+        </record>
+        <record id="battle_round_4_command_kiker_support_route_centre" model="battle.command.action">
+            <field name="battle_round_id" ref="battle_round_4"/>
+            <field name="camp">aggressor</field>
+            <field name="command_type">location_support</field>
+            <field name="battle_location_id" ref="battle_location_route_centre"/>
+        </record>
+        <record id="battle_round_4_command_kiker_unstoppable_route_centre" model="battle.command.action">
+            <field name="battle_round_id" ref="battle_round_4"/>
+            <field name="camp">aggressor</field>
+            <field name="command_type">attack_unstoppable</field>
+            <field name="battle_location_id" ref="battle_location_route_centre"/>
+            <field name="note">Allowed by role-play (to complete)</field>
+        </record>
 </odoo>

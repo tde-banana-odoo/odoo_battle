@@ -6,37 +6,86 @@
         <div class="o_action h-100 overflow-auto bg-view p-4">
             <div class="d-flex flex-wrap align-items-center gap-3 mb-4">
                 <h1 class="mb-0" t-out="data.round ? data.round.name : 'No round yet'"/>
+                <span t-if="data.round" class="badge fs-6" title="Integrity of the Caern defended by the players"
+                    t-att-class="{ 'text-bg-success': data.round.caern_state == '4', 'text-bg-info': data.round.caern_state == '3', 'text-bg-warning': data.round.caern_state == '2', 'text-bg-danger': ['1', '0'].includes(data.round.caern_state) }">
+                    Caern: <t t-out="data.round.caern_label"/>
+                </span>
                 <button t-if="data.round" class="btn btn-secondary" t-on-click="() => this.openRecord('battle.round', data.round.id)">Open Round</button>
                 <button t-if="data.is_admin" class="btn btn-primary" t-on-click="() => this.startNextRound()">Start Next Round</button>
             </div>
             <div class="row g-4">
                 <div class="col-xl-6">
+                    <div class="d-flex align-items-center gap-3 mb-2">
+                        <h4 class="mb-0">Leadership</h4>
+                        <button t-if="data.is_admin and data.round" class="btn btn-sm btn-secondary" t-on-click="() => this.openLeadership()">Edit</button>
+                    </div>
+                    <table class="table table-sm">
+                        <thead>
+                            <tr><th>Camp</th><th>Morale</th><th class="text-end" title="Command actions picked / available">Command</th><th>Picked</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr t-foreach="data.camps" t-as="camp" t-key="camp.camp">
+                                <td>
+                                    <div class="fw-bold" t-out="camp.name"/>
+                                    <div class="text-muted small" t-out="camp.factions.join(', ')"/>
+                                </td>
+                                <td class="text-nowrap">
+                                    <t t-out="camp.morale"/>
+                                    <i t-if="camp.morale_trend == 'up'" class="oi text-success ms-1" data-icon="arrow_upward" title="Better than last round"/>
+                                    <i t-elif="camp.morale_trend == 'down'" class="oi text-danger ms-1" data-icon="arrow_downward" title="Worse than last round"/>
+                                    <i t-elif="camp.morale_trend == 'same'" class="oi text-muted ms-1" data-icon="remove" title="Same as last round"/>
+                                </td>
+                                <td class="text-end text-nowrap"><t t-out="camp.command_actions_picked.length"/> / <t t-out="camp.command_actions"/></td>
+                                <td class="small" t-out="camp.command_actions_picked.join(', ')"/>
+                            </tr>
+                        </tbody>
+                    </table>
+
                     <h4>Factions</h4>
                     <table class="table table-sm table-hover">
                         <thead>
-                            <tr><th>Faction</th><th>Leader</th><th class="text-end">Units</th><th>Morale</th><th class="text-end">Leadership</th><th/></tr>
+                            <tr><th>Faction</th><th>Role</th><th>Leader</th><th class="text-end">Units</th></tr>
                         </thead>
                         <tbody>
                             <tr t-foreach="data.factions" t-as="faction" t-key="faction.id" class="cursor-pointer"
                                 t-on-click="() => this.openRecord('battle.faction', faction.id)">
                                 <td t-out="faction.name"/>
+                                <td class="text-muted">
+                                    <t t-out="faction.role"/>
+                                    <t t-if="faction.ally"> (<t t-out="faction.ally"/>)</t>
+                                </td>
                                 <td t-if="faction.leader">
                                     <t t-out="faction.leader.name"/>
-                                    <span t-if="faction.leader.state != 'alive'" class="text-danger small"> (<t t-out="faction.leader.state_label"/>)</span>
+                                    <span t-if="faction.leader.narrative_state != 'alive'" class="text-danger small"> (<t t-out="faction.leader.narrative_state_label"/>)</span>
                                 </td>
                                 <td t-else="" class="text-muted">-</td>
                                 <td class="text-end" t-out="faction.unit_count"/>
-                                <td class="text-nowrap">
-                                    <t t-out="faction.morale"/>
-                                    <i t-if="faction.morale_trend == 'up'" class="oi text-success ms-1" data-icon="arrow_upward" title="Better than last round"/>
-                                    <i t-elif="faction.morale_trend == 'down'" class="oi text-danger ms-1" data-icon="arrow_downward" title="Worse than last round"/>
-                                    <i t-elif="faction.morale_trend == 'same'" class="oi text-muted ms-1" data-icon="remove" title="Same as last round"/>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <h4>Leaders</h4>
+                    <table class="table table-sm table-hover">
+                        <thead>
+                            <tr><th/><th>Leader</th><th>Faction</th><th>Location</th><th>Wounds</th><th>Status</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr t-foreach="data.leaders" t-as="leader" t-key="leader.id" class="cursor-pointer"
+                                t-att-class="{ 'text-muted': ['dead', 'mia'].includes(leader.narrative_state) }"
+                                t-on-click="() => this.openRecord('battle.leader', leader.id)">
+                                <td class="align-middle"><img t-att-src="'/web/image/battle.leader/' + leader.id + '/avatar_128'" class="o_avatar" width="24" height="24" alt=""/></td>
+                                <td t-att-class="{ 'fw-bold': leader.is_faction_leader }">
+                                    <t t-out="leader.name"/>
+                                    <span t-if="leader.is_champion" class="badge text-bg-secondary ms-1">Champion</span>
                                 </td>
-                                <td class="text-end" t-out="faction.leadership ?? '-'"/>
-                                <td class="text-end">
-                                    <button t-if="data.is_admin and data.round" class="btn btn-sm btn-secondary text-nowrap"
-                                        t-on-click.stop="() => this.openLeadership(faction.id)">Roll</button>
+                                <td t-out="leader.faction or ''"/>
+                                <td t-out="leader.location or ''"/>
+                                <td>
+                                    <span class="badge" t-att-class="{ 'text-bg-success': leader.wound_state == '4', 'text-bg-warning': ['3', '2'].includes(leader.wound_state), 'text-bg-danger': ['1', '0'].includes(leader.wound_state) }"
+                                        t-out="leader.wound_label"/>
                                 </td>
+                                <td t-att-class="{ 'text-danger': leader.narrative_state == 'dead', 'text-warning': leader.narrative_state == 'routing' }"
+                                    t-out="leader.narrative_state_label"/>
                             </tr>
                         </tbody>
                     </table>
@@ -54,21 +103,37 @@
                 <div class="col-xl-6">
                     <h4>Locations</h4>
                     <table class="table table-sm table-hover">
+                        <thead>
+                            <tr><th>Location</th><th>Held by</th><th>Battle</th><th>Forces</th></tr>
+                        </thead>
                         <tbody>
                             <tr t-foreach="data.locations" t-as="location" t-key="location.id" class="cursor-pointer"
                                 t-on-click="() => this.openRecord('battle.location', location.id)">
                                 <td class="fw-bold" t-out="location.name"/>
-                                <td>
-                                    <span class="badge" t-att-class="{ 'text-bg-success': location.status == 'free', 'text-bg-warning': location.status == 'contested', 'text-bg-info': location.status == 'held' }"
-                                        t-out="location.holder ? location.status_label + ' by ' + location.holder : location.status_label"/>
+                                <td class="text-nowrap">
+                                    <!-- held: holder in its faction color; otherwise the status as text -->
+                                    <span t-if="location.status == 'held' and location.holder" class="badge"
+                                        t-att-class="`o_badge_color_${location.holder_color}`" t-out="location.holder"/>
+                                    <span t-elif="location.status == 'contested'" class="text-warning-emphasis fw-semibold" t-out="location.status_label"/>
+                                    <span t-else="" class="text-muted" t-out="location.status_label"/>
+                                </td>
+                                <td class="small">
+                                    <span t-if="location.battle?.state == 'pending'" class="text-danger fw-bold" title="Battle to solve this round">To solve</span>
+                                    <span t-elif="location.battle?.state == 'done'" title="Battle solved this round" t-out="location.battle.summary"/>
                                 </td>
                                 <td>
                                     <t t-foreach="location.forces" t-as="force" t-key="force_index">
-                                        <t t-if="!force_first">, </t><t t-out="force.faction"/> <span class="text-muted" t-out="force.count"/>
+                                        <t t-if="!force_first">, </t><t t-out="force.faction"/> <span class="text-muted">(<t t-out="force.count"/>, M<t t-out="force.menace"/>)</span>
                                     </t>
-                                    <span t-if="location.leaders.length" class="text-muted small ms-2">
+                                    <div t-if="location.effects.length" class="small text-warning-emphasis" title="Effects applying this round">
+                                        <t t-out="location.effects.join(', ')"/>
+                                    </div>
+                                    <div t-if="location.next_effects.length" class="small text-muted" title="Effects granted for next round">
+                                        Next round: <t t-out="location.next_effects.join(', ')"/>
+                                    </div>
+                                    <div t-if="location.leaders.length" class="small text-muted" title="Leaders">
                                         <i class="oi me-1" data-icon="person"/><t t-out="location.leaders.join(', ')"/>
-                                    </span>
+                                    </div>
                                 </td>
                             </tr>
                         </tbody>

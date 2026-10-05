@@ -1,28 +1,97 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
+    <!-- Kiker -->
     <record id="battle_leader_kiker" model="battle.leader">
         <field name="name">Kiker</field>
+        <field name="unit_type">spirit</field>
         <field name="battle_faction_id" ref="battle_faction_kiker"/>
+        <field name="battle_location_id" ref="battle_location_marais"/>
     </record>
-    <record id="battle_leader_calamity_jane" model="battle.leader">
+    <record id="battle_leader_kiker_nihilacs" model="battle.leader">
+        <field name="name">Celui-qui-Clot</field>
+        <field name="unit_type">spirit</field>
+        <field name="battle_faction_id" ref="battle_faction_kiker"/>
+        <field name="battle_location_id" ref="battle_location_hills_umbra"/>
+    </record>
+    <record id="battle_leader_kiker_duc" model="battle.leader">
+        <field name="name">Baron Rouille</field>
+        <field name="unit_type">spirit</field>
+        <field name="battle_faction_id" ref="battle_faction_kiker"/>
+        <field name="battle_location_id" ref="battle_location_abysses"/>
+    </record>
+    <!-- Loch Chon -->
+    <record id="battle_leader_loch_chon_calamity_jane" model="battle.leader">
         <field name="name">Calamity Jane</field>
+        <field name="unit_type">werewolf</field>
         <field name="battle_faction_id" ref="battle_faction_loch_chon"/>
+        <field name="battle_location_id" ref="battle_location_route_centre"/>
     </record>
+    <record id="battle_leader_loch_chon_papy_ronchon" model="battle.leader">
+        <field name="name">Papy Ronchon</field>
+        <field name="unit_type">spirit</field>
+        <field name="battle_faction_id" ref="battle_faction_loch_chon"/>
+        <field name="battle_location_id" ref="battle_location_hills_umbra"/>
+    </record>
+    <record id="battle_leader_loch_chon_dhruti" model="battle.leader">
+        <field name="name">Dhruti</field>
+        <field name="unit_type">werewolf</field>
+        <field name="battle_faction_id" ref="battle_faction_loch_chon"/>
+        <field name="battle_location_id" ref="battle_location_park_center"/>
+    </record>
+    <record id="battle_leader_loch_chon_ppqlf" model="battle.leader">
+        <field name="name">PPQLF</field>
+        <field name="unit_type">werewolf</field>
+        <field name="battle_faction_id" ref="battle_faction_loch_chon"/>
+        <field name="battle_location_id" ref="battle_location_walkhill"/>
+    </record>
+    <record id="battle_leader_loch_chon_rda" model="battle.leader">
+        <field name="name">Regard d'Aigle</field>
+        <field name="unit_type">werewolf</field>
+        <field name="battle_faction_id" ref="battle_faction_loch_chon"/>
+        <field name="battle_location_id" ref="battle_location_walkhill"/>
+    </record>
+    <record id="battle_leader_loch_chon_wendy" model="battle.leader">
+        <field name="name">Wendy</field>
+        <field name="unit_type">werewolf</field>
+        <field name="battle_faction_id" ref="battle_faction_loch_chon"/>
+        <field name="battle_location_id" ref="battle_location_walkhill"/>
+    </record>
+    <!-- Neutral -->
     <record id="battle_leader_hel" model="battle.leader">
         <field name="name">Hel</field>
+        <field name="unit_type">bsd</field>
         <field name="battle_faction_id" ref="battle_faction_hel"/>
+        <field name="battle_location_id" ref="battle_location_walkhill"/>
     </record>
-    <record id="battle_leader_retour_de_force" model="battle.leader">
+    <record id="battle_leader_weaver_retour_de_force" model="battle.leader">
         <field name="name">Retour de Force</field>
+        <field name="unit_type">spirit</field>
         <field name="battle_faction_id" ref="battle_faction_weaver"/>
+        <field name="battle_location_id" ref="battle_location_walkhill_umbra"/>
     </record>
-    <record id="battle_leader_elisabeth_noot" model="battle.leader">
+    <record id="battle_leader_yamazaki_elisabeth_noot" model="battle.leader">
         <field name="name">Elisabeth Noot</field>
-        <field name="battle_faction_id" ref="battle_faction_noot"/>
+        <field name="unit_type">possessed</field>
+        <field name="battle_faction_id" ref="battle_faction_yamazaki"/>
+        <field name="battle_location_id" ref="battle_location_walkhill"/>
     </record>
-    <record id="battle_leader_byron_johnson" model="battle.leader">
+    <record id="battle_leader_gaia_kami" model="battle.leader">
+        <field name="name">C'est-ma-copine</field>
+        <field name="unit_type">spirit</field>
+        <field name="battle_faction_id" ref="battle_faction_gaia"/>
+        <field name="battle_location_id" ref="battle_location_penumbra"/>
+    </record>
+    <record id="battle_leader_gaia_galehaut" model="battle.leader">
+        <field name="name">Galehaut</field>
+        <field name="unit_type">fera</field>
+        <field name="battle_faction_id" ref="battle_faction_gaia"/>
+        <field name="battle_location_id" ref="battle_location_penumbra"/>
+    </record>
+    <record id="battle_leader_scotland" model="battle.leader">
         <field name="name">Byron Johnson</field>
+        <field name="unit_type">human</field>
         <field name="battle_faction_id" ref="battle_faction_scotland"/>
+        <field name="battle_location_id" ref="battle_location_walkhill"/>
     </record>
 
     <!-- Faction leaders -->
@@ -30,18 +99,21 @@
         <field name="leader_id" ref="battle_leader_kiker"/>
     </record>
     <record id="battle_faction_loch_chon" model="battle.faction">
-        <field name="leader_id" ref="battle_leader_calamity_jane"/>
+        <field name="leader_id" ref="battle_leader_loch_chon_calamity_jane"/>
     </record>
     <record id="battle_faction_hel" model="battle.faction">
         <field name="leader_id" ref="battle_leader_hel"/>
     </record>
     <record id="battle_faction_weaver" model="battle.faction">
-        <field name="leader_id" ref="battle_leader_retour_de_force"/>
+        <field name="leader_id" ref="battle_leader_weaver_retour_de_force"/>
     </record>
-    <record id="battle_faction_noot" model="battle.faction">
-        <field name="leader_id" ref="battle_leader_elisabeth_noot"/>
+    <record id="battle_faction_yamazaki" model="battle.faction">
+        <field name="leader_id" ref="battle_leader_yamazaki_elisabeth_noot"/>
+    </record>
+    <record id="battle_faction_gaia" model="battle.faction">
+        <field name="leader_id" ref="battle_leader_gaia_kami"/>
     </record>
     <record id="battle_faction_scotland" model="battle.faction">
-        <field name="leader_id" ref="battle_leader_byron_johnson"/>
+        <field name="leader_id" ref="battle_leader_scotland"/>
     </record>
 </odoo>

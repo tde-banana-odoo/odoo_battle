@@ -6,7 +6,7 @@ from odoo.tools.misc import file_open
 
 OFFENSE_STATS = {
     'unit_type': 'werewolf', 'menace': 3, 'size': 1,
-    'rage': 3, 'willpower': 1, 'gnosis': 0, 'damage': 2, 'resistance': 1,
+    'rage': 3, 'willpower': 1, 'gnosis': 1, 'damage': 3, 'resistance': 2,
 }
 HENCHMEN_STATS = {
     'unit_type': 'human', 'menace': 1, 'size': 2,
@@ -25,8 +25,24 @@ class TestBattleUnit(BattleCommon):
                 unit.write({'is_dead': False, 'wound_state': '4', **vals})
                 # Isca: only good units left, no battle anymore
                 self.assertEqual(self.location_isca.with_env(self.env)._get_battle_sides(), (self.faction_good, self.env['battle.faction']))
-                self.assertFalse(self._new_solver_form(self.location_isca).responder_unit_ids)
+                self.assertFalse(self._new_solver_form(self.location_isca).save().responder_line_ids)
         self.assertEqual(self.faction_bad.with_env(self.env).battle_unit_count, 2, 'Out of combat units are still alive')
+
+    @users('battle_admin')
+    def test_tracking_round(self):
+        """ Tracking messages of units and leaders give the current round,
+        to know when a change happened """
+        unit = self.unit_vampire_1.with_env(self.env)
+        leader = self.env['battle.leader'].create({'name': 'Test Tracked Leader'})
+        self.env.flush_all()
+        self.env.cr.precommit.run()  # creation is not tracked as a change
+        unit.wound_state = leader.wound_state = '3'
+        self.env.flush_all()
+        self.env.cr.precommit.run()
+        for record in (unit, leader):
+            with self.subTest(record=record):
+                message = record.message_ids.filtered(lambda message: message.message_type == 'tracking')[:1]
+                self.assertIn(self.battle_round.display_name, message.body)
 
     @users('battle_admin')
     def test_form(self):
@@ -44,14 +60,14 @@ class TestBattleUnit(BattleCommon):
         Tweaked values are kept when template values change, and reset when
         changing template """
         template_offense, template_henchmen = (self.template_offense + self.template_henchmen).with_env(self.env)
-        template_offense.battle_trait_ids = self.trait_fury
         unit, unit_tweaked = self.env['battle.unit'].create([
             {'name': 'Test Templated', 'battle_unit_template_id': template_offense.id},
             {'name': 'Test Tweaked', 'battle_unit_template_id': template_offense.id, 'menace': 5},
         ])
+        offense_traits = (self.trait_assassin + self.trait_fury).ids
         self.assertRecordValues(unit + unit_tweaked, [
-            {**OFFENSE_STATS, 'battle_trait_ids': self.trait_fury.ids},
-            {**OFFENSE_STATS, 'menace': 5, 'battle_trait_ids': self.trait_fury.ids},  # explicit values take precedence
+            {**OFFENSE_STATS, 'battle_trait_ids': offense_traits},
+            {**OFFENSE_STATS, 'menace': 5, 'battle_trait_ids': offense_traits},  # explicit values take precedence
         ])
 
         # rewriting same template (e.g. data update) keeps tweaks
@@ -61,7 +77,7 @@ class TestBattleUnit(BattleCommon):
 
         # changing template resets values, removing it keeps them
         unit.battle_unit_template_id = template_henchmen
-        self.assertRecordValues(unit, [{**HENCHMEN_STATS, 'battle_trait_ids': []}])
+        self.assertRecordValues(unit, [{**HENCHMEN_STATS, 'battle_trait_ids': self.trait_support_fire.ids}])
         unit.battle_unit_template_id = False
         self.assertRecordValues(unit, [HENCHMEN_STATS])
 
@@ -88,6 +104,37 @@ class TestBattleUnitInternals(BattleCommon):
     def _get_glyph(self, unit_type):
         with file_open(f'odoo_battle/static/img/unit_type/{unit_type}.svg', 'rb') as glyph:
             return glyph.read()
+
+    def test_damage(self):
+        """ Every DAMAGE_PER_WOUND (3) damage points, a wound is added and the
+        counter reset; wounds go from unhurt (4) to out of combat (0); heal
+        (one wound less) and mend (counter reset) come after damage """
+        unit = self.unit_werewolf_1
+        for (counter, state), damage, expected in [
+            ((0, '4'), 2, (2, '4')),
+            ((2, '4'), 1, (0, '3')),
+            ((1, '4'), 7, (2, '2')),
+            ((0, '1'), 6, (0, '0')),
+        ]:
+            with self.subTest(counter=counter, state=state, damage=damage):
+                unit.write({'damage_counter': counter, 'wound_state': state})
+                unit._update_damage_and_wounds(damage=damage)
+                self.assertEqual((unit.damage_counter, unit.wound_state), expected)
+        for state, wounds, expected in [('2', -1, '3'), ('4', -1, '4'), ('1', 3, '0')]:
+            with self.subTest(state=state, wounds=wounds):
+                unit.wound_state = state
+                unit._update_damage_and_wounds(wounds=wounds)
+                self.assertEqual(unit.wound_state, expected)
+        # 4 damage on a unit already damaged (1): a wound, counter 2; then healed and / or mended
+        for heal, mend, expected in [
+            (True, True, (0, '4')),
+            (True, False, (2, '4')),
+            (False, True, (0, '3')),
+        ]:
+            with self.subTest(heal=heal, mend=mend):
+                unit.write({'damage_counter': 1, 'wound_state': '4'})
+                unit._update_damage_and_wounds(damage=4, heal=heal, mend=mend)
+                self.assertEqual((unit.damage_counter, unit.wound_state), expected)
 
     def test_display_name(self):
         """ Dead units are flagged in their name """

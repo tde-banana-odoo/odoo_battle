@@ -11,13 +11,11 @@
                     </div>
                     <group>
                         <group>
-                            <field name="leader_id"/>
+                            <field name="leader_id" widget="many2one_avatar"/>
                             <field name="role"/>
+                            <field name="color" widget="color_picker"/>
                             <field name="allied_faction_id" invisible="role != 'neutral'"
                                 domain="[('id', '!=', id), ('role', '!=', 'neutral')]"/>
-                        </group>
-                        <group>
-                            <field name="morale"/>
                         </group>
                     </group>
                     <field name="battle_unit_ids" readonly="1">
@@ -27,6 +25,10 @@
                             <field name="name"/>
                             <field name="unit_type"/>
                             <field name="battle_location_id"/>
+                            <field name="wound_state" widget="badge" width="115px"
+                                decoration-success="wound_state == '4'" decoration-warning="wound_state in ('3', '2')"
+                                decoration-danger="wound_state in ('1', '0')"/>
+                            <field name="damage_counter" string="Dmg" width="55px"/>
                             <widget name="battle_unit_stats" options="{'compact': True}"/>
                         </list>
                     </field>
@@ -52,11 +54,11 @@
         <field name="arch" type="xml">
             <list string="Factions">
                 <field name="sequence" widget="handle"/>
+                <field name="color" widget="color_picker" string=" " width="40px"/>
                 <field name="name"/>
                 <field name="leader_id"/>
                 <field name="role"/>
                 <field name="allied_faction_id"/>
-                <field name="morale"/>
                 <field name="battle_unit_count"/>
             </list>
         </field>

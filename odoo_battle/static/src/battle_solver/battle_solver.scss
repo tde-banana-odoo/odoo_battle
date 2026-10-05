@@ -1,0 +1,47 @@
+// battle solver: compact header rows, aligned on their center
+.o_battle_solver_row {
+    > .o_field_widget, > .o_field_widget .o_field_widget, > span > .o_field_widget {
+        margin-bottom: 0;
+    }
+    .o_field_radio .o_horizontal {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        .o_radio_item {
+            margin: 0;
+        }
+    }
+}
+
+// characteristic bonus given by the DM: small, visible input
+.o_battle_solver_bonus {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    .o_field_widget {
+        display: flex;
+        align-items: center;
+    }
+    input {
+        width: 3rem;
+        padding: 0.1rem 0.25rem;
+        text-align: center;
+        border: 1px solid var(--border-color, #dee2e6);
+        border-radius: 0.25rem;
+    }
+}
+
+// location traits, on two columns
+.o_battle_solver_traits {
+    columns: 2;
+    column-gap: 2rem;
+    .o_battle_solver_trait {
+        break-inside: avoid;
+        padding: 0.1rem 0;
+    }
+}
+
+.o_battle_solver_separator {
+    margin: 1.5rem 0 0.5rem;
+    opacity: 0.4;
+}

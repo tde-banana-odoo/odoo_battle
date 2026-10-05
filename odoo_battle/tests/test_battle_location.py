@@ -12,10 +12,10 @@ class TestBattleLocationInternals(BattleCommon):
         self.assertEqual(self.location_londinium.display_name, 'Londinium')
 
     def test_forces_summary(self):
-        """ Fighting units per faction """
-        self.assertEqual(self.location_isca.forces_summary, 'Test Good 2, Test Bad 1')
+        """ Fighting units per faction, with their menace """
+        self.assertEqual(self.location_isca.forces_summary, 'Test Good (2, M5), Test Bad (1, M4)')
         self.unit_vampire_1.wound_state = '0'
-        self.assertEqual(self.location_isca.forces_summary, 'Test Good 2')
+        self.assertEqual(self.location_isca.forces_summary, 'Test Good (2, M5)')
 
     @users('battle_admin')
     def test_linked_location(self):

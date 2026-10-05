@@ -25,18 +25,36 @@
                             <field name="result_score"/>
                         </group>
                         <group string="Initiators">
-                            <field name="initiator_faction_ids" string="Factions" widget="many2many_tags"/>
+                            <field name="initiator_faction_ids" string="Factions" widget="many2many_tags" options="{'color_field': 'color'}"/>
                             <field name="initiator_stance" string="Stance"/>
-                            <field name="initiator_unit_ids" string="Units" widget="many2many_tags_avatar"/>
                             <field name="damage_to_initiators" string="Damage Taken"/>
                         </group>
                         <group string="Responders">
-                            <field name="responder_faction_ids" string="Factions" widget="many2many_tags"/>
+                            <field name="responder_faction_ids" string="Factions" widget="many2many_tags" options="{'color_field': 'color'}"/>
                             <field name="responder_stance" string="Stance"/>
-                            <field name="responder_unit_ids" string="Units" widget="many2many_tags_avatar"/>
                             <field name="damage_to_responders" string="Damage Taken"/>
                         </group>
                     </group>
+                    <field name="battle_result_line_ids">
+                        <list decoration-muted="position == 'support'">
+                            <field name="side"/>
+                            <field name="battle_unit_id" widget="many2one_avatar"/>
+                            <field name="position"/>
+                            <field name="wound_state_before" string="Before" widget="badge"
+                                decoration-success="wound_state_before == '4'" decoration-warning="wound_state_before in ('3', '2')"
+                                decoration-danger="wound_state_before in ('1', '0')"/>
+                            <field name="damage_counter_before" string="Dmg Before"/>
+                            <field name="damage"/>
+                            <field name="wounds" decoration-danger="wounds &gt; 0" decoration-success="wounds &lt; 0"/>
+                        </list>
+                    </field>
+                    <field name="battle_location_effect_ids" invisible="not battle_location_effect_ids">
+                        <list>
+                            <field name="battle_faction_id"/>
+                            <field name="battle_trait_id"/>
+                            <field name="round_number"/>
+                        </list>
+                    </field>
                     <field name="result_message"/>
                 </sheet>
             </form>
@@ -67,10 +85,10 @@
             <list string="Battle Results" create="0" decoration-muted="state == 'cancel'">
                 <field name="battle_round_id"/>
                 <field name="battle_location_id"/>
-                <field name="initiator_faction_ids" widget="many2many_tags"/>
-                <field name="responder_faction_ids" widget="many2many_tags"/>
-                <field name="result_score"/>
-                <field name="battle_outcome_id"/>
+                <field name="initiator_faction_ids" widget="many2many_tags" options="{'color_field': 'color'}"/>
+                <field name="responder_faction_ids" widget="many2many_tags" options="{'color_field': 'color'}"/>
+                <field name="result_score" decoration-success="result_score &gt; 0" decoration-danger="result_score &lt; 0"/>
+                <field name="battle_outcome_id" decoration-success="result_score &gt; 0" decoration-danger="result_score &lt; 0"/>
                 <field name="damage_to_responders" optional="show"/>
                 <field name="damage_to_initiators" optional="show"/>
                 <field name="state" widget="badge" decoration-success="state == 'done'"/>

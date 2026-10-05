@@ -4,15 +4,16 @@
         <field name="name">battle.outcome.view.list</field>
         <field name="model">battle.outcome</field>
         <field name="arch" type="xml">
-            <list string="Outcomes" editable="bottom">
+            <list string="Outcomes" editable="bottom" decoration-success="score &gt; 0" decoration-danger="score &lt; 0">
                 <field name="score"/>
                 <field name="name"/>
-                <field name="initiator_damage" string="Init. Dmg"/>
-                <field name="initiator_resistance" string="Init. Res"/>
-                <field name="responder_damage" string="Resp. Dmg"/>
-                <field name="responder_resistance" string="Resp. Res"/>
-                <field name="location_shift"/>
-                <field name="battle_trait_ids" widget="many2many_tags" options="{'no_create': True}"/>
+                <field name="attack_damage_rate" string="Attack Dmg %"/>
+                <field name="attack_resistance_rate" string="Attack Res %"/>
+                <field name="attack_trait_ids" string="Attack Grants" widget="many2many_tags" options="{'no_create': True}"/>
+                <field name="defense_damage_rate" string="Defense Dmg %"/>
+                <field name="defense_resistance_rate" string="Defense Res %"/>
+                <field name="defense_trait_ids" string="Defense Grants" widget="many2many_tags" options="{'no_create': True}"/>
+                <field name="location_shift" readonly="score &lt;= 0"/>
             </list>
         </field>
     </record>
@@ -22,7 +23,9 @@
         <field name="res_model">battle.outcome</field>
         <field name="view_mode">list</field>
         <field name="help" type="html">
-            <p>Outcomes go from major defeat (-4) to major victory (+4), from initiators point of view.</p>
+            <p>Outcomes go from major defeat (-4) to major victory (+4), for the side getting the score:
+                initiators read the battle score, responders its opposite. Each side gets the rates (%) of its
+                frontline damage and resistance, and the traits granted for the next round, of its stance.</p>
         </field>
     </record>
 </odoo>

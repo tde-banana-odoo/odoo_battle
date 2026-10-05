@@ -16,7 +16,7 @@ const STATS = [
     { name: "resistance", label: "Res", title: _t("Resistance") },
 ];
 
-/** Wargame-like statistics table: editable in forms, compact in lists */
+/** Wargame-like statistics table: editable in forms, compact (display only) in lists */
 export class BattleUnitStats extends Component {
     static template = "odoo_battle.BattleUnitStats";
     props = useProps({ ...standardWidgetProps, compact: t.boolean().optional() });
@@ -33,5 +33,6 @@ export class BattleUnitStats extends Component {
 registry.category("view_widgets").add("battle_unit_stats", {
     component: BattleUnitStats,
     extractProps: ({ options }) => ({ compact: Boolean(options.compact) }),
-    fieldDependencies: STATS.filter((stat) => stat.name).map(({ name }) => ({ name, type: "integer", readonly: false })),
+    // readonly as defined on the model: editable on units and templates, not on related ones (e.g. solver lines)
+    fieldDependencies: STATS.filter((stat) => stat.name).map(({ name }) => ({ name, type: "integer" })),
 });

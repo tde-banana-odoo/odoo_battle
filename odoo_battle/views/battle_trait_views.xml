@@ -12,15 +12,15 @@
                     <group>
                         <group string="When">
                             <field name="target" widget="radio" options="{'horizontal': true}"/>
-                            <field name="side"/>
-                            <field name="side"/>
-                <field name="stance"/>
+                            <field name="side" invisible="target == 'unit'"/>
+                            <field name="stance"/>
+                            <field name="position" invisible="target == 'location'"/>
                             <field name="condition" readonly="effect == 'bonus'"/>
                         </group>
                         <group string="Effect">
                             <field name="effect"/>
-                            <field name="value" invisible="effect == 'none'"/>
-                            <field name="is_unique" invisible="effect == 'none'"/>
+                            <field name="value" invisible="effect == 'lore'"/>
+                            <field name="is_unique" invisible="effect == 'lore'"/>
                         </group>
                     </group>
                     <field name="description" placeholder="Lore, rules details..."/>
@@ -49,12 +49,13 @@
         <field name="name">battle.trait.view.list</field>
         <field name="model">battle.trait</field>
         <field name="arch" type="xml">
-            <list string="Traits">
+            <list string="Traits" decoration-muted="effect == 'lore'">
                 <field name="sequence" widget="handle"/>
                 <field name="name"/>
                 <field name="target"/>
                 <field name="side"/>
                 <field name="stance"/>
+                <field name="position"/>
                 <field name="condition"/>
                 <field name="effect"/>
                 <field name="value"/>

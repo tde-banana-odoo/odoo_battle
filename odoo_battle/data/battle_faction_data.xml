@@ -4,31 +4,45 @@
         <field name="name">Kiker</field>
         <field name="role">aggressor</field>
         <field name="sequence">1</field>
+        <field name="color">1</field>
     </record>
     <record id="battle_faction_loch_chon" model="battle.faction">
         <field name="name">Loch Chon</field>
         <field name="role">defender</field>
         <field name="sequence">2</field>
+        <field name="color">10</field>
     </record>
     <record id="battle_faction_hel" model="battle.faction">
         <field name="name">Hel</field>
         <!-- officially with Kiker, secretly allied to Loch Chon -->
         <field name="allied_faction_id" ref="battle_faction_kiker"/>
         <field name="sequence">3</field>
+        <field name="color">2</field>
     </record>
     <record id="battle_faction_weaver" model="battle.faction">
         <field name="name">Weaver</field>
         <field name="allied_faction_id" ref="battle_faction_loch_chon"/>
         <field name="sequence">4</field>
+        <field name="color">2</field>
     </record>
-    <record id="battle_faction_noot" model="battle.faction">
-        <field name="name">Noot</field>
+    <record id="battle_faction_yamazaki" model="battle.faction">
+        <field name="name">Yamazaki</field>
         <field name="sequence">5</field>
+        <field name="color">2</field>
+        <!-- officially with Kiker, potentially allied to Loch Chon -->
         <field name="allied_faction_id" ref="battle_faction_kiker"/>
+    </record>
+    <record id="battle_faction_gaia" model="battle.faction">
+        <field name="name">Gaia</field>
+        <field name="sequence">6</field>
+        <field name="color">2</field>
+        <field name="allied_faction_id" ref="battle_faction_loch_chon"/>
     </record>
     <record id="battle_faction_scotland" model="battle.faction">
         <field name="name">Scotland</field>
-        <field name="sequence">6</field>
+        <field name="sequence">10</field>
+        <field name="color">2</field>
+        <!-- unofficial alliance -->
         <field name="allied_faction_id" ref="battle_faction_kiker"/>
     </record>
 </odoo>

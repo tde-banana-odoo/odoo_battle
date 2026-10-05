@@ -1,63 +1,384 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Unit traits -->
-    <record id="battle_trait_counter_attack" model="battle.trait">
-        <field name="name">Counter-Attack</field>
+    <!-- Unit traits: tactics -->
+    <record id="battle_trait_leadership" model="battle.trait">
+        <field name="name">Commandement</field>
         <field name="sequence">10</field>
+        <field name="stance">any</field>
+        <field name="position">any</field>
+        <field name="condition">any</field>
+        <field name="effect">bonus</field>
+        <field name="value">1</field>
+        <field name="is_unique" eval="True"/>
+        <field name="description">+1 au bonus (une fois par camp).</field>
+    </record>
+    <record id="battle_trait_diversion" model="battle.trait">
+        <field name="name">Diversion</field>
+        <field name="sequence">20</field>
+        <field name="stance">any</field>
+        <field name="position">any</field>
+        <field name="condition">any</field>
+        <field name="effect">diversion</field>
+        <field name="value">2</field>
+        <field name="is_unique" eval="True"/>
+        <field name="description">-2 à la caractéristique adverse (une fois par camp).</field>
+    </record>
+    <record id="battle_trait_terror" model="battle.trait">
+        <field name="name">Terreur</field>
+        <field name="sequence">25</field>
+        <field name="stance">any</field>
+        <field name="position">any</field>
+        <field name="condition">any</field>
+        <field name="effect">diversion</field>
+        <field name="value">1</field>
+        <field name="is_unique" eval="True"/>
+        <field name="description">-1 à la caractéristique adverse (une fois par camp, cumulable avec Diversion).</field>
+    </record>
+    <record id="battle_trait_tactics" model="battle.trait">
+        <field name="name">Tactique</field>
+        <field name="sequence">30</field>
+        <field name="stance">any</field>
+        <field name="position">any</field>
+        <field name="condition">any</field>
+        <field name="effect">reroll</field>
+        <field name="value">1</field>
+        <field name="is_unique" eval="False"/>
+        <field name="description">Relance 1 dé.</field>
+    </record>
+
+    <!-- Unit traits: before the roll -->
+    <record id="battle_trait_assassin" model="battle.trait">
+        <field name="name">Assassin</field>
+        <field name="sequence">100</field>
+        <field name="stance">any</field>
+        <field name="position">frontline</field>
+        <field name="condition">any</field>
+        <field name="effect">assassin</field>
+        <field name="value">1</field>
+        <field name="is_unique" eval="False"/>
+        <field name="description">En 1re ligne : 1 blessure à une unité ennemie choisie, avant le jet.</field>
+    </record>
+    <record id="battle_trait_ambush" model="battle.trait">
+        <field name="name">Embuscade</field>
+        <field name="sequence">110</field>
         <field name="stance">defense</field>
+        <field name="position">support</field>
+        <field name="condition">any</field>
+        <field name="effect">ambush</field>
+        <field name="value">1</field>
+        <field name="is_unique" eval="False"/>
+        <field name="description">En défense, en soutien : retire de la bataille une unité ennemie choisie.</field>
+    </record>
+
+    <!-- Unit traits: damage -->
+    <record id="battle_trait_counter_attack" model="battle.trait">
+        <field name="name">Contre-Attaque</field>
+        <field name="sequence">200</field>
+        <field name="stance">defense</field>
+        <field name="position">frontline</field>
         <field name="condition">win</field>
         <field name="effect">damage</field>
-        <field name="description">+1 damage when defending successfully.</field>
+        <field name="value">2</field>
+        <field name="is_unique" eval="False"/>
+        <field name="description">En défense, en 1re ligne, si victoire : +2 dégâts.</field>
     </record>
     <record id="battle_trait_fury" model="battle.trait">
-        <field name="name">Fury</field>
-        <field name="sequence">20</field>
+        <field name="name">Fureur</field>
+        <field name="sequence">210</field>
         <field name="stance">attack</field>
+        <field name="position">frontline</field>
         <field name="condition">win</field>
         <field name="effect">damage</field>
-        <field name="description">+1 damage when attacking successfully.</field>
+        <field name="value">2</field>
+        <field name="is_unique" eval="False"/>
+        <field name="description">En attaque, en 1re ligne, si victoire : +2 dégâts.</field>
     </record>
-    <record id="battle_trait_leadership" model="battle.trait">
-        <field name="name">Leadership</field>
-        <field name="sequence">30</field>
-        <field name="effect">bonus</field>
-        <field name="is_unique" eval="True"/>
-        <field name="description">+1 to the battle result, once per side.</field>
+    <record id="battle_trait_massacre" model="battle.trait">
+        <field name="name">Massacre</field>
+        <field name="sequence">215</field>
+        <field name="stance">any</field>
+        <field name="position">frontline</field>
+        <field name="condition">win</field>
+        <field name="effect">wound_enemy</field>
+        <field name="value">1</field>
+        <field name="is_unique" eval="False"/>
+        <field name="description">En 1re ligne, si victoire : 1 blessure à une unité ennemie, après la bataille.</field>
+    </record>
+    <record id="battle_trait_support_fire" model="battle.trait">
+        <field name="name">Appui</field>
+        <field name="sequence">220</field>
+        <field name="stance">attack</field>
+        <field name="position">support</field>
+        <field name="condition">any</field>
+        <field name="effect">support_damage</field>
+        <field name="value">1</field>
+        <field name="is_unique" eval="False"/>
+        <field name="description">En attaque, en soutien : ajoute ses dégâts à ceux du camp.</field>
+    </record>
+
+    <!-- Unit traits: resistance -->
+    <record id="battle_trait_tactical_assault" model="battle.trait">
+        <field name="name">Assaut Tactique</field>
+        <field name="sequence">300</field>
+        <field name="stance">attack</field>
+        <field name="position">frontline</field>
+        <field name="condition">any</field>
+        <field name="effect">resistance</field>
+        <field name="value">1</field>
+        <field name="is_unique" eval="False"/>
+        <field name="description">En attaque, en 1re ligne : +1 résistance.</field>
+    </record>
+    <record id="battle_trait_last_stand" model="battle.trait">
+        <field name="name">Dernier Carré</field>
+        <field name="sequence">310</field>
+        <field name="stance">any</field>
+        <field name="position">frontline</field>
+        <field name="condition">lose</field>
+        <field name="effect">wound_enemy</field>
+        <field name="value">1</field>
+        <field name="is_unique" eval="False"/>
+        <field name="description">En 1re ligne, si défaite : 1 blessure à une unité ennemie, après la bataille.</field>
+    </record>
+    <record id="battle_trait_discipline" model="battle.trait">
+        <field name="name">Discipline</field>
+        <field name="sequence">320</field>
+        <field name="stance">defense</field>
+        <field name="position">frontline</field>
+        <field name="condition">any</field>
+        <field name="effect">resistance</field>
+        <field name="value">2</field>
+        <field name="is_unique" eval="False"/>
+        <field name="description">En défense, en 1re ligne : +2 résistance.</field>
+    </record>
+    <record id="battle_trait_defensive_retreat" model="battle.trait">
+        <field name="name">Repli Défensif</field>
+        <field name="sequence">330</field>
+        <field name="stance">any</field>
+        <field name="position">frontline</field>
+        <field name="condition">lose</field>
+        <field name="effect">resistance</field>
+        <field name="value">2</field>
+        <field name="is_unique" eval="False"/>
+        <field name="description">En 1re ligne, si défaite : +2 résistance.</field>
+    </record>
+    <record id="battle_trait_barrage_fire" model="battle.trait">
+        <field name="name">Couverture</field>
+        <field name="sequence">340</field>
+        <field name="stance">defense</field>
+        <field name="position">support</field>
+        <field name="condition">any</field>
+        <field name="effect">support_resistance</field>
+        <field name="value">1</field>
+        <field name="is_unique" eval="False"/>
+        <field name="description">En défense, en soutien : ajoute ses dégâts à la résistance du camp.</field>
+    </record>
+
+    <!-- Unit traits: after the battle -->
+    <record id="battle_trait_scavenger" model="battle.trait">
+        <field name="name">Nécrophage</field>
+        <field name="sequence">400</field>
+        <field name="stance">any</field>
+        <field name="position">any</field>
+        <field name="condition">any</field>
+        <field name="effect">mend_self</field>
+        <field name="value">1</field>
+        <field name="is_unique" eval="False"/>
+        <field name="description">Annule les dégâts d'une unité du camp (la plus endommagée), après la bataille.</field>
+    </record>
+    <record id="battle_trait_regeneration" model="battle.trait">
+        <field name="name">Régénération</field>
+        <field name="sequence">410</field>
+        <field name="stance">any</field>
+        <field name="position">any</field>
+        <field name="condition">any</field>
+        <field name="effect">heal_self</field>
+        <field name="value">1</field>
+        <field name="is_unique" eval="False"/>
+        <field name="description">Soigne 1 blessure d'une unité du camp (la plus blessée), après la bataille.</field>
+    </record>
+    <record id="battle_trait_fear" model="battle.trait">
+        <field name="name">Effroi</field>
+        <field name="sequence">420</field>
+        <field name="stance">any</field>
+        <field name="position">any</field>
+        <field name="condition">win</field>
+        <field name="effect">lore</field>
+        <field name="value">1</field>
+        <field name="is_unique" eval="False"/>
+        <field name="description">Si victoire : les unités ennemies peuvent fuir (jeu de rôle).</field>
+    </record>
+
+    <!-- Unit traits: lore / role-play -->
+    <record id="battle_trait_lore_silver" model="battle.trait">
+        <field name="name">Argent</field>
+        <field name="sequence">500</field>
+        <field name="stance">any</field>
+        <field name="position">any</field>
+        <field name="condition">any</field>
+        <field name="effect">lore</field>
+        <field name="value">1</field>
+        <field name="is_unique" eval="False"/>
+        <field name="description">Redoutable contre les Fera (jeu de rôle).</field>
+    </record>
+    <record id="battle_trait_lore_blessed" model="battle.trait">
+        <field name="name">Béni</field>
+        <field name="sequence">510</field>
+        <field name="stance">any</field>
+        <field name="position">any</field>
+        <field name="condition">any</field>
+        <field name="effect">lore</field>
+        <field name="value">1</field>
+        <field name="is_unique" eval="False"/>
+        <field name="description">Redoutable contre les vampires (jeu de rôle).</field>
+    </record>
+    <record id="battle_trait_scout" model="battle.trait">
+        <field name="name">Éclaireur</field>
+        <field name="sequence">520</field>
+        <field name="stance">any</field>
+        <field name="position">any</field>
+        <field name="condition">any</field>
+        <field name="effect">lore</field>
+        <field name="value">1</field>
+        <field name="is_unique" eval="False"/>
+        <field name="description">Peut éviter la bataille de la zone (jeu de rôle).</field>
+    </record>
+    <record id="battle_trait_fanatic" model="battle.trait">
+        <field name="name">Fanatique</field>
+        <field name="sequence">530</field>
+        <field name="stance">any</field>
+        <field name="position">any</field>
+        <field name="condition">any</field>
+        <field name="effect">lore</field>
+        <field name="value">1</field>
+        <field name="is_unique" eval="False"/>
+        <field name="description">Ne peut pas battre en retraite (jeu de rôle).</field>
+    </record>
+    <record id="battle_trait_lore_fetish" model="battle.trait">
+        <field name="name">Fétiche</field>
+        <field name="sequence">540</field>
+        <field name="stance">any</field>
+        <field name="position">any</field>
+        <field name="condition">any</field>
+        <field name="effect">lore</field>
+        <field name="value">1</field>
+        <field name="is_unique" eval="False"/>
+        <field name="description">Porte un fétiche (jeu de rôle).</field>
+    </record>
+    <record id="battle_trait_lore_fire" model="battle.trait">
+        <field name="name">Feu</field>
+        <field name="sequence">550</field>
+        <field name="stance">any</field>
+        <field name="position">any</field>
+        <field name="condition">any</field>
+        <field name="effect">lore</field>
+        <field name="value">1</field>
+        <field name="is_unique" eval="False"/>
+        <field name="description">Redoutable contre tous (jeu de rôle).</field>
     </record>
 
     <!-- Location traits -->
+    <record id="battle_trait_obstacled" model="battle.trait">
+        <field name="name">Obstacles</field>
+        <field name="sequence">600</field>
+        <field name="target">location</field>
+        <field name="side">any</field>
+        <field name="stance">attack</field>
+        <field name="condition">any</field>
+        <field name="effect">size_rate</field>
+        <field name="value">-25</field>
+        <field name="description">En attaque : -25% de taille.</field>
+    </record>
+    <record id="battle_trait_dangerous" model="battle.trait">
+        <field name="name">Impraticable</field>
+        <field name="sequence">605</field>
+        <field name="target">location</field>
+        <field name="side">any</field>
+        <field name="stance">any</field>
+        <field name="condition">any</field>
+        <field name="effect">resistance_rate</field>
+        <field name="value">-25</field>
+        <field name="description">-25% de résistance pour tous.</field>
+    </record>
     <record id="battle_trait_fortified" model="battle.trait">
-        <field name="name">Fortified</field>
-        <field name="sequence">50</field>
+        <field name="name">Fortifié</field>
+        <field name="sequence">610</field>
         <field name="target">location</field>
         <field name="side">responder</field>
         <field name="stance">defense</field>
         <field name="effect">bonus</field>
-        <field name="description">+1 to holders defending the location.</field>
-    </record>
-    <record id="battle_trait_barricaded" model="battle.trait">
-        <field name="name">Barricaded</field>
-        <field name="sequence">60</field>
-        <field name="target">location</field>
-        <field name="description">Slows down units moving through.</field>
+        <field name="description">Occupants, en défense : +1 au bonus.</field>
     </record>
     <record id="battle_trait_trapped" model="battle.trait">
-        <field name="name">Trapped</field>
-        <field name="sequence">70</field>
+        <field name="name">Piégé</field>
+        <field name="sequence">620</field>
         <field name="target">location</field>
+        <field name="side">responder</field>
+        <field name="stance">defense</field>
+        <field name="condition">any</field>
+        <field name="effect">wound_enemy</field>
+        <field name="value">1</field>
+        <field name="description">Occupants, en défense : blesse 1 ennemi.</field>
     </record>
     <record id="battle_trait_resupplied" model="battle.trait">
-        <field name="name">Resupplied</field>
-        <field name="sequence">80</field>
+        <field name="name">Ravitaillé</field>
+        <field name="sequence">630</field>
         <field name="target">location</field>
+        <field name="side">responder</field>
+        <field name="stance">any</field>
+        <field name="condition">any</field>
+        <field name="effect">heal_self</field>
+        <field name="value">1</field>
+        <field name="description">Occupants : 1 soin après bataille.</field>
     </record>
+    <record id="battle_trait_tagged" model="battle.trait">
+        <field name="name">Balisé</field>
+        <field name="sequence">640</field>
+        <field name="target">location</field>
+        <field name="side">responder</field>
+        <field name="effect">reroll</field>
+        <field name="description">Occupants : relance 1 dé.</field>
+    </record>
+
+    <!-- Location traits granted manually to a faction for a round, as location effects -->
+    <record id="battle_trait_water_spirit" model="battle.trait">
+        <field name="name">Esprit des Eaux</field>
+        <field name="sequence">650</field>
+        <field name="target">location</field>
+        <field name="side">any</field>
+        <field name="stance">any</field>
+        <field name="condition">any</field>
+        <field name="effect">resistance_rate</field>
+        <field name="value">25</field>
+        <field name="is_unique" eval="True"/>
+        <field name="description">+25% de résistance (une fois par camp).</field>
+    </record>
+
+    <!-- Location traits granted to factions for the next round by battle outcomes (see outcomes:
+         Percée and Défense Héroïque for clear-cut and major victories, Moral Vacillant for major defeats) -->
     <record id="battle_trait_breakthrough" model="battle.trait">
-        <field name="name">Breakthrough</field>
-        <field name="sequence">100</field>
+        <field name="name">Percée</field>
+        <field name="sequence">700</field>
         <field name="target">location</field>
         <field name="stance">attack</field>
         <field name="effect">bonus</field>
         <field name="is_unique" eval="True"/>
-        <field name="description">+1 when attacking in the next round, granted by a clear-cut or major victory.</field>
+        <field name="description">En attaque : +1 au bonus (une fois par camp).</field>
+    </record>
+    <record id="battle_trait_heroic_defense" model="battle.trait">
+        <field name="name">Défense Héroïque</field>
+        <field name="sequence">710</field>
+        <field name="target">location</field>
+        <field name="stance">defense</field>
+        <field name="effect">bonus</field>
+        <field name="is_unique" eval="True"/>
+        <field name="description">En défense : +1 au bonus (une fois par camp).</field>
+    </record>
+    <record id="battle_trait_wavering_morale" model="battle.trait">
+        <field name="name">Moral Vacillant</field>
+        <field name="sequence">720</field>
+        <field name="target">location</field>
+        <field name="effect">forced_reroll</field>
+        <field name="is_unique" eval="True"/>
+        <field name="description">Relance son meilleur dé (une fois par camp).</field>
     </record>
 </odoo>

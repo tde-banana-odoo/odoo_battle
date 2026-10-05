@@ -9,7 +9,7 @@
             </tr>
             <tr>
                 <td t-foreach="this.stats" t-as="stat" t-key="stat_index" t-att-class="{ o_battle_unit_stats_sep: stat.separator }">
-                    <input t-if="!stat.separator and !this.props.readonly" type="number" class="o_input"
+                    <input t-if="!stat.separator and !this.props.readonly and !this.props.compact" type="number" class="o_input"
                         t-att-name="stat.name" t-att-value="stat.value" t-on-change="(ev) => this.onChange(stat.name, ev)"/>
                     <t t-else="" t-out="stat.value"/>
                 </td>

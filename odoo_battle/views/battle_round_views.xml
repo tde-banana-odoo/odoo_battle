@@ -9,24 +9,59 @@
                     <div class="oe_title">
                         <h1>Round <field name="round_number" class="oe_inline"/></h1>
                     </div>
+                    <group>
+                        <group>
+                            <field name="caern_state"/>
+                        </group>
+                    </group>
                     <notebook>
                         <page string="Leadership" name="leadership">
-                            <field name="battle_round_leadership_ids">
-                                <list editable="bottom">
-                                    <field name="battle_faction_id"/>
-                                    <field name="successes"/>
-                                    <field name="morale"/>
-                                </list>
-                            </field>
+                            <group>
+                                <group string="Aggressors" name="aggressor">
+                                    <field name="aggressor_morale" string="Morale"/>
+                                    <field name="aggressor_command_action_count" string="Command Actions"/>
+                                    <field name="aggressor_command_action_ids" string="Picked" colspan="2" nolabel="1" context="{'default_camp': 'aggressor'}">
+                                        <list editable="bottom">
+                                            <field name="camp" column_invisible="1"/>
+                                            <field name="command_type"/>
+                                            <field name="battle_location_id" options="{'no_create': True}"/>
+                                            <field name="note" optional="hide"/>
+                                        </list>
+                                    </field>
+                                </group>
+                                <group string="Defenders" name="defender">
+                                    <field name="defender_morale" string="Morale"/>
+                                    <field name="defender_command_action_count" string="Command Actions"/>
+                                    <field name="defender_command_action_ids" string="Picked" colspan="2" nolabel="1" context="{'default_camp': 'defender'}">
+                                        <list editable="bottom">
+                                            <field name="camp" column_invisible="1"/>
+                                            <field name="command_type"/>
+                                            <field name="battle_location_id" options="{'no_create': True}"/>
+                                            <field name="note" optional="hide"/>
+                                        </list>
+                                    </field>
+                                </group>
+                            </group>
                         </page>
                         <page string="Battles" name="battles">
                             <field name="battle_result_ids" readonly="1">
                                 <list decoration-muted="state == 'cancel'">
                                     <field name="battle_location_id"/>
-                                    <field name="initiator_faction_ids" widget="many2many_tags"/>
-                                    <field name="responder_faction_ids" widget="many2many_tags"/>
-                                    <field name="battle_outcome_id"/>
+                                    <field name="initiator_faction_ids" widget="many2many_tags" options="{'color_field': 'color'}"/>
+                                    <field name="responder_faction_ids" widget="many2many_tags" options="{'color_field': 'color'}"/>
+                                    <field name="result_score" column_invisible="1"/>
+                                    <field name="battle_outcome_id" decoration-success="result_score &gt; 0" decoration-danger="result_score &lt; 0"/>
                                     <field name="state" widget="badge" decoration-success="state == 'done'"/>
+                                </list>
+                            </field>
+                        </page>
+                        <page string="Location Effects" name="location_effects">
+                            <field name="battle_location_effect_ids">
+                                <list editable="bottom">
+                                    <field name="battle_location_id" options="{'no_create': True}"/>
+                                    <field name="battle_faction_id" options="{'no_create': True}"/>
+                                    <field name="battle_trait_id" options="{'no_create': True}"/>
+                                    <field name="battle_result_id"/>
                                 </list>
                             </field>
                         </page>
@@ -37,17 +72,48 @@
         </field>
     </record>
 
-    <record id="battle_round_leadership_view_form" model="ir.ui.view">
-        <field name="name">battle.round.leadership.view.form</field>
-        <field name="model">battle.round.leadership</field>
+    <record id="battle_round_view_form_leadership" model="ir.ui.view">
+        <field name="name">battle.round.view.form.leadership</field>
+        <field name="model">battle.round</field>
+        <field name="priority">20</field>
         <field name="arch" type="xml">
-            <form string="Leadership Roll">
-                <group>
-                    <field name="battle_round_id" readonly="1"/>
-                    <field name="battle_faction_id" readonly="1"/>
-                    <field name="successes"/>
-                    <field name="morale" widget="radio" options="{'horizontal': true}"/>
-                </group>
+            <form string="Leadership">
+                <p class="text-muted">
+                    Each camp rolls its leadership: morale, and successes giving command actions. Each command action may
+                    be used in a location, or not at all: Location Support (+1 bonus), Hold On (resistance +50%, damage -25%),
+                    Full Attack (damage +50%, resistance -25%), Retreat, Unstoppable Attack (RP: allowed by role-play only,
+                    damage +25% when attacking).
+                </p>
+                <div class="row">
+                    <div class="col-lg-6">
+                    <group string="Aggressors">
+                        <field name="aggressor_morale" string="Morale" widget="radio" options="{'horizontal': true}"/>
+                        <field name="aggressor_command_action_count" string="Command Actions"/>
+                    </group>
+                    <field name="aggressor_command_action_ids" context="{'default_camp': 'aggressor'}">
+                        <list editable="bottom">
+                            <field name="camp" column_invisible="1"/>
+                            <field name="command_type"/>
+                            <field name="battle_location_id" options="{'no_create': True}"/>
+                            <field name="note" optional="show"/>
+                        </list>
+                    </field>
+                    </div>
+                    <div class="col-lg-6">
+                    <group string="Defenders">
+                        <field name="defender_morale" string="Morale" widget="radio" options="{'horizontal': true}"/>
+                        <field name="defender_command_action_count" string="Command Actions"/>
+                    </group>
+                    <field name="defender_command_action_ids" context="{'default_camp': 'defender'}">
+                        <list editable="bottom">
+                            <field name="camp" column_invisible="1"/>
+                            <field name="command_type"/>
+                            <field name="battle_location_id" options="{'no_create': True}"/>
+                            <field name="note" optional="show"/>
+                        </list>
+                    </field>
+                    </div>
+                </div>
             </form>
         </field>
     </record>
@@ -58,6 +124,10 @@
         <field name="arch" type="xml">
             <list string="Rounds">
                 <field name="round_number"/>
+                <field name="caern_state" widget="badge" decoration-success="caern_state == '4'" decoration-info="caern_state == '3'"
+                    decoration-warning="caern_state == '2'" decoration-danger="caern_state in ('1', '0')"/>
+                <field name="aggressor_morale" optional="show"/>
+                <field name="defender_morale" optional="show"/>
                 <field name="battle_result_ids" string="Battles" widget="many2many_tags"/>
             </list>
         </field>

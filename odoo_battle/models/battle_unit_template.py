@@ -5,12 +5,16 @@ FOLLOWED_FIELDS = ['unit_type', 'menace', 'size', 'rage', 'willpower', 'gnosis',
 
 
 class BattleUnitTemplate(models.Model):
+    """ Unit archetype (e.g. a rank 3 offense werewolf pack): pre-fills units
+    statistics and traits, units following its later changes unless they
+    tweaked the value. """
     _name = 'battle.unit.template'
     _inherit = ['battle.unit.stats.mixin']
     _description = "Unit Template"
     _order = 'sequence asc, id asc'
 
     name = fields.Char(required=True, translate=True)
+    short_name = fields.Char("Short Name", help="Printed on unit sheets below the unit type glyph, e.g. 'DSN 3'.")
     sequence = fields.Integer()
     battle_unit_ids = fields.One2many('battle.unit', 'battle_unit_template_id', string="Units")
 

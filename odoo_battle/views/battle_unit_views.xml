@@ -21,6 +21,7 @@
                             <field name="battle_faction_id"/>
                             <field name="battle_location_id"/>
                             <field name="wound_state"/>
+                            <field name="damage_counter"/>
                             <field name="is_dead"/>
                         </group>
                     </group>
@@ -70,11 +71,12 @@
                 <field name="unit_type"/>
                 <field name="origin" optional="show"/>
                 <field name="battle_faction_id"/>
-                <field name="battle_unit_template_id" optional="hide"/>
+                <field name="battle_unit_template_id" widget="many2one_avatar" optional="hide"/>
                 <field name="battle_location_id"/>
-                <field name="wound_state" widget="badge" optional="show"
+                <field name="wound_state" widget="badge" width="115px" optional="show"
                     decoration-success="wound_state == '4'" decoration-warning="wound_state in ('3', '2')"
                     decoration-danger="wound_state in ('1', '0')"/>
+                <field name="damage_counter" string="Dmg" width="55px" optional="show"/>
                 <field name="battle_trait_ids" widget="many2many_tags" optional="show"/>
                 <widget name="battle_unit_stats" options="{'compact': True}"/>
             </list>

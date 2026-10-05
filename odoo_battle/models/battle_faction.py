@@ -1,31 +1,29 @@
 from odoo import api, fields, models, _
 from odoo.exceptions import ValidationError
 
-# from best to worst, integer-like keys ease comparisons
-MORALES = [('4', 'Outstanding'), ('3', 'Steady'), ('2', 'Shaken'), ('1', 'Wavering'), ('0', 'Routing')]
+from odoo.addons.odoo_battle.const import FACTION_ROLES
 
 
 class BattleFaction(models.Model):
+    """ Faction of the war: aggressors, defenders (holding locations by
+    default), or neutrals allied to one of them. Leadership (morale, command
+    actions) is managed per camp on rounds. """
     _name = 'battle.faction'
     _description = "Faction"
     _order = 'sequence asc, id asc'
 
     name = fields.Char(required=True, translate=True)
     sequence = fields.Integer()
+    color = fields.Integer("Color", help="Color of the faction tags, e.g. in the battle solver.")
     leader_id = fields.Many2one('battle.leader', string="Leader", domain="[('battle_faction_id', '=', id)]")
     # diplomacy
     role = fields.Selection(
-        [('aggressor', 'Aggressor'), ('defender', 'Defender'), ('neutral', 'Neutral')],
-        string="Role", default='neutral', required=True,
+        FACTION_ROLES, string="Role", default='neutral', required=True,
+        help="Aggressors and defenders lead their camp; neutral factions fight along their ally.",
     )
     allied_faction_id = fields.Many2one(
         'battle.faction', string="Ally",
         help="Faction a neutral faction supports in battles.",
-    )
-    # current round morale
-    morale = fields.Selection(
-        MORALES, string="Morale", compute='_compute_morale', inverse='_inverse_morale',
-        help="Morale for the current round, see leadership rolls.",
     )
     # units
     battle_unit_ids = fields.One2many(
@@ -43,20 +41,6 @@ class BattleFaction(models.Model):
             if faction.allied_faction_id == faction:
                 raise ValidationError(_("Faction %(faction_name)s cannot be allied to itself.", faction_name=faction.name))
 
-    def _compute_morale(self):
-        lines = self.env['battle.round']._get_current().battle_round_leadership_ids
-        for faction in self:
-            faction.morale = lines.filtered(lambda line: line.battle_faction_id == faction)[:1].morale or '3'
-
-    def _inverse_morale(self):
-        current = self.env['battle.round']._get_current()
-        for faction in self:
-            line = current.battle_round_leadership_ids.filtered(lambda line: line.battle_faction_id == faction)
-            if line:
-                line.morale = faction.morale
-            elif current:
-                current.battle_round_leadership_ids = [(0, 0, {'battle_faction_id': faction.id, 'morale': faction.morale})]
-
     @api.depends('battle_unit_ids.is_dead')
     def _compute_battle_unit_count(self):
         for faction in self:
@@ -67,3 +51,10 @@ class BattleFaction(models.Model):
         allied to (if neutral), and all neutral factions allied to those. """
         leaders = self | self.allied_faction_id
         return leaders | self.search([('role', '=', 'neutral'), ('allied_faction_id', 'in', leaders.ids)])
+
+    def _get_camp_role(self):
+        """ Camp ('aggressor' or 'defender') the faction fights for: its role,
+        or the role of its ally if neutral; False for unallied neutrals """
+        self.ensure_one()
+        faction = self.allied_faction_id if self.role == 'neutral' else self
+        return faction.role if faction.role in ('aggressor', 'defender') else False
