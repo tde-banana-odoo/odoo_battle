@@ -1,3 +1,4 @@
+from . import test_battle_balance
 from . import test_battle_faction
 from . import test_battle_leader
 from . import test_battle_location

@@ -446,6 +446,53 @@ aren't counted.
 
 ---
 
+## 8b. Balance tests
+
+`tests/test_battle_balance.py` builds units from the data templates (with
+their traits) and evaluates battles exactly over all dice rolls: win / tie /
+loss chances, and expected wounds received by each side (damage and wound
+traits; Assassin, Embuscade, heal and mend not counted). Locations: open
+ground, Fortifié, Umbra, held by the defender. Run the report with
+`--test-tags /odoo_battle:TestBattleBalance.test_balance_report`.
+
+Results on 2026-10-08 data:
+
+| Scenario | Bonus | Win / tie / loss | Wounds received (initiators / responders) | Why |
+|---|---|---|---|---|
+| 3 BSD3 attack 3 WW3, open | +1 | 63 / 22 / 15 | 0.44 / 1.48 | Rage 9 vs Willpower 6 |
+| same, Fortifié | 0 | 37 / 26 / 37 | 1.22 / 0.67 | Fortifié cancels it |
+| 3 WW3 attack 3 BSD3, open | +1 | 63 / 22 / 15 | 0.30 / 0.67 | symmetric chances, BSD deal more |
+| both attack / both defend | 0 | 37 / 26 / 37 | 1.85 / 2.52 — 0.44 / 0.11 | BSD more damage, WW better defense |
+| BSD 4+3+3c vs WW 4+3+3r, either attacking | +1 | 63 / 22 / 15 | | Diversions cancel |
+| Vampires (G7 + 2 G8) attack 3 WW3 | **+2** | **85** / 11 / 4 | 0.11 / 2.19 | Commandement, Terreur (6 vs 5) |
+| 3 WW3 attack vampires | 0 | 37 / 26 / 37 | 0.78 / 0.00 | vampires very tanky (G7 resistance 6) |
+| … + 2 Combat Ghouls | −3 | 0 / 4 / 96 | 7.85 / 0.00 | Willpower, size, Commandement |
+| … + 2 Hommes de Main | −1 | 15 / 22 / 63 | 2.22 / 0.00 | size |
+| 2 WW3 attack humans (2 FS, 2 HdM in support) | +1 | 63 / 22 / 15 | 0.00 / 0.81 | humans cannot hurt werewolves |
+| same, Fortifié | 0 | 37 / 26 / 37 | 0.00 / 0.30 | |
+| 3 WW3 attack 3 Jaglins, Umbra | **−2** | **4** / 11 / 85 | 1.11 / 0.00 | Gnosis 3 vs 6, size 3 vs 6 |
+| same, outside the Umbra | +1 | 63 / 22 / 15 | 0.00 / 1.22 | |
+
+Asserted: shapeshifters symmetric and balanced on Fortifié, attackers
+favored on open ground, BSD more damage / WW better defense, agents help
+vampires, werewolves beat humans, spirits stronger in the Umbra.
+
+**Soft targets not met** (logged as warnings, not failures):
+- **Vampires too strong:** they win 85% attacking werewolves (target: at
+  most 63%, like werewolves attacking BSD). The swing is Terreur on the G7:
+  without it, characteristics are even (6 vs 6) and the bonus drops to +1
+  (63%). Agents also turn into reinforcements (Willpower, size) rather than
+  damage collectors.
+- **Jaglins overwhelming in the Umbra:** 3 Jaglins (menace 6) beat 3
+  werewolves packs (menace 12) 85% of the time (target: werewolves keep at
+  least 15%). Jaglin size 2 → 1 would remove the size bonus (−1: 15%).
+
+**Structural observation:** between shapeshifters (Rage 3, Willpower 2), the
+attacker always gets +1 on open ground. Attacking is favored unless the
+location is fortified; intended or to discuss.
+
+---
+
 ## 9. Decisions
 
 **Game rules**
@@ -528,6 +575,9 @@ Not decided; to come back to.
     suffers a pursuit, e.g. Massacre-like wounds). The first is clearer for
     players: spend a command to get out alive.
   - Hold On, Full Attack and Unstoppable Attack are fine as they are.
+- **Balance targets** (see 8b): vampires (Terreur on G7?), Jaglins in the
+  Umbra (size 1?), attacker advantage between shapeshifters, agents as damage
+  collectors. More scenarios to add as needed.
 - **Walkhill implosion:** when Hel and Yamazaki turn, set their allied
   faction to Loch Chon in the faction data file.
 - **Former proposals, kept for reference:**
