@@ -70,13 +70,13 @@ class TestBattleRound(BattleCommon):
         self.assertNotIn(self.location_londinium.id, pending, 'Only responders in Londinium')
         self.assertIn(unplaced.id, [unit['id'] for unit in data['unplaced_units']])
 
-        self._battle(self.location_isca, roll=(1, 1, 1))
+        self._battle(self.location_isca, roll=(1, 1, 1))  # +3, bonus 0 (+1 Percée): clear-cut victory
         data = self.env['battle.round'].get_dashboard_data()
         self.assertNotIn(self.location_isca.id, [location['id'] for location in data['pending']])
         self.assertEqual([result['location'] for result in data['results']], ['Isca Augusta'])
         # solved: winner (main faction of the winning side) and its outcome
         isca = next(location for location in data['locations'] if location['id'] == self.location_isca.id)
-        self.assertEqual(isca['battle'], {'state': 'done', 'summary': 'Test Good Major Victory'})
+        self.assertEqual(isca['battle'], {'state': 'done', 'summary': 'Test Good Clear-Cut Victory'})
         londinium = next(location for location in data['locations'] if location['id'] == self.location_londinium.id)
         self.assertFalse(londinium['battle'], 'No opposing forces, no battle')
 
@@ -130,13 +130,13 @@ class TestBattleRound(BattleCommon):
     @users('battle_admin')
     def test_result(self):
         """ Battles are logged in the current round with their outcome """
-        solver = self._battle(self.location_isca, roll=(0, -1, 0))
+        solver = self._battle(self.location_isca, roll=(0, -1, 0))  # -1, bonus -1
         self.assertRecordValues(solver.battle_result_id, [{
             'battle_round_id': self.battle_round.id,
             'battle_location_id': self.location_isca.id,
             'state': 'done',
             'battle_outcome_id': solver.battle_outcome_id.id,
-            'result_score': 1,
+            'result_score': -2,
             'initiator_faction_ids': self.faction_good.ids,
         }])
         self.assertEqual(
@@ -150,8 +150,8 @@ class TestBattleRound(BattleCommon):
         """ Battles apply damage on units (wounds every 3 damage), logged per
         unit; cancelling the result reverts units as before the battle """
         self.unit_vampire_1.sudo().resistance = 0
-        result = self._battle(self.location_isca, roll=(0, 0, 0)).battle_result_id
-        # victory (+2): initiators deal (2 + 2) x 150%; responders defend: 3 x 50% vs resistance 20
+        result = self._battle(self.location_isca, roll=(1, 1, 1)).battle_result_id
+        # victory (+3, bonus -1): initiators deal (2 + 2) x 150%; responders defend: 3 x 50% vs resistance 20
         self.assertRecordValues(self.unit_vampire_1, [{'damage_counter': 0, 'wound_state': '2'}])
         self.assertRecordValues(result.battle_result_line_ids.filtered(lambda line: line.battle_unit_id == self.unit_vampire_1), [{
             'side': 'responder', 'position': 'frontline', 'damage': 6, 'wounds': 2,
@@ -167,7 +167,7 @@ class TestBattleRound(BattleCommon):
         self.unit_vampire_1.sudo().resistance = 0
         context = {'battle_round_id': self.battle_round.id}
         self.assertEqual(self.location_isca.with_context(context).display_name, 'Isca Augusta')
-        result = self._battle(self.location_isca).battle_result_id
+        result = self._battle(self.location_isca, roll=(1, 1, 1)).battle_result_id
         self.assertEqual(self.location_isca.with_context(context).display_name, 'Isca Augusta (Solved)')
         self.assertEqual(self.location_isca.display_name, 'Isca Augusta', 'Only flagged with a round')
         self.assertEqual(self.unit_vampire_1.wound_state, '2')
@@ -243,8 +243,8 @@ class TestBattleRound(BattleCommon):
         solver.action_cancel_existing_result()
         second = self._battle(self.location_isca, roll=(1, 1, 1)).battle_result_id
         self.assertRecordValues(first + second, [
-            {'state': 'cancel', 'result_score': 2},
-            {'state': 'done', 'result_score': 4},
+            {'state': 'cancel', 'result_score': -1},
+            {'state': 'done', 'result_score': 2},
         ])
         with self.assertRaises(IntegrityError), mute_logger('odoo.sql_db'):
             second.copy()

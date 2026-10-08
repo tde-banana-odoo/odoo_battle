@@ -54,7 +54,7 @@ class BattleCommon(common.TransactionCase):
                 'battle_trait_ids': (cls.trait_assassin + cls.trait_fury).ids,
             }, {
                 'name': 'Test Defense Werewolves', 'unit_type': 'werewolf',
-                'menace': 3, 'size': 1, 'rage': 2, 'willpower': 2, 'gnosis': 2, 'damage': 3, 'resistance': 2,
+                'menace': 3, 'size': 1, 'rage': 2, 'willpower': 1, 'gnosis': 2, 'damage': 3, 'resistance': 2,
                 'battle_trait_ids': (cls.trait_tactics + cls.trait_counter).ids,
             }, {
                 'name': 'Test Old Vampires', 'unit_type': 'vampire',

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import itertools
+import math
 import random
 import typing
 from collections import Counter
@@ -16,11 +17,12 @@ from odoo.addons.odoo_battle.const import (
     DAMAGE_PER_WOUND,
     DICE_COUNT,
     DICE_FACES,
+    DM_BONUSES,
     LOCATION_STATUSES,
     OUTCOME_SCORE_MAX,
     OUTCOME_SCORE_MIN,
-    SIDE_SELECTION,
     SIDES,
+    SIDE_SELECTION,
     STANCES,
 )
 
@@ -62,8 +64,8 @@ class BonusLine(typing.TypedDict):
     category: str  # forces, leadership, location or traits
     name: str
     detail: str
-    initiator: int
-    responder: int
+    initiator: float  # bonus, possibly with an advantage (half point), e.g. 1.5
+    responder: float
 
 
 class BattleSolver(models.TransientModel):
@@ -114,13 +116,13 @@ class BattleSolver(models.TransientModel):
     )
     initiator_stance = fields.Selection(STANCES, string="Initiators Stance", default='attack', required=True)
     responder_stance = fields.Selection(STANCES, string="Responders Stance", default='defense', required=True)
-    initiator_characteristic_bonus = fields.Integer(
-        "Initiators Characteristic Bonus",
-        help="Bonus given by the DM to the compared characteristic of the side, e.g. +2 Willpower for a good defense idea.",
+    initiator_dm_bonus = fields.Selection(
+        DM_BONUSES, string="Initiators DM Bonus", default='0', required=True,
+        help="Bonus given by the DM to the side, e.g. for a good idea. An advantage (+0.5) adds up with others.",
     )
-    responder_characteristic_bonus = fields.Integer(
-        "Responders Characteristic Bonus",
-        help="Bonus given by the DM to the compared characteristic of the side, e.g. +2 Willpower for a good defense idea.",
+    responder_dm_bonus = fields.Selection(
+        DM_BONUSES, string="Responders DM Bonus", default='0', required=True,
+        help="Bonus given by the DM to the side, e.g. for a good idea. An advantage (+0.5) adds up with others.",
     )
     # units, each in frontline or support
     initiator_line_ids = fields.One2many(
@@ -138,11 +140,12 @@ class BattleSolver(models.TransientModel):
     initiator_lines_summary = fields.Char("Initiators Units", compute='_compute_lines_summary')
     responder_lines_summary = fields.Char("Responders Units", compute='_compute_lines_summary')
     # bonuses
-    initiator_bonus = fields.Integer("Initiators Bonus", compute='_compute_bonus')
-    responder_bonus = fields.Integer("Responders Bonus", compute='_compute_bonus')
+    initiator_bonus = fields.Float("Initiators Bonus", compute='_compute_bonus')
+    responder_bonus = fields.Float("Responders Bonus", compute='_compute_bonus')
     bonus = fields.Integer(
         "Bonus", compute='_compute_bonus',
-        help="Initiators bonus minus responders bonus, added to the dice roll.",
+        help="Initiators bonus minus responders bonus, added to the dice roll. Advantages (half points) add up; "
+             "a half point left over is dropped (rounded toward zero).",
     )
     bonus_summary = fields.Html("Bonus Summary", compute='_compute_bonus', sanitize=False)
     simulation_summary = fields.Html("Simulation", compute='_compute_simulation_summary', sanitize=False)
@@ -292,14 +295,14 @@ class BattleSolver(models.TransientModel):
     # trigger recomputation on transient models, only a new request does
     @api.depends(
         'battle_location_id', 'initiator_faction_ids', 'initiator_stance', 'responder_faction_ids', 'responder_stance',
-        'initiator_characteristic_bonus', 'responder_characteristic_bonus', *LINES_DEPENDS,
+        'initiator_dm_bonus', 'responder_dm_bonus', *LINES_DEPENDS,
     )
     def _compute_bonus(self):
         for solver in self:
             lines = solver._get_bonus_lines()
             solver.initiator_bonus = sum(line['initiator'] for line in lines)
             solver.responder_bonus = sum(line['responder'] for line in lines)
-            solver.bonus = solver.initiator_bonus - solver.responder_bonus
+            solver.bonus = math.trunc(solver.initiator_bonus - solver.responder_bonus)
             for side in SIDES:
                 solver[f'{side}_rerolls'] = solver._get_side_trait_value(side, 'reroll')
                 solver[f'{side}_forced_rerolls'] = solver._get_side_trait_value(side, 'forced_reroll')
@@ -319,7 +322,7 @@ class BattleSolver(models.TransientModel):
 
     @api.depends(
         'mode', 'battle_signature', 'battle_location_id', 'initiator_stance', 'responder_stance',
-        'initiator_characteristic_bonus', 'responder_characteristic_bonus', *LINES_DEPENDS,
+        'initiator_dm_bonus', 'responder_dm_bonus', *LINES_DEPENDS,
     )
     def _compute_is_outdated(self):
         """ A simulation or launched battle is outdated when sides, stances or
@@ -783,7 +786,7 @@ class BattleSolver(models.TransientModel):
         )
         return repr((
             self.battle_location_id.id, self.initiator_stance, self.responder_stance,
-            self.initiator_characteristic_bonus, self.responder_characteristic_bonus, lines,
+            self.initiator_dm_bonus, self.responder_dm_bonus, lines,
         ))
 
     def _get_lines_state(self, lines: BattleSolverLine) -> LinesState:
@@ -856,7 +859,7 @@ class BattleSolver(models.TransientModel):
         return [
             self._prepare_bonus_line(
                 'forces', _("Characteristics"), characteristics_detail,
-                *self._get_bonus_more_or_double(value_initiator, value_responder),
+                *self._get_characteristic_advantage(value_initiator, value_responder),
             ),
             self._prepare_bonus_line(
                 'forces', _("Size"), size_detail,
@@ -868,7 +871,17 @@ class BattleSolver(models.TransientModel):
             ),
             *self._get_command_bonus_lines(),
             *self._get_trait_bonus_lines(),
+            *self._get_dm_bonus_lines(),
         ]
+
+    def _get_dm_bonus_lines(self) -> list[BonusLine]:
+        """ Bonus given by the DM to each side, if any """
+        initiator, responder = float(self.initiator_dm_bonus), float(self.responder_dm_bonus)
+        if not initiator and not responder:
+            return []
+        labels = dict(DM_BONUSES)
+        detail = _("%(initiator)s vs %(responder)s", initiator=labels[self.initiator_dm_bonus], responder=labels[self.responder_dm_bonus])
+        return [self._prepare_bonus_line('dm', _("DM Bonus"), detail, initiator, responder)]
 
     def _get_command_bonus_lines(self) -> list[BonusLine]:
         """ One line per command action picked in the location by at least
@@ -936,25 +949,36 @@ class BattleSolver(models.TransientModel):
         return 'rage' if self[f'{side}_stance'] == 'attack' else 'willpower'
 
     def _get_side_compared_characteristic(self, side: Side) -> tuple[int, str]:
-        """ Characteristic compared between sides (see ``_get_side_stat``):
-        units characteristic, minus their wounds maluses and the enemy
-        Diversion traits, plus the DM bonus. Returns its value and detail,
-        e.g. 'Willpower 6 (wounds -1, diversion -2, bonus +2)' """
+        """ Characteristic compared between sides (see ``_get_side_stat``), in
+        half points: average of the side units (frontline and support),
+        weighted by their menace (by their size if the side has no menace),
+        minus their wounds maluses; the enemy Diversion traits remove their
+        value spread over the side creatures (size), so that they matter less
+        for bigger sides. Returns its value and detail, e.g. 'Willpower 2.5
+        (wounds -0.5, diversion -0.5)' """
         stat = self._get_side_stat(side)
         enemy = 'responder' if side == 'initiator' else 'initiator'
         stat_labels = {'gnosis': _("Gnosis"), 'rage': _("Rage"), 'willpower': _("Willpower")}
-        malus = sum(line.battle_unit_id._get_wound_malus('characteristic') for line in self._get_lines(side))
-        diversion = self._get_side_trait_value(enemy, 'diversion')
-        bonus = self[f'{side}_characteristic_bonus']
-        value = self._get_side_characteristic(side, stat) - malus - diversion + bonus
-        detail = f"{stat_labels[stat]} {value}"
+        units = self._get_units(side)
+        weights = {unit: unit.menace for unit in units}
+        if sum(weights.values()) <= 0:
+            weights = {unit: unit.size for unit in units}
+        weight = sum(weights.values()) or 1
+        size = sum(units.mapped('size')) or 1
+        healthy = sum(unit[stat] * weights[unit] for unit in units) / weight
+        wounded = healthy - sum(unit._get_wound_malus('characteristic') * weights[unit] for unit in units) / weight
+        diverted = wounded - self._get_side_trait_value(enemy, 'diversion') / size
+
+        def half_points(points):
+            return math.floor(2 * points + 0.5)
+
+        value = half_points(diverted)
+        detail = f"{stat_labels[stat]} {value / 2:g}"
         parts = []
-        if malus:
-            parts.append(_("wounds %(malus)+d", malus=-malus))
-        if diversion:
-            parts.append(_("diversion %(diversion)+d", diversion=-diversion))
-        if bonus:
-            parts.append(_("bonus %(bonus)+d", bonus=bonus))
+        if half_points(wounded) != half_points(healthy):
+            parts.append(_("wounds %(malus)+g", malus=(half_points(wounded) - half_points(healthy)) / 2))
+        if value != half_points(wounded):
+            parts.append(_("diversion %(diversion)+g", diversion=(value - half_points(wounded)) / 2))
         if parts:
             detail += f" ({', '.join(parts)})"
         return value, detail
@@ -974,10 +998,6 @@ class BattleSolver(models.TransientModel):
         value = numerator // denominator
         return value, f"{value} ({', '.join(f'{trait.name} {rate:+d}%' for trait, rate in rates)})"
 
-    def _get_side_characteristic(self, side: Side, stat: str) -> int:
-        """ Sum of ``stat`` of the units of a side taking part in the battle """
-        return sum(self._get_units(side).mapped(stat))
-
     def _get_side_camp(self, side: Side) -> Camp | typing.Literal[False]:
         """ Camp ('aggressor' or 'defender') a side fights for: the camp of its
         main faction (neutral factions following their ally), False if none """
@@ -993,18 +1013,12 @@ class BattleSolver(models.TransientModel):
         return int(self.battle_round_id[f'{camp}_morale'])
 
     @api.model
-    def _get_bonus_more_or_double(self, initiator: int, responder: int) -> tuple[int, int]:
-        """ +1 to the side having more, +2 if more than double. A positive
-        value is considered more than double a null or negative one. """
-        if initiator == responder:
-            return 0, 0
-        high, low = max(initiator, responder), min(initiator, responder)
-        if low > 0:
-            more_than_double = high > 2 * low
-        else:
-            more_than_double = high > 0
-        bonus = 2 if more_than_double else 1
-        return (bonus, 0) if initiator > responder else (0, bonus)
+    def _get_characteristic_advantage(self, initiator: int, responder: int) -> tuple[float, float]:
+        """ Advantage of the side having the better characteristic average:
+        the difference, given in half points, capped to 2 points (e.g. Rage
+        3 against Willpower 2: +1; 2.5 against 2: +0.5) """
+        difference = max(-4, min(4, initiator - responder))
+        return (difference / 2, 0) if difference > 0 else (0, -difference / 2)
 
     @api.model
     def _get_bonus_per_half_more(self, initiator: int, responder: int) -> tuple[int, int]:

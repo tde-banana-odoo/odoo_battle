@@ -244,14 +244,17 @@ class TestBattleSolver(BattleSolverCommon):
     def test_battle_wounds_and_dm_bonus(self):
         """ Wounded units have maluses: badly wounded -1 characteristic,
         critical -1 characteristic, damage and resistance (never below 0).
-        The DM may give a side a characteristic bonus. """
+        The DM may give a side a bonus. """
         self.ww_offense[0].sudo().wound_state = '2'
         self.ww_offense[1].sudo().wound_state = '1'
         self.ww_henchmen[0].sudo().wound_state = '1'  # damage 1, resistance 0: no resistance malus
         solver = self._new_solver_form(self.location_ww).save()
-        solver.responder_characteristic_bonus = 2
-        self.assertIn('Rage 7 (wounds -2) vs Willpower 3 (wounds -1, bonus +2)', solver.bonus_summary)
-        self.assertEqual(self._get_bonus(solver), (2, 1, 1), 'Rage 7 vs Willpower 3: more than double')
+        solver.responder_dm_bonus = '1.5'
+        # averages weighted by menace: Rage (27 - 3 - 3) / 9 = 2.33 rounded to 2.5; Willpower (4 - 1) / 8 = 0.38
+        # rounded to 0.5, as without wounds (henchmen weigh little)
+        self.assertIn('Rage 2.5 (wounds -0.5) vs Willpower 0.5', solver.bonus_summary)
+        self.assertIn('DM Bonus', solver.bonus_summary)
+        self.assertEqual(self._get_bonus(solver), (2, 2.5, 0), 'Characteristics +2 (capped), size and DM bonus +2.5: -0.5 dropped')
 
         tie = self.env['battle.outcome']._get_by_score()[0]
         for side, stat, expected in [
@@ -299,14 +302,15 @@ class TestBattleSolver(BattleSolverCommon):
     @users('battle_admin')
     def test_battle_support(self):
         """ Support units count for characteristics and size, but deal no
-        damage and bring no resistance, unless Appui / Couverture,
-        added after outcome rates """
+        damage and bring no resistance, unless Appui / Couverture, added
+        after outcome rates """
         support_fire, barrage_fire = self.trait_support_fire, self.trait_barrage_fire
         solver = self._new_solver_form(self.location_vw).save()
         self._set_lines(solver, 'initiator', frontline=self.vw_vampires, support=self.vw_ghouls)
         tie = self.env['battle.outcome'].search([('score', '=', 0)])
-        # Rage 4 vs Willpower 2 (+1), Size 4 vs 2 (+1), Commandement (+1)
-        self.assertEqual(self._get_bonus(solver), (3, 0, 3), 'Support counts for characteristics and size')
+        # Rage (2 x 3 + 2 x 3 + 0 + 0) / 8 (weighted by menace) = 1.5 vs Willpower 1 (+0.5), Size 4 vs 2 (+1),
+        # Commandement (+1): +2.5, half point dropped
+        self.assertEqual(self._get_bonus(solver), (2.5, 0, 2), 'Support counts for characteristics and size')
         # initiators: frontline vampires (damage 2, resistance 3), support ghouls (damage 1);
         # tie: attack 100% / 50%, defense 50% / 150%
         for stance, traits, damage, resistance in [
@@ -373,20 +377,21 @@ class TestBattleSolver(BattleSolverCommon):
 
     @users('battle_admin')
     def test_bonus(self):
-        """ Werewolves War: Rage 9 vs Willpower 2 (+2), Size 3 vs 6 (+1 to
-        responders), morale 4 vs 3. Rage when attacking, Willpower when
-        defending, Gnosis in Umbra; fortifications only help defending
-        responders; low morale is a malus """
+        """ Werewolves War: Rage 3 vs Willpower 0.5 (averages weighted by
+        menace, +2 at most), Size 3 vs 6 (+1 to responders), morale 4 vs 3. Rage when
+        attacking, Willpower when defending, Gnosis in Umbra; fortifications
+        only help defending responders; low morale is a malus; advantages
+        (half points) left over are dropped """
         solver = self._new_solver_form(self.location_ww).save()
         for umbra, fortified, morales, stances, expected, detail in [
-            (False, False, ('4', '3'), ('attack', 'defense'), (2, 1, 1), 'Rage 9 vs Willpower 2'),
-            (False, True, ('4', '3'), ('attack', 'defense'), (2, 2, 0), 'Rage 9 vs Willpower 2'),
-            (False, True, ('4', '2'), ('attack', 'defense'), (2, 1, 1), 'Rage 9 vs Willpower 2'),
-            (False, True, ('1', '2'), ('attack', 'defense'), (1, 1, 0), 'Rage 9 vs Willpower 2'),
-            (False, True, ('4', '3'), ('attack', 'attack'), (2, 1, 1), 'Rage 9 vs Rage 2'),
-            (False, True, ('4', '3'), ('defense', 'defense'), (1, 2, -1), 'Willpower 3 vs Willpower 2'),
-            (True, False, ('4', '3'), ('attack', 'defense'), (2, 1, 1), 'Gnosis 3 vs Gnosis 0'),
-            (True, False, ('4', '3'), ('attack', 'attack'), (2, 1, 1), 'Gnosis 3 vs Gnosis 0'),
+            (False, False, ('4', '3'), ('attack', 'defense'), (2, 1, 1), 'Rage 3 vs Willpower 0.5'),
+            (False, True, ('4', '3'), ('attack', 'defense'), (2, 2, 0), 'Rage 3 vs Willpower 0.5'),
+            (False, True, ('4', '2'), ('attack', 'defense'), (2, 1, 1), 'Rage 3 vs Willpower 0.5'),
+            (False, True, ('1', '2'), ('attack', 'defense'), (1, 1, 0), 'Rage 3 vs Willpower 0.5'),
+            (False, True, ('4', '3'), ('attack', 'attack'), (1.5, 1, 0), 'Rage 3 vs Rage 1.5'),  # half point dropped
+            (False, True, ('4', '3'), ('defense', 'defense'), (0.5, 2, -1), 'Willpower 1 vs Willpower 0.5'),
+            (True, False, ('4', '3'), ('attack', 'defense'), (0, 1, -1), 'Gnosis 1 vs Gnosis 1'),
+            (True, False, ('4', '3'), ('attack', 'attack'), (0, 1, -1), 'Gnosis 1 vs Gnosis 1'),
         ]:
             with self.subTest(umbra=umbra, fortified=fortified, morales=morales, stances=stances):
                 self.location_ww.sudo().write({
@@ -467,7 +472,7 @@ class TestBattleSolver(BattleSolverCommon):
         breakthrough, heroic_defense = self.trait_breakthrough.name, self.trait_heroic_defense.name
         self.assertEqual(lines['Commandement'], (1, 0), 'Commandement: 2 old vampires, once')
         self.assertEqual((lines[breakthrough], lines[heroic_defense]), ((1, 0), (0, 1)), 'Previous round effect ignored')
-        self.assertEqual(self._get_bonus(solver), (4, 1, 3))
+        self.assertEqual(self._get_bonus(solver), (3.5, 1, 2))
 
         # effects depend on stance: attacking responders lose heroic defense, and have no breakthrough (not theirs)
         solver.responder_stance = 'attack'
@@ -475,13 +480,13 @@ class TestBattleSolver(BattleSolverCommon):
         self.assertEqual(lines[breakthrough], (1, 0))
         self.assertNotIn(heroic_defense, lines)
 
-        # diversion: -2 to the responders willpower, once per side (both vampires)
+        # diversion: -2 spread over the responders size (2): -1 to their willpower average, once per side (both vampires)
         self.vw_vampires.sudo().battle_trait_ids = [Command.link(self.trait_diversion.id)]
         solver.responder_stance = 'defense'
         solver.invalidate_recordset()
-        self.assertIn('Rage 4 vs Willpower 0 (diversion -2)', solver.bonus_summary)
+        self.assertIn('Rage 1.5 vs Willpower 0 (diversion -1)', solver.bonus_summary)
         lines = {line['name']: (line['initiator'], line['responder']) for line in solver._get_bonus_lines()}
-        self.assertEqual(lines['Characteristics'], (2, 0), 'Positive vs null: more than double')
+        self.assertEqual(lines['Characteristics'], (1.5, 0))
         self.assertEqual((solver.initiator_rerolls, solver.responder_rerolls), (0, 0))
 
         # tactique: one reroll per holder (2 defense werewolves)
@@ -636,11 +641,11 @@ class TestBattleSolver(BattleSolverCommon):
         solver.action_simulate()
         self.assertRecordValues(solver, [{'mode': 'simulate', 'battle_outcome_id': False}])
 
-        # bonus +3: scores above +4 are capped
+        # bonus +2: scores above +4 are capped
         chances = solver._get_score_chances()
-        self.assertEqual({score: round(chance * 27) for score, chance in chances.items()}, {0: 1, 1: 3, 2: 6, 3: 7, 4: 10})
+        self.assertEqual({score: round(chance * 27) for score, chance in chances.items()}, {-1: 1, 0: 3, 1: 6, 2: 7, 3: 6, 4: 4})
         self.assertIn('Major Victory', solver.simulation_summary)
-        self.assertIn('37.0', solver.simulation_summary)
+        self.assertIn('14.8', solver.simulation_summary)
 
         self.assertFalse(solver.is_outdated)
         self._set_lines(solver, 'initiator', self.vw_vampires[0])
@@ -670,14 +675,13 @@ class TestBattleSolverInternals(BattleSolverCommon):
         """ Comparison rules used by bonuses, including edge cases """
         Solver = self.env['battle.solver']
         for rule, values, expected in [
-            (Solver._get_bonus_more_or_double, (5, 5), (0, 0)),
-            (Solver._get_bonus_more_or_double, (7, 6), (1, 0)),  # more
-            (Solver._get_bonus_more_or_double, (12, 6), (1, 0)),  # double is not more than double
-            (Solver._get_bonus_more_or_double, (13, 6), (2, 0)),  # more than double
-            (Solver._get_bonus_more_or_double, (6, 7), (0, 1)),
-            (Solver._get_bonus_more_or_double, (3, 0), (2, 0)),  # positive vs null or negative: more than double
-            (Solver._get_bonus_more_or_double, (3, -1), (2, 0)),
-            (Solver._get_bonus_more_or_double, (-1, -3), (1, 0)),
+            # characteristic averages, in half points
+            (Solver._get_characteristic_advantage, (4, 4), (0, 0)),
+            (Solver._get_characteristic_advantage, (5, 4), (0.5, 0)),  # advantage (half point)
+            (Solver._get_characteristic_advantage, (6, 4), (1, 0)),
+            (Solver._get_characteristic_advantage, (4, 7), (0, 1.5)),
+            (Solver._get_characteristic_advantage, (10, 2), (2, 0)),  # capped to 2 points
+            (Solver._get_characteristic_advantage, (-1, 3), (0, 2)),
             (Solver._get_bonus_per_half_more, (3, 3), (0, 0)),
             (Solver._get_bonus_per_half_more, (4, 3), (0, 0)),  # less than 50% more
             (Solver._get_bonus_per_half_more, (3, 2), (1, 0)),  # 50% more

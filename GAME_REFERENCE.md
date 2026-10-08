@@ -27,11 +27,17 @@ added to the dice.
 
 | Source | Rule |
 |---|---|
-| Characteristics | Sum over the side's units: **Gnosis** in the Umbra, otherwise **Rage** when attacking, **Willpower** when defending. Wound maluses and the enemy's Diversion are subtracted, the Bonus Characteristic (GM input) is added. **+1** to the side having more, **+2** if more than double; a positive value is "more than double" a null or negative one. |
-| Size | **+1** to the side having at least 50% more size (never +2, so hordes don't stack size and characteristics). Size rates apply first, e.g. Obstacles −25% for attackers. |
+| Characteristics | **Quality.** **Gnosis** in the Umbra, otherwise **Rage** when attacking, **Willpower** when defending. **Average** of the side's units (frontline and support), **weighted by menace** (by size if the side has no menace): elites drive it, small units weigh little, menace-0 units (civilians) not at all. Wound maluses are weighted the same way; the enemy's Diversion / Terreur values are spread over the side's size (they matter less for bigger sides). Rounded to the half point. The side with the better average gets the **difference**, in half points (an *advantage* = 0.5), capped at **+2**: e.g. Rage 3 vs Willpower 2 → +1; 2.5 vs 2 → +0.5. |
+| Size | **Numbers.** **+1** to the side having at least 50% more size, all units counted (never +2). Size rates apply first, e.g. Obstacles −25% for attackers. |
 | Morale | **−1** if the camp's morale is 2 (Shaken) or less. |
 | Command actions | Location Support: +1 per action. |
 | Traits | `bonus` traits of units and location, and those granted for the round (Percée, Défense Héroïque). |
+| DM Bonus | per side, chosen by the DM (e.g. a good idea): Advantage (+0.5), Bonus (+1), Bonus and Advantage (+1.5), Double Bonus (+2), Overwhelming (+3). |
+
+All lines add up, advantages included; the final bonus is **rounded toward
+zero**: a half point left over is dropped (+1.5 → +1, −0.5 → 0), so half
+points matter when they accumulate. Rationale (W:tA dice): a characteristic
+point is 2 dice (0 = 6 dice), a half point is one die: small but present.
 
 ### Dice and score
 
@@ -419,10 +425,9 @@ aren't counted.
    base rank 2, and 2 / 3 plus a trait for Ruse. Resistance 3 would put them
    level with Ruse.
 
-3. **Fear at Hills.** Kiker brings Terreur and Diversion is absent, so Loch
-   Chon gets −1: Willpower 6 → 5 against Kiker's Rage 13 or Willpower 16.
-   Kiker already has more than double; Terreur matters more in close
-   battles.
+3. **Fear at Hills.** Kiker brings Terreur: −1 spread over Loch Chon's size,
+   a small malus on its average Willpower. Terreur matters most in small,
+   close battles (see 8b: G7 one-on-one).
 
 4. **Dernier Carré and Massacre bite at small scale.** At Bois, Kiker's 2
    Ghouls each wound a Loch Chon unit when losing, on a side of 2 units. In
@@ -452,44 +457,52 @@ aren't counted.
 their traits) and evaluates battles exactly over all dice rolls: win / tie /
 loss chances, and expected wounds received by each side (damage and wound
 traits; Assassin, Embuscade, heal and mend not counted). Locations: open
-ground, Fortifié, Umbra, held by the defender. Run the report with
-`--test-tags /odoo_battle:TestBattleBalance.test_balance_report`.
+ground, Fortifié, Umbra, held by the defender. Command actions and what-if
+changes (e.g. removing a trait) can be added to a scenario. Run the report
+with `--test-tags /odoo_battle:TestBattleBalance.test_balance_report`; soft
+targets not met only log a warning.
 
-Results on 2026-10-08 data:
+Each bonus point is worth about 25 points of winning chance (−2: 4%, 0:
+37%, +1: 63%, +2: 85%); the loser takes most wounds.
 
-| Scenario | Bonus | Win / tie / loss | Wounds received (initiators / responders) | Why |
-|---|---|---|---|---|
-| 3 BSD3 attack 3 WW3, open | +1 | 63 / 22 / 15 | 0.44 / 1.48 | Rage 9 vs Willpower 6 |
-| same, Fortifié | 0 | 37 / 26 / 37 | 1.22 / 0.67 | Fortifié cancels it |
-| 3 WW3 attack 3 BSD3, open | +1 | 63 / 22 / 15 | 0.30 / 0.67 | symmetric chances, BSD deal more |
-| both attack / both defend | 0 | 37 / 26 / 37 | 1.85 / 2.52 — 0.44 / 0.11 | BSD more damage, WW better defense |
-| BSD 4+3+3c vs WW 4+3+3r, either attacking | +1 | 63 / 22 / 15 | | Diversions cancel |
-| Vampires (G7 + 2 G8) attack 3 WW3 | **+2** | **85** / 11 / 4 | 0.11 / 2.19 | Commandement, Terreur (6 vs 5) |
-| 3 WW3 attack vampires | 0 | 37 / 26 / 37 | 0.78 / 0.00 | vampires very tanky (G7 resistance 6) |
-| … + 2 Combat Ghouls | −3 | 0 / 4 / 96 | 7.85 / 0.00 | Willpower, size, Commandement |
-| … + 2 Hommes de Main | −1 | 15 / 22 / 63 | 2.22 / 0.00 | size |
-| 2 WW3 attack humans (2 FS, 2 HdM in support) | +1 | 63 / 22 / 15 | 0.00 / 0.81 | humans cannot hurt werewolves |
-| same, Fortifié | 0 | 37 / 26 / 37 | 0.00 / 0.30 | |
-| 3 WW3 attack 3 Jaglins, Umbra | **−2** | **4** / 11 / 85 | 1.11 / 0.00 | Gnosis 3 vs 6, size 3 vs 6 |
-| same, outside the Umbra | +1 | 63 / 22 / 15 | 0.00 / 1.22 | |
+**Results with the averaged characteristics (2026-10-08):**
 
-Asserted: shapeshifters symmetric and balanced on Fortifié, attackers
-favored on open ground, BSD more damage / WW better defense, agents help
-vampires, werewolves beat humans, spirits stronger in the Umbra.
+| Scenario | Bonus | Attacker win / loss |
+|---|---|---|
+| 3 BSD3 attack 3 WW3, open / Fortifié | +1 / 0 | 63 / 15 — 37 / 37 |
+| 3 BSD Rank 2 attack 2 WW3 (numbers vs quality) | +1 | 63 / 15 (was 85%) |
+| 2 BSD3 attack 3 WW3 | 0 | 37 / 37 |
+| Vampires (G7 + 2 G8) attack 3 WW3 | +1 | 63 / 15 (was 85%) |
+| G7 + 2 G8 vs WW4 + 2 WW3, either attacking | 0 | 37 / 37 |
+| 3 WW3 attack G7 + 2 G8, + 2 henchmen (front or support) | −1 | 15 / 63 |
+| … + 2 Combat Ghouls | −2 | 4 / 85 |
+| 2 WW3 attack 4 FS + 4 HdM, open / Fortifié + Location Support | +1 / −1 | 63 / 15 — 15 / 63 |
+| 3 WW3 attack 3 Jaglins, Umbra / outside | −2 / +1 | 4 / 85 — 63 / 15 |
+| 3 WW3 attack Incarna + 2 Gaflins, Umbra | −4 | 0 / 100 |
 
-**Soft targets not met** (logged as warnings, not failures):
-- **Vampires too strong:** they win 85% attacking werewolves (target: at
-  most 63%, like werewolves attacking BSD). The swing is Terreur on the G7:
-  without it, characteristics are even (6 vs 6) and the bonus drops to +1
-  (63%). Agents also turn into reinforcements (Willpower, size) rather than
-  damage collectors.
-- **Jaglins overwhelming in the Umbra:** 3 Jaglins (menace 6) beat 3
-  werewolves packs (menace 12) 85% of the time (target: werewolves keep at
-  least 15%). Jaglin size 2 → 1 would remove the size bonus (−1: 15%).
+Asserted: shapeshifters symmetric, balanced on Fortifié, attacker favored on
+open ground; BSD more damage, WW better defense; vampires a match for
+werewolves; agents help vampires; led groups balanced; humans need numbers
+and tactics; spirits dominate in the Umbra.
 
-**Structural observation:** between shapeshifters (Rage 3, Willpower 2), the
-attacker always gets +1 on open ground. Attacking is favored unless the
-location is fortified; intended or to discuss.
+**Spirits (Umbra, e.g. Hills Umbra):** support spirits help in defense
+(attacker 63% → 37%, defenders' attrition 26% → 6%); an Incarna beats an
+Englin with a few Gaflins (85%, same menace); an Englin with 2 Jaglins is
+balanced against 2 Jaglins + 3 Gaflins (same menace, double size: quality
+against numbers, a good result); an Incarna drives small fights (its weight
+dominates the average), Jaglins help it in damage rather than in chances.
+Note: in the Umbra both stances compare Gnosis, so assault and defense
+variants only differ after the roll; tweak their statistics if a frontal
+charge should favor assault spirits (mechanism kept).
+
+**Battle length:** winners almost never take wounds; losers take 1 to 3
+(10–25% of a 3-unit side's wound levels): a side is worn out after 4 to 8
+lost battles, battles are not auto-resolved. Winners bleeding a little would
+need the losing side's damage to rise (outcome rates): not changed for now.
+
+**Soft target not met:** G7 vs WW4 one-on-one: G7 attacking wins 63%, WW4
+attacking wins 15%. Terreur on a single unit weighs a full −1 (spread over
+size 1). Accept (an elder is scarier one-on-one) or remove Terreur from G7.
 
 ---
 
@@ -508,6 +521,11 @@ location is fortified; intended or to discuss.
   Location Support is cumulative. Unstoppable Attack is granted by
   role-play, noted "(RP)" in its name, with no extra code.
 - Morale and leadership are per camp, on the round; there's no camp model.
+- **Bonus rules (2026-10-08):** characteristics compared as averages
+  weighted by menace (quality), size bonus for numbers; half points
+  (advantages) add up, final bonus rounded toward zero; DM bonus as a
+  selection (Advantage … Overwhelming). Menace is not a bonus by itself.
+  Diversion / Terreur spread over the side's size.
 - Wound maluses: Badly Wounded −1 characteristic; Critical −1 characteristic
   and −1 damage/resistance. Assassin wounds don't add a malus for the same
   battle.
@@ -575,9 +593,22 @@ Not decided; to come back to.
     suffers a pursuit, e.g. Massacre-like wounds). The first is clearer for
     players: spend a command to get out alive.
   - Hold On, Full Attack and Unstoppable Attack are fine as they are.
-- **Balance targets** (see 8b): vampires (Terreur on G7?), Jaglins in the
-  Umbra (size 1?), attacker advantage between shapeshifters, agents as damage
-  collectors. More scenarios to add as needed.
+- **Balance** (see 8b):
+  - Terreur on G7 one-on-one.
+  - Support units at **half weight** in the characteristic average, if the
+    frontline should matter more for quality.
+  - **Menace rework**: menace now weights the characteristic average (not a
+    bonus); e.g. Jaglin 2 → 3, elites 5 → 4 to avoid the "unique big
+    character" effect.
+  - **Damage spread**: proportional to size (agents and swarms absorb more,
+    elites still take some), or weakest first (strong meat-shield effect).
+  - **Assault Jaglin**: a war spirit able to fight in the physical world
+    (e.g. M3 S1 R3 W2 G2 D4 Res3, Fureur).
+  - **Template roles**: rename variants Assaut / Défense / Ruse (base: Rage
+    > Willpower; Ruse: Willpower and resistance; Corrompus / Respect: Gnosis,
+    Diversion).
+  - Attacker advantage between shapeshifters (Rage 3 vs Willpower 2) on open
+    ground: intended (Crinos), Fortifié or Défense templates balance it.
 - **Walkhill implosion:** when Hel and Yamazaki turn, set their allied
   faction to Loch Chon in the faction data file.
 - **Former proposals, kept for reference:**

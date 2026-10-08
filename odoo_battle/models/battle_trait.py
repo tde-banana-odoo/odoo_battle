@@ -78,7 +78,7 @@ class BattleTrait(models.Model):
              "Mend Self: units of the side to mend (damage counter reset) after the battle, one per value point. "
              "Heal and mend are prefilled in the solver (most wounded / damaged first), and can be changed. "
              "Support Damage: support unit adds its damage to the side damage. Support Resistance: support unit adds its damage to the side resistance. "
-             "Diversion: removes its value from the enemy compared characteristic (e.g. once per side). Dice Reroll: dice the side may reroll. "
+             "Diversion: removes its value from the enemy compared characteristic, spread over its creatures (size): it matters less for bigger sides; e.g. once per side. Dice Reroll: dice the side may reroll. "
              "Forced Reroll: dice the side has to reroll, its best ones (highest for initiators, lowest for responders). "
              "Assassination: wounds a chosen enemy unit before rolling. Ambush: puts a chosen enemy unit out of the battle. "
              "Lore: no battle effect, resolved manually by the DM (narration, units updates).",

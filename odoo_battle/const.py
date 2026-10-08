@@ -75,6 +75,17 @@ SIDE_SELECTION = [('initiator', 'Initiators'), ('responder', 'Responders')]
 SIDES = ('initiator', 'responder')
 STANCES = [('attack', 'Attack'), ('defense', 'Defend')]
 POSITIONS = [('frontline', 'Frontline'), ('support', 'Support')]
+# bonus given by the DM to a side (e.g. a good idea), as a bonus line: an
+# advantage is half a point, adding up with others (the final bonus is rounded
+# toward zero)
+DM_BONUSES = [
+    ('0', 'None'),
+    ('0.5', 'Advantage (+0.5)'),
+    ('1', 'Bonus (+1)'),
+    ('1.5', 'Bonus and Advantage (+1.5)'),
+    ('2', 'Double Bonus (+2)'),
+    ('3', 'Overwhelming (+3)'),
+]
 # a battle is solved using a single throw of DICE_COUNT dice, each giving one of DICE_FACES
 DICE_FACES = (-1, 0, 1)
 DICE_COUNT = 3

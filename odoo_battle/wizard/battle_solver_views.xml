@@ -30,9 +30,9 @@
                     <field name="initiator_faction_ids" widget="many2many_tags" options="{'no_create': True, 'color_field': 'color'}" placeholder="Factions" class="w-auto"
                         readonly="mode == 'done'"/>
                     <field name="initiator_stance" widget="radio" options="{'horizontal': true}" class="w-auto" readonly="mode == 'done'"/>
-                    <span class="o_battle_solver_bonus text-nowrap" title="Bonus given by the DM to the compared characteristic of the side (e.g. a good idea)">
-                        <span class="text-muted small">Bonus Characteristic</span>
-                        <field name="initiator_characteristic_bonus" class="o_battle_solver_bonus_input" readonly="mode == 'done'"/>
+                    <span class="o_battle_solver_bonus text-nowrap" title="Bonus given by the DM to the side (e.g. a good idea); an advantage (+0.5) adds up with others">
+                        <span class="text-muted small">DM Bonus</span>
+                        <field name="initiator_dm_bonus" class="o_battle_solver_bonus_input" readonly="mode == 'done'"/>
                     </span>
                     <field name="initiator_lines_summary" class="w-auto text-muted small" invisible="not initiator_folded"/>
                 </div>
@@ -74,9 +74,9 @@
                     <field name="responder_faction_ids" widget="many2many_tags" options="{'no_create': True, 'color_field': 'color'}" placeholder="Factions" class="w-auto"
                         readonly="mode == 'done'"/>
                     <field name="responder_stance" widget="radio" options="{'horizontal': true}" class="w-auto" readonly="mode == 'done'"/>
-                    <span class="o_battle_solver_bonus text-nowrap" title="Bonus given by the DM to the compared characteristic of the side (e.g. a good idea)">
-                        <span class="text-muted small">Bonus Characteristic</span>
-                        <field name="responder_characteristic_bonus" class="o_battle_solver_bonus_input" readonly="mode == 'done'"/>
+                    <span class="o_battle_solver_bonus text-nowrap" title="Bonus given by the DM to the side (e.g. a good idea); an advantage (+0.5) adds up with others">
+                        <span class="text-muted small">DM Bonus</span>
+                        <field name="responder_dm_bonus" class="o_battle_solver_bonus_input" readonly="mode == 'done'"/>
                     </span>
                     <field name="responder_lines_summary" class="w-auto text-muted small" invisible="not responder_folded"/>
                 </div>
@@ -207,7 +207,7 @@
                 </tr>
             </thead>
             <tbody>
-                <t t-set="categories" t-value="{'forces': 'Opposing Forces', 'leadership': 'Leadership', 'location': 'Location', 'traits': 'Traits'}"/>
+                <t t-set="categories" t-value="{'forces': 'Opposing Forces', 'leadership': 'Leadership', 'location': 'Location', 'traits': 'Traits', 'dm': 'DM'}"/>
                 <t t-foreach="lines" t-as="line">
                     <tr t-if="line_first or line['category'] != lines[line_index - 1]['category']" class="table-light">
                         <td colspan="4" class="small text-uppercase text-muted"><t t-out="categories[line['category']]"/></td>
@@ -215,17 +215,21 @@
                     <tr>
                         <td><t t-out="line['name']"/></td>
                         <td class="text-muted"><t t-out="line['detail']"/></td>
-                        <td class="text-center"><t t-if="line['initiator']" t-out="'%+d' % line['initiator']"/></td>
-                        <td class="text-center"><t t-if="line['responder']" t-out="'%+d' % line['responder']"/></td>
+                        <td class="text-center"><t t-if="line['initiator']" t-out="'%+g' % line['initiator']"/></td>
+                        <td class="text-center"><t t-if="line['responder']" t-out="'%+g' % line['responder']"/></td>
                     </tr>
                 </t>
             </tbody>
             <tfoot>
                 <tr class="fw-bold">
                     <td>Total</td>
-                    <td class="text-muted">Difference: <t t-out="'%+d' % solver.bonus"/></td>
-                    <td class="text-center"><t t-out="'%+d' % solver.initiator_bonus"/></td>
-                    <td class="text-center"><t t-out="'%+d' % solver.responder_bonus"/></td>
+                    <td class="text-muted">
+                        <t t-set="difference" t-value="solver.initiator_bonus - solver.responder_bonus"/>
+                        Difference: <t t-out="'%+g' % difference"/>
+                        <t t-if="difference != solver.bonus"> → <t t-out="'%+d' % solver.bonus"/> (half point dropped)</t>
+                    </td>
+                    <td class="text-center"><t t-out="'%+g' % solver.initiator_bonus"/></td>
+                    <td class="text-center"><t t-out="'%+g' % solver.responder_bonus"/></td>
                 </tr>
             </tfoot>
         </table>
