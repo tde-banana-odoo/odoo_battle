@@ -150,32 +150,47 @@
         <field name="status">contested</field>
         <field name="is_external" eval="True"/>
     </record>
-
-    <record id="battle_location_abysses" model="battle.location">
-        <field name="name">Abysses</field>
+    <record id="battle_location_realm_summer" model="battle.location">
+        <field name="name">Royaume de l'Été</field>
         <field name="sequence">210</field>
+        <field name="status">held</field>
+        <field name="held_by_faction_id" ref="battle_faction_gaia"/>
+        <field name="is_umbra" eval="True"/>
+        <field name="is_external" eval="True"/>
+    </record>
+    <record id="battle_location_realm_cyber" model="battle.location">
+        <field name="name">CyberRoyaume</field>
+        <field name="sequence">220</field>
+        <field name="status">held</field>
+        <field name="held_by_faction_id" ref="battle_faction_weaver"/>
+        <field name="is_umbra" eval="True"/>
+        <field name="is_external" eval="True"/>
+    </record>
+    <record id="battle_location_realm_abysses" model="battle.location">
+        <field name="name">Abysses</field>
+        <field name="sequence">230</field>
         <field name="status">held</field>
         <field name="held_by_faction_id" ref="battle_faction_kiker"/>
         <field name="is_umbra" eval="True"/>
         <field name="is_external" eval="True"/>
     </record>
+
     <record id="battle_location_loch_chon_park" model="battle.location">
         <field name="name">Loch Chon Regional Environment Park</field>
-        <field name="sequence">220</field>
+        <field name="sequence">300</field>
         <field name="is_external" eval="True"/>
         <field name="status">held</field>
         <field name="held_by_faction_id" ref="battle_faction_loch_chon"/>
     </record>
-
     <record id="battle_location_comte_walkhill" model="battle.location">
         <field name="name">Comté de Walkhill</field>
-        <field name="sequence">230</field>
+        <field name="sequence">310</field>
         <field name="status">contested</field>
         <field name="is_external" eval="True"/>
     </record>
     <record id="battle_location_lommond_hills" model="battle.location">
         <field name="name">Lommond Hills</field>
-        <field name="sequence">240</field>
+        <field name="sequence">320</field>
         <field name="status">held</field>
         <field name="held_by_faction_id" ref="battle_faction_kiker"/>
         <field name="is_external" eval="True"/>

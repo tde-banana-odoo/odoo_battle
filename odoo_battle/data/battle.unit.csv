@@ -52,11 +52,11 @@ battle_unit_kiker_possessed_criquets_2,Criquets Voraces 2,Possédés,battle_unit
 battle_unit_kiker_possessed_psychophages_k_1,Psychophages K 1,Possédés,battle_unit_template_possessed,battle_faction_kiker,battle_location_lommond_hills,,,,,,,,,,,,
 battle_unit_kiker_possessed_psychophages_k_2,Psychophages K 2,Possédés,battle_unit_template_possessed,battle_faction_kiker,battle_location_lommond_hills,,,,,,,,,,,,
 
-battle_unit_kiker_flaiels_garde,Gardes du Baron,Duc Acier (U),battle_unit_template_spirit_incarna,battle_faction_kiker,battle_location_abysses,,,,,,,,,,,,
-battle_unit_kiker_flaiels_guerre,Scrag Chevaliers,Duc Acier (U),battle_unit_template_spirit_jaglin,battle_faction_kiker,battle_location_abysses,,,,,,,,,,,,
-battle_unit_kiker_flaiels_toxique,Scrag Pollueurs,Duc Acier (U),battle_unit_template_spirit_gaflin,battle_faction_kiker,battle_location_abysses,,,,,,,,,,,,
-battle_unit_kiker_flaiels_elem,Scrag Détritus,Duc Acier (U),battle_unit_template_spirit_gaflin_ruse,battle_faction_kiker,battle_location_abysses,,,,,,,,,,,,
-battle_unit_kiker_flaiels_phantasmi_1,Phantasmi,Duc Acier (U),battle_unit_template_spirit_gaflin_ruse,battle_faction_kiker,battle_location_abysses,,,,,,,,,,,,
+battle_unit_kiker_flaiels_garde,Gardes du Baron,Duc Acier (U),battle_unit_template_spirit_incarna,battle_faction_kiker,battle_location_realm_abysses,,,,,,,,,,,,
+battle_unit_kiker_flaiels_guerre,Scrag Chevaliers,Duc Acier (U),battle_unit_template_spirit_jaglin,battle_faction_kiker,battle_location_realm_abysses,,,,,,,,,,,,
+battle_unit_kiker_flaiels_toxique,Scrag Pollueurs,Duc Acier (U),battle_unit_template_spirit_gaflin,battle_faction_kiker,battle_location_realm_abysses,,,,,,,,,,,,
+battle_unit_kiker_flaiels_elem,Scrag Détritus,Duc Acier (U),battle_unit_template_spirit_gaflin_ruse,battle_faction_kiker,battle_location_realm_abysses,,,,,,,,,,,,
+battle_unit_kiker_flaiels_phantasmi_1,Phantasmi,Duc Acier (U),battle_unit_template_spirit_gaflin_ruse,battle_faction_kiker,battle_location_realm_abysses,,,,,,,,,,,,
 
 battle_unit_kiker_flaiels_nihi_garde,Celui-qui-Clot,Celui-qui-Clot (U),battle_unit_template_spirit_incarna,battle_faction_kiker,battle_location_hills_umbra,,,2,,6,1,4,4,4,7,5,
 battle_unit_kiker_flaiels_nihi_halassh_1,Halassh 1,Celui-qui-Clot (U),battle_unit_template_spirit_jaglin,battle_faction_kiker,battle_location_hills,,2,,,,,,,,,,
@@ -123,8 +123,8 @@ battle_unit_hel_coterie_linden,Coterie du Baron den Linden,Hel,battle_unit_templ
 battle_unit_hel_gang_berlin_1,Gang de Berlin 1,Hel,battle_unit_template_human_henchman,battle_faction_hel,battle_location_walkhill,,,,,,,,,,,,
 battle_unit_hel_gang_berlin_2,Gang de Berlin 2,Hel,battle_unit_template_human_henchman_ruse,battle_faction_hel,battle_location_walkhill,,,,,,,,,,,,
 
-battle_unit_gaia_kami,C'est-ma-copine,Gaia,battle_unit_template_spirit_incarna,battle_faction_gaia,battle_location_penumbra,,,,,,,,,,,,
-battle_unit_gaia_kami_ours,Les Ours de Galehaut,Gaia,battle_unit_template_fera_rank_3,battle_faction_gaia,battle_location_penumbra,,,,,,,,,,,,
+battle_unit_gaia_kami,C'est-ma-copine,Gaia,battle_unit_template_spirit_incarna,battle_faction_gaia,battle_location_realm_summer,,,,,,,,,,,,
+battle_unit_gaia_kami_ours,Les Ours de Galehaut,Gaia,battle_unit_template_fera_rank_3,battle_faction_gaia,battle_location_realm_summer,,,,,,,,,,,,
 
 battle_unit_scot_perth_police_1,Police de Perth 1,Perth,battle_unit_template_human_henchman,battle_faction_scotland,battle_location_walkhill,,,,,,,,,,,,
 battle_unit_scot_perth_teuffeurs,Teufeurs,Perth,battle_unit_template_human_std,battle_faction_scotland,battle_location_walkhill,1,0,,,,,,,,,,
@@ -133,6 +133,6 @@ battle_unit_scot_perth_touristes,Touristes,Perth,battle_unit_template_human_std,
 battle_unit_scot_perth_badeaux,Badeaux,Perth,battle_unit_template_human_std,battle_faction_scotland,battle_location_king_industries,,,,,,,,,,,,
 
 battle_unit_weaver_drones,Drones,Walkhill Weaver,battle_unit_template_human_henchman_ruse,battle_faction_weaver,battle_location_park_center,,,,,,,,,,,,
-battle_unit_weaver_retour_de_force,Retour de Force,Walkhill Weaver,battle_unit_template_spirit_jaglin,battle_faction_weaver,battle_location_walkhill_umbra,,,,,,,,,,,,
-battle_unit_weaver_pattern_gard,Araignées Gardiennes,Walkhill Weaver,battle_unit_template_spirit_jaglin,battle_faction_weaver,battle_location_walkhill_umbra,,,,,,,,,,,,
-battle_unit_weaver_pattern_patr,Araignées Patrouilleuses,Walkhill Weaver,battle_unit_template_spirit_jaglin_ruse,battle_faction_weaver,battle_location_walkhill_umbra,,,,,,,,,,,,
+battle_unit_weaver_retour_de_force,Retour-de-Force,Walkhill Weaver,battle_unit_template_spirit_jaglin,battle_faction_weaver,battle_location_realm_cyber,,,,,,,,,,,,
+battle_unit_weaver_pattern_gard,Araignées Gardiennes,Walkhill Weaver,battle_unit_template_spirit_jaglin,battle_faction_weaver,battle_location_realm_cyber,,,,,,,,,,,,
+battle_unit_weaver_pattern_patr,Araignées Patrouilleuses,Walkhill Weaver,battle_unit_template_spirit_jaglin_ruse,battle_faction_weaver,battle_location_realm_cyber,,,,,,,,,,,,

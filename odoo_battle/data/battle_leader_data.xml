@@ -17,7 +17,7 @@
         <field name="name">Baron Rouille</field>
         <field name="unit_type">spirit</field>
         <field name="battle_faction_id" ref="battle_faction_kiker"/>
-        <field name="battle_location_id" ref="battle_location_abysses"/>
+        <field name="battle_location_id" ref="battle_location_realm_abysses"/>
     </record>
     <!-- Loch Chon -->
     <record id="battle_leader_loch_chon_calamity_jane" model="battle.leader">
@@ -64,10 +64,10 @@
         <field name="battle_location_id" ref="battle_location_walkhill"/>
     </record>
     <record id="battle_leader_weaver_retour_de_force" model="battle.leader">
-        <field name="name">Retour de Force</field>
+        <field name="name">Retour-de-Force</field>
         <field name="unit_type">spirit</field>
         <field name="battle_faction_id" ref="battle_faction_weaver"/>
-        <field name="battle_location_id" ref="battle_location_walkhill_umbra"/>
+        <field name="battle_location_id" ref="battle_location_realm_cyber"/>
     </record>
     <record id="battle_leader_yamazaki_elisabeth_noot" model="battle.leader">
         <field name="name">Elisabeth Noot</field>
@@ -79,13 +79,13 @@
         <field name="name">C'est-ma-copine</field>
         <field name="unit_type">spirit</field>
         <field name="battle_faction_id" ref="battle_faction_gaia"/>
-        <field name="battle_location_id" ref="battle_location_penumbra"/>
+        <field name="battle_location_id" ref="battle_location_realm_summer"/>
     </record>
     <record id="battle_leader_gaia_galehaut" model="battle.leader">
         <field name="name">Galehaut</field>
         <field name="unit_type">fera</field>
         <field name="battle_faction_id" ref="battle_faction_gaia"/>
-        <field name="battle_location_id" ref="battle_location_penumbra"/>
+        <field name="battle_location_id" ref="battle_location_realm_summer"/>
     </record>
     <record id="battle_leader_scotland" model="battle.leader">
         <field name="name">Byron Johnson</field>
