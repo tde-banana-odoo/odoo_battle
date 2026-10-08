@@ -41,9 +41,8 @@ point is 2 dice (0 = 6 dice), a half point is one die: small but present.
 
 ### Dice and score
 
-- **3 dice** with faces −1 / 0 / +1, total from −3 to +3. Rerolls apply when
-  rolling: Tactique and Balisé are counted for the table, Moral Vacillant
-  rerolls the side's best die.
+- **3 dice** with faces −1 / 0 / +1, total from −3 to +3. Tactique gives
+  rerolls, counted for the table.
 - **Score** = dice + bonus, capped to −4 … +4, read from the initiators'
   point of view. Responders read the opposite score.
 
@@ -66,8 +65,9 @@ Damage dealt to a side = enemy damage − own resistance, at least 0.
 Applied in this order:
 
 1. Wounds before the roll (Assassin).
-2. Damage: spread one point at a time over fighting frontline units, then
-   over support units once the frontline is down. Every **3 points** add a
+2. Damage: spread in turns over fighting frontline units, each taking as
+   many points as its size (more people, more wounds: swarms and agents
+   absorb more), then over support units once the frontline is down. Every **3 points** add a
    wound and reset the counter.
 3. Direct wounds (Wound Enemy): frontline first, least wounded first.
 4. **Heal**: −1 wound.
@@ -133,11 +133,11 @@ command actions (its leadership successes).
 
 | Action | Effect |
 |---|---|
-| Location Support | +1 bonus per action (cumulative) |
+| Location Support | +1 bonus per action, **+2 at most per side** (in game, usually 1, more by role-play) |
 | Hold On | damage ×75%, resistance ×150% |
 | Full Attack | damage ×150%, resistance ×75% |
 | Unstoppable Attack (RP) | damage ×125%, only when attacking; allowed by role-play |
-| Retreat | no battle effect: only noted (the solver shows a "Retreat" line without bonus), resolved by the DM |
+| Retreat | covered retreat: damage ×0%, resistance ×200%; the DM then moves the units out (location lost) |
 
 Rates apply once per side, whatever the number of actions, and multiply the
 outcome rates.
@@ -191,7 +191,7 @@ once per side.
 | Tactique | always | 1 die reroll per holder | 2 | 4 |
 | **Before the roll** | | | | |
 | Assassin | frontline | 1 wound to a chosen enemy unit | 2 | 5 |
-| Embuscade | defending, support | removes a chosen enemy unit from the battle | 2 | 2 |
+| Embuscade | support (any stance) | removes a chosen enemy unit from the battle | 2 | 2 |
 | **Damage** | | | | |
 | Contre-Attaque | defending, frontline, on a win | +2 damage | 4 | 14 |
 | Fureur | attacking, frontline, on a win | +2 damage | 5 | 16 |
@@ -240,18 +240,22 @@ frontline) and Size Rate (±% on size), used by location traits
 
 | Trait | When | Effect | Locations |
 |---|---|---|---|
-| Fortifié | responders, defending | +1 bonus | 6 |
-| Balisé | responders | 1 die reroll | 6 |
-| Ravitaillé | responders | prefills a Heal: −1 wound on their most wounded unit after the battle | 6 |
-| Impraticable | everyone | resistance −25% (hostile ground, e.g. flooded by Loch Chon's water spirit) | 4 |
+| Fortifié | responders, defending | +1 bonus | 2 (Stronachlachar, Park Center) |
+| Retranché | responders, defending | +0.5 bonus (an advantage): light fortifications | 4 (Hills, Loch Chon, Route du Centre, Walkhill) |
 | Piégé | responders, defending | 1 wound to an attacking unit after the battle, whatever the result | 3 |
+| Ravitaillé | responders | prefills a Mend: damage counter reset on their most damaged unit | 5 |
+| Hôpital de Campagne | responders | prefills a Heal: −1 wound on their most wounded unit | 1 (Park Center) |
+| Balisé | responders | role-play: one unit may slip away, even if a battle is planned | 6 |
+| Nœud Réseau | — | role-play: communications | 3 (Walkhill, Walkhill (Umbra), Park Center) |
+| Impraticable | everyone | resistance −25% (hostile ground, e.g. flooded by Loch Chon's water spirit) | 4 |
 | Obstacles | attacking | size −25% for the size bonus (the advance is slowed) | 2 |
 | **Granted manually** to a faction for a round, as a location effect | | | |
-| Esprit des Eaux | always | resistance +25%, once per side (Loch Chon's water spirit; offsets most of Impraticable: 75% × 125% ≈ 94%) | — |
+| Protection Spirituelle | always | resistance +25%, once per side (e.g. Loch Chon's water spirit; offsets most of Impraticable) | — |
+| Rage Spirituelle | always | damage +25%, once per side | — |
 | **Granted by outcomes** for the next round, to the side's factions | | | |
 | Percée | attacking | +1 bonus, once per side | — |
 | Défense Héroïque | defending | +1 bonus, once per side | — |
-| Moral Vacillant | always | the side's best die is rerolled | — |
+| Moral Vacillant | always | −0.5 bonus (a negative advantage), once per side | — |
 
 Responders are the holders and their allies. Location traits apply once
 (they have no holders), and the descriptions printed on location sheets are
@@ -263,9 +267,15 @@ round, entered in the round's Location Effects tab (or the location's Effects
 tab), like the traits granted by
 outcomes.
 
-Locations without traits: Enclos, Bois (Umbra), Walkhill (Umbra), King
-Industries, Penumbra, Abysses, Loch Chon Regional Environment Park, Comté de
-Walkhill, Lommond Hills.
+Locations without traits: Enclos, Bois (Umbra), King Industries, Penumbra,
+Abysses, Loch Chon Regional Environment Park, Comté de Walkhill, Lommond
+Hills.
+
+**Printing:** unit sheets suffix traits applying in a single stance with (A)
+attack or (D) defense, so players see at a glance assault and defense units.
+A rules reference (Configuration > Print Rules Reference, or Print from the
+traits list) gives players all rules, outcomes, command actions and traits
+in French on two A4 pages.
 
 ---
 
@@ -288,20 +298,20 @@ variant (traits tell variants apart), "+" marking an elite version.
 |---|---|---|---|---|
 | **Black Spiral Dancers** | | | | |
 | Danseurs de la Spirale Noire Rang 4 | DSN 4 | 5/1/3/2/2/5/4 | Commandement, Fureur, Massacre, Fétiche | 3 |
-| Danseurs de la Spirale Noire Rang 3 | DSN 3 | 4/1/3/2/1/4/3 | Tactique, Fureur | 0 (1 dead) |
-| Danseurs de la Spirale Noire Rang 3 (Ruse) | DSN 3 | 4/1/2/3/1/4/4 | Embuscade | 1 (2 dead) |
-| Danseurs de la Spirale Noire Rang 3 (Corrompus) | DSN 3 | 4/1/2/2/2/3/3 | Diversion, Assassin | 2 |
-| Danseurs de la Spirale Noire Rang 2 | DSN 2 | 3/1/2/1/1/4/2 | — | 2 |
-| Danseurs de la Spirale Noire Rang 2 (Ruse) | DSN 2 | 3/1/1/2/1/2/3 | Contre-Attaque | 2 |
-| Danseurs de la Spirale Noire Rang 2 (Corrompus) | DSN 2 | 3/1/1/1/2/2/2 | Repli Défensif | 0 |
+| Danseurs de la Spirale Noire Rang 3 (Assaut) | DSN 3 | 4/1/3/2/1/4/3 | Tactique, Fureur | 0 (1 dead) |
+| Danseurs de la Spirale Noire Rang 3 (Défense) | DSN 3 | 4/1/2/3/1/4/4 | Embuscade | 1 (2 dead) |
+| Danseurs de la Spirale Noire Rang 3 (Ruse) | DSN 3 | 4/1/2/2/2/3/3 | Diversion, Assassin | 2 |
+| Danseurs de la Spirale Noire Rang 2 (Assaut) | DSN 2 | 3/1/2/1/1/4/2 | — | 2 |
+| Danseurs de la Spirale Noire Rang 2 (Défense) | DSN 2 | 3/1/1/2/1/2/3 | Contre-Attaque | 2 |
+| Danseurs de la Spirale Noire Rang 2 (Ruse) | DSN 2 | 3/1/1/1/2/2/2 | Repli Défensif | 0 |
 | **Werewolves** | | | | |
 | Loups-Garous Rang 4 | LG 4 | 5/1/3/2/2/5/4 | Commandement, Contre-Attaque, Massacre, Fétiche | 3 |
-| Loups-Garous Rang 3 | LG 3 | 4/1/3/2/1/4/3 | Tactique, Contre-Attaque | 4 |
-| Loups-Garous Rang 3 (Ruse) | LG 3 | 4/1/2/3/1/4/4 | Embuscade | 1 |
-| Loups-Garous Rang 3 (Respect) | LG 3 | 4/1/2/2/2/3/3 | Diversion, Dernier Carré | 2 |
-| Loups-Garous Rang 2 | LG 2 | 3/1/2/1/1/4/2 | — | 1 |
-| Loups-Garous Rang 2 (Ruse) | LG 2 | 3/1/1/2/1/2/3 | Assaut Tactique | 2 |
-| Loups-Garous Rang 2 (Respect) | LG 2 | 3/1/1/1/2/2/2 | Discipline | 1 |
+| Loups-Garous Rang 3 (Assaut) | LG 3 | 4/1/3/2/1/4/3 | Tactique, Contre-Attaque | 4 |
+| Loups-Garous Rang 3 (Défense) | LG 3 | 4/1/2/3/1/4/4 | Embuscade | 1 |
+| Loups-Garous Rang 3 (Ruse) | LG 3 | 4/1/2/2/2/3/3 | Diversion, Dernier Carré | 2 |
+| Loups-Garous Rang 2 (Assaut) | LG 2 | 3/1/2/1/1/4/2 | — | 1 |
+| Loups-Garous Rang 2 (Défense) | LG 2 | 3/1/1/2/1/2/3 | Assaut Tactique | 2 |
+| Loups-Garous Rang 2 (Ruse) | LG 2 | 3/1/1/1/2/2/2 | Discipline | 1 |
 | **Fera** | | | | |
 | Fera Rang 3 | Fera 3 | 4/1/2/2/2/3/3 | Diversion, Repli Défensif | 1 |
 | **Vampires and ghouls** | | | | |
@@ -312,10 +322,10 @@ variant (traits tell variants apart), "+" marking an elite version.
 | Goules | Goules | 2/1/1/1/1/3/1 | Dernier Carré | 3 |
 | **Humans** | | | | |
 | Infanterie Mécanisée | Méca | 3/2/2/2/1/3/3 | Appui, Assaut Tactique | 2 |
-| Forces Spéciales | FS | 2/2/1/1/1/2/2 | Assaut Tactique | 2 |
-| Forces Spéciales (Ruse) | FS | 2/2/1/1/1/2/2 | Discipline | 3 |
-| Hommes de Main | HdM | 1/2/0/0/0/1/1 | Appui | 6 (4 dead) |
-| Hommes de Main (Ruse) | HdM | 1/2/0/0/0/1/1 | Couverture | 4 (2 dead) |
+| Forces Spéciales (Assaut) | FS | 2/2/1/1/1/2/2 | Assaut Tactique | 2 |
+| Forces Spéciales (Défense) | FS | 2/2/1/1/1/2/2 | Discipline | 3 |
+| Hommes de Main (Assaut) | HdM | 1/2/0/0/0/1/1 | Appui | 6 (4 dead) |
+| Hommes de Main (Défense) | HdM | 1/2/0/0/0/1/1 | Couverture | 4 (2 dead) |
 | Humains | Humains | 0/2/0/0/0/1/1 | — | 8 (2 dead) |
 | **Fomori and possessed** | | | | |
 | Fomoris Améliorés | Fomoris+ | 2/1/2/1/0/2/4 | Repli Défensif | 1 |
@@ -324,11 +334,11 @@ variant (traits tell variants apart), "+" marking an elite version.
 | Possédés | Possédés | 1/2/0/1/0/2/0 | Fanatique, Feu | 5 |
 | **Spirits** | | | | |
 | Incarna | Incarna | 5/1/1/2/4/4/4 | Commandement | 5 |
-| Jaglin | Jaglin | 2/2/1/1/2/3/2 | Fureur | 9 |
-| Jaglin (Ruse) | Jaglin | 2/2/0/2/2/2/3 | Contre-Attaque | 5 |
-| Jaglin (Corrompus) | Jaglin | 2/2/0/1/3/2/2 | Diversion | 0 |
-| Gaflin | Gaflin | 1/2/0/0/1/1/2 | — | 6 |
-| Gaflin (Ruse) | Gaflin | 1/2/0/0/1/2/1 | — | 5 |
+| Englin | Englin | 3/1/2/2/3/4/3 | Massacre | 0 |
+| Jaglin (Assaut) | Jaglin | 2/2/1/1/2/3/2 | Fureur | 9 |
+| Jaglin (Défense) | Jaglin | 2/2/0/2/2/2/3 | Contre-Attaque | 5 |
+| Gaflin (Assaut) | Gaflin | 1/2/0/0/1/2/1 | — | 5 |
+| Gaflin (Défense) | Gaflin | 1/2/0/0/1/1/2 | — | 6 |
 
 **BSD and werewolves** share statistics per rank and variant, their traits
 differ:
@@ -406,7 +416,7 @@ aren't counted.
   chosen target before the roll.
 - **No trait stacking on cheap units:** one role per human template.
 - **No negative characteristics:** civilians bring size only.
-- **Umbra battles have traits:** Jaglin (Fureur), Jaglin (Ruse)
+- **Umbra battles have traits:** Jaglin (Assaut) (Fureur), Jaglin (Défense)
   (Contre-Attaque).
 - **Fear has two levels:** Terreur (−1 to the enemy characteristic, once per
   side) on 3 units; Effroi (role-play: the enemy may flee when losing) on the
@@ -444,9 +454,8 @@ aren't counted.
 
 ### Data hygiene
 
-- "Jaglin (Corr)" vs "Black Spiral Dancer Rank 3 (Corrupt)": two spellings.
 - "Fera 3" doesn't follow the "Rank 3" naming.
-- Unused templates: BSD Rank 2 (Corrupt), Jaglin (Corr).
+- Unused templates: BSD Rank 2 (Ruse), Englin (new, to assign).
 - Unused traits: Argent, Béni, Eclaireur.
 
 ---
@@ -541,8 +550,24 @@ size 1). Accept (an elder is scarier one-on-one) or remove Terreur from G7.
   Ravitaillé (1 heal), Obstacles (attackers' size −25%), Impraticable
   (formerly Dangereux: resistance −25% for everyone). Fortifié and Balisé
   unchanged.
-- Esprit des Eaux: +25% resistance, granted manually to Loch Chon at a
-  location for a round (location effect), when the water spirit intervenes.
+- Protection Spirituelle (formerly Esprit des Eaux): +25% resistance, and
+  Rage Spirituelle: +25% damage, granted manually to a faction at a location
+  for a round (location effect), e.g. when the water spirit intervenes.
+- Location traits rework (2026-10-08): Retranché (+0.5, advantage) replaces
+  Fortifié on Hills, Loch Chon, Route du Centre and Walkhill; Ravitaillé
+  mends (damage) instead of healing (wounds); Hôpital de Campagne heals
+  (Park Center); Balisé becomes role-play (a unit may slip away) instead of a
+  reroll; Nœud Réseau (role-play). Hills and Route du Centre lose
+  Ravitaillé, Walkhill gains it.
+- Moral Vacillant (granted by a major defeat) is a −0.5 advantage instead
+  of a forced reroll: computed by the solver, a crushed side can recover.
+- Command actions: Location Support +2 at most per side; Retreat is a
+  covered retreat (damage ×0%, resistance ×200%). Embuscade works in any
+  stance (from support). Terreur one-on-one accepted.
+- Templates renamed by role: (Assaut), (Défense), (Ruse) for BSD, werewolves,
+  humans, Fera and spirits.
+- Damage spread proportional to size (2026-10-08). Chaff against chaff
+  stalemates accepted: big units decide battles.
 - Templates (see 6): leaders (rank 4, G7) have 3 battle traits, other
   templates 0 to 2; a template without trait gets a better statistic.
   Variants give a family both offensive and defensive units.
@@ -583,30 +608,15 @@ Not decided; to come back to.
 - **Points of section 8** to decide: BSD Ruse Embuscade, Rank 2 Corrupt /
   Respect statistics.
 - **Command actions** (see 3, effectiveness):
-  - **Cap Location Support:** at most +2 per side (preferred: still rewards
-    a big leadership roll, but 3 actions cannot lock a battle), or once per
-    side, or diminishing. Small code change (a cap constant) and a test.
-  - **Give Retreat a meaning:** either a "covered retreat" (damage ×0%,
-    resistance ×200%: the side leaves without fighting back and takes
-    little; the DM then moves its units out and the location is lost; only
-    a constant), or pure role-play (without a Retreat action, a fleeing side
-    suffers a pursuit, e.g. Massacre-like wounds). The first is clearer for
-    players: spend a command to get out alive.
   - Hold On, Full Attack and Unstoppable Attack are fine as they are.
 - **Balance** (see 8b):
-  - Terreur on G7 one-on-one.
   - Support units at **half weight** in the characteristic average, if the
     frontline should matter more for quality.
   - **Menace rework**: menace now weights the characteristic average (not a
     bonus); e.g. Jaglin 2 → 3, elites 5 → 4 to avoid the "unique big
     character" effect.
-  - **Damage spread**: proportional to size (agents and swarms absorb more,
-    elites still take some), or weakest first (strong meat-shield effect).
   - **Assault Jaglin**: a war spirit able to fight in the physical world
     (e.g. M3 S1 R3 W2 G2 D4 Res3, Fureur).
-  - **Template roles**: rename variants Assaut / Défense / Ruse (base: Rage
-    > Willpower; Ruse: Willpower and resistance; Corrompus / Respect: Gnosis,
-    Diversion).
   - Attacker advantage between shapeshifters (Rage 3 vs Willpower 2) on open
     ground: intended (Crinos), Fortifié or Défense templates balance it.
 - **Walkhill implosion:** when Hel and Yamazaki turn, set their allied

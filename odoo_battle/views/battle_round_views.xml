@@ -80,8 +80,9 @@
             <form string="Leadership">
                 <p class="text-muted">
                     Each camp rolls its leadership: morale, and successes giving command actions. Each command action may
-                    be used in a location, or not at all: Location Support (+1 bonus), Hold On (resistance +50%, damage -25%),
-                    Full Attack (damage +50%, resistance -25%), Retreat, Unstoppable Attack (RP: allowed by role-play only,
+                    be used in a location, or not at all: Location Support (+1 bonus, +2 at most per side), Hold On
+                    (resistance +50%, damage -25%), Full Attack (damage +50%, resistance -25%), Retreat (covered retreat:
+                    damage 0%, resistance ×2, units then move out), Unstoppable Attack (RP: allowed by role-play only,
                     damage +25% when attacking).
                 </p>
                 <div class="row">

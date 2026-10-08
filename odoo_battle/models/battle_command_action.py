@@ -5,9 +5,10 @@ from odoo.addons.odoo_battle.const import CAMPS, COMMAND_TYPES
 
 class BattleCommandAction(models.Model):
     """ Command action picked by a camp for a round in a location, thanks to
-    its leadership successes: Location Support (+1 bonus), Hold On (more
-    resistance, less damage), Full Attack (more damage, less resistance),
-    Retreat (no battle effect, resolved by the DM), Unstoppable Attack (more
+    its leadership successes: Location Support (+1 bonus, +2 at most per
+    side), Hold On (more resistance, less damage), Full Attack (more damage,
+    less resistance), Retreat (covered retreat: no damage dealt, doubled
+    resistance; the DM then moves units out), Unstoppable Attack (more
     damage when attacking, allowed by role-play only). """
     _name = 'battle.command.action'
     _description = "Command Action"

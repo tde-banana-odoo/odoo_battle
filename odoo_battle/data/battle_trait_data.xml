@@ -21,7 +21,7 @@
         <field name="effect">diversion</field>
         <field name="value">2</field>
         <field name="is_unique" eval="True"/>
-        <field name="description">-2 à la caractéristique adverse (une fois par camp).</field>
+        <field name="description">-2 à la caractéristique adverse, réparti sur sa taille (une fois par camp).</field>
     </record>
     <record id="battle_trait_terror" model="battle.trait">
         <field name="name">Terreur</field>
@@ -32,7 +32,7 @@
         <field name="effect">diversion</field>
         <field name="value">1</field>
         <field name="is_unique" eval="True"/>
-        <field name="description">-1 à la caractéristique adverse (une fois par camp, cumulable avec Diversion).</field>
+        <field name="description">-1 à la caractéristique adverse, réparti sur sa taille (une fois par camp, cumulable avec Diversion).</field>
     </record>
     <record id="battle_trait_tactics" model="battle.trait">
         <field name="name">Tactique</field>
@@ -61,13 +61,13 @@
     <record id="battle_trait_ambush" model="battle.trait">
         <field name="name">Embuscade</field>
         <field name="sequence">110</field>
-        <field name="stance">defense</field>
+        <field name="stance">any</field>
         <field name="position">support</field>
         <field name="condition">any</field>
         <field name="effect">ambush</field>
         <field name="value">1</field>
         <field name="is_unique" eval="False"/>
-        <field name="description">En défense, en soutien : retire de la bataille une unité ennemie choisie.</field>
+        <field name="description">En soutien : retire de la bataille une unité ennemie choisie.</field>
     </record>
 
     <!-- Unit traits: damage -->
@@ -205,7 +205,7 @@
         <field name="effect">lore</field>
         <field name="value">1</field>
         <field name="is_unique" eval="False"/>
-        <field name="description">Si victoire : les unités ennemies peuvent fuir (jeu de rôle).</field>
+        <field name="description">Si victoire : les unités ennemies peuvent fuir (lore).</field>
     </record>
 
     <!-- Unit traits: lore / role-play -->
@@ -218,7 +218,7 @@
         <field name="effect">lore</field>
         <field name="value">1</field>
         <field name="is_unique" eval="False"/>
-        <field name="description">Redoutable contre les Fera (jeu de rôle).</field>
+        <field name="description">Redoutable contre les Fera (lore).</field>
     </record>
     <record id="battle_trait_lore_blessed" model="battle.trait">
         <field name="name">Béni</field>
@@ -229,7 +229,7 @@
         <field name="effect">lore</field>
         <field name="value">1</field>
         <field name="is_unique" eval="False"/>
-        <field name="description">Redoutable contre les vampires (jeu de rôle).</field>
+        <field name="description">Redoutable contre les vampires (lore).</field>
     </record>
     <record id="battle_trait_scout" model="battle.trait">
         <field name="name">Éclaireur</field>
@@ -240,7 +240,7 @@
         <field name="effect">lore</field>
         <field name="value">1</field>
         <field name="is_unique" eval="False"/>
-        <field name="description">Peut éviter la bataille de la zone (jeu de rôle).</field>
+        <field name="description">Peut éviter la bataille de la zone (lore).</field>
     </record>
     <record id="battle_trait_fanatic" model="battle.trait">
         <field name="name">Fanatique</field>
@@ -251,7 +251,7 @@
         <field name="effect">lore</field>
         <field name="value">1</field>
         <field name="is_unique" eval="False"/>
-        <field name="description">Ne peut pas battre en retraite (jeu de rôle).</field>
+        <field name="description">Ne peut pas battre en retraite (lore).</field>
     </record>
     <record id="battle_trait_lore_fetish" model="battle.trait">
         <field name="name">Fétiche</field>
@@ -262,7 +262,7 @@
         <field name="effect">lore</field>
         <field name="value">1</field>
         <field name="is_unique" eval="False"/>
-        <field name="description">Porte un fétiche (jeu de rôle).</field>
+        <field name="description">Porte un fétiche (lore).</field>
     </record>
     <record id="battle_trait_lore_fire" model="battle.trait">
         <field name="name">Feu</field>
@@ -273,7 +273,7 @@
         <field name="effect">lore</field>
         <field name="value">1</field>
         <field name="is_unique" eval="False"/>
-        <field name="description">Redoutable contre tous (jeu de rôle).</field>
+        <field name="description">Redoutable contre tous (lore).</field>
     </record>
 
     <!-- Location traits -->
@@ -308,6 +308,18 @@
         <field name="effect">bonus</field>
         <field name="description">Occupants, en défense : +1 au bonus.</field>
     </record>
+    <record id="battle_trait_entrenched" model="battle.trait">
+        <field name="name">Retranché</field>
+        <field name="sequence">612</field>
+        <field name="target">location</field>
+        <field name="side">responder</field>
+        <field name="stance">defense</field>
+        <field name="condition">any</field>
+        <field name="effect">advantage</field>
+        <field name="value">1</field>
+        <field name="is_unique" eval="False"/>
+        <field name="description">Occupants, en défense : +0,5.</field>
+    </record>
     <record id="battle_trait_trapped" model="battle.trait">
         <field name="name">Piégé</field>
         <field name="sequence">620</field>
@@ -326,22 +338,46 @@
         <field name="side">responder</field>
         <field name="stance">any</field>
         <field name="condition">any</field>
+        <field name="effect">mend_self</field>
+        <field name="value">1</field>
+        <field name="description">Occupants : efface les dégâts.</field>
+    </record>
+    <record id="battle_trait_field_hospital" model="battle.trait">
+        <field name="name">Hôpital de Campagne</field>
+        <field name="sequence">635</field>
+        <field name="target">location</field>
+        <field name="side">responder</field>
+        <field name="stance">any</field>
+        <field name="condition">any</field>
         <field name="effect">heal_self</field>
         <field name="value">1</field>
-        <field name="description">Occupants : 1 soin après bataille.</field>
+        <field name="is_unique" eval="False"/>
+        <field name="description">Occupants : 1 soin.</field>
     </record>
     <record id="battle_trait_tagged" model="battle.trait">
         <field name="name">Balisé</field>
         <field name="sequence">640</field>
         <field name="target">location</field>
         <field name="side">responder</field>
-        <field name="effect">reroll</field>
-        <field name="description">Occupants : relance 1 dé.</field>
+        <field name="effect">lore</field>
+        <field name="description">Occupants : 1 unité peut s'éclipser.</field>
+    </record>
+    <record id="battle_trait_it_node" model="battle.trait">
+        <field name="name">Nœud Réseau</field>
+        <field name="sequence">645</field>
+        <field name="target">location</field>
+        <field name="side">any</field>
+        <field name="stance">any</field>
+        <field name="condition">any</field>
+        <field name="effect">lore</field>
+        <field name="value">1</field>
+        <field name="is_unique" eval="False"/>
+        <field name="description">Communications (lore).</field>
     </record>
 
     <!-- Location traits granted manually to a faction for a round, as location effects -->
     <record id="battle_trait_water_spirit" model="battle.trait">
-        <field name="name">Esprit des Eaux</field>
+        <field name="name">Protection Spirituelle</field>
         <field name="sequence">650</field>
         <field name="target">location</field>
         <field name="side">any</field>
@@ -351,6 +387,18 @@
         <field name="value">25</field>
         <field name="is_unique" eval="True"/>
         <field name="description">+25% de résistance (une fois par camp).</field>
+    </record>
+    <record id="battle_trait_spirit_rage" model="battle.trait">
+        <field name="name">Rage Spirituelle</field>
+        <field name="sequence">655</field>
+        <field name="target">location</field>
+        <field name="side">any</field>
+        <field name="stance">any</field>
+        <field name="condition">any</field>
+        <field name="effect">damage_rate</field>
+        <field name="value">25</field>
+        <field name="is_unique" eval="True"/>
+        <field name="description">+25% de dégâts (une fois par camp).</field>
     </record>
 
     <!-- Location traits granted to factions for the next round by battle outcomes (see outcomes:
@@ -377,8 +425,10 @@
         <field name="name">Moral Vacillant</field>
         <field name="sequence">720</field>
         <field name="target">location</field>
-        <field name="effect">forced_reroll</field>
+        <field name="stance">any</field>
+        <field name="effect">advantage</field>
+        <field name="value">-1</field>
         <field name="is_unique" eval="True"/>
-        <field name="description">Relance son meilleur dé (une fois par camp).</field>
+        <field name="description">-0,5 au bonus (une fois par camp).</field>
     </record>
 </odoo>

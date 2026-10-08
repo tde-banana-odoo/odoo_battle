@@ -30,11 +30,13 @@ COMMAND_RATES = {
     'hold_on': {'damage': 75, 'resistance': 150},
     'full_attack': {'damage': 150, 'resistance': 75},
     'attack_unstoppable': {'damage': 125, 'resistance': 100},
+    'retreat': {'damage': 0, 'resistance': 200},  # covered retreat; the DM then moves units out
 }
 # command actions applying only for a stance of the side (others: any stance)
 COMMAND_STANCES = {'attack_unstoppable': 'attack'}
-# battle bonus given by each action (cumulative)
+# battle bonus given by each action (cumulative, up to a maximum per side)
 COMMAND_BONUS = {'location_support': 1}
+COMMAND_BONUS_MAX = {'location_support': 2}
 
 # ------------------------------------------------------------
 # UNITS, LEADERS AND LOCATIONS

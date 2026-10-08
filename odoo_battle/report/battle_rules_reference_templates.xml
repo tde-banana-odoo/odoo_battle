@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="action_report_rules_reference" model="ir.actions.report">
+        <field name="name">Rules Reference</field>
+        <field name="model">battle.trait</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">odoo_battle.report_rules_reference</field>
+        <field name="print_report_name">'Rules Reference'</field>
+        <field name="paperformat_id" ref="paperformat_unit_sheet"/>
+        <field name="binding_model_id" ref="model_battle_trait"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <record id="action_report_traits_reference" model="ir.actions.report">
+        <field name="name">Traits Reference</field>
+        <field name="model">battle.trait</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">odoo_battle.report_traits_reference</field>
+        <field name="print_report_name">'Traits Reference'</field>
+        <field name="paperformat_id" ref="paperformat_unit_sheet"/>
+        <field name="binding_model_id" ref="model_battle_trait"/>
+        <field name="binding_type">report</field>
+    </record>
+
+    <!-- Shared by the rules and traits references -->
+    <template id="report_rules_style">
+        <style>
+            .o_battle_rules { font-family: 'DejaVu Sans', sans-serif; font-size: 8pt; color: #222; }
+            .o_battle_rules h1 { font-size: 14pt; margin: 0 0 2mm 0; }
+            .o_battle_rules h2 { font-size: 10pt; margin: 3mm 0 1mm 0; border-bottom: 0.3mm solid #444; }
+            .o_battle_rules table { width: 100%; border-collapse: collapse; }
+            .o_battle_rules td, .o_battle_rules th { padding: 0.6mm 1.5mm; border-bottom: 0.2mm solid #ddd; vertical-align: top; text-align: left; }
+            .o_battle_rules th { font-size: 7pt; text-transform: uppercase; color: #555; }
+            .o_battle_rules .o_name { font-weight: bold; white-space: nowrap; width: 32mm; }
+            .o_battle_rules .o_center { text-align: center; }
+            .o_battle_rules .o_keep { break-inside: avoid; page-break-inside: avoid; }
+            .o_battle_rules .o_group td { padding-top: 1.8mm; font-size: 6.5pt; text-transform: uppercase; color: #777; border-bottom: 0.3mm solid #999; }
+        </style>
+    </template>
+
+    <template id="report_rules_traits">
+        <div>
+            <h2>Traits d'unité <span style="font-weight: normal; font-size: 7pt">(A) attaque, (D) défense</span></h2>
+            <table>
+                <t t-foreach="unit_traits" t-as="group">
+                    <tr class="o_group"><td colspan="2" t-out="group[0]"/></tr>
+                    <tr t-foreach="group[1]" t-as="trait">
+                        <td class="o_name">
+                            <t t-out="trait.name"/>
+                            <t t-if="trait.stance == 'attack'"> (A)</t>
+                            <t t-elif="trait.stance == 'defense'"> (D)</t>
+                        </td>
+                        <td t-out="trait.description"/>
+                    </tr>
+                </t>
+            </table>
+        </div>
+
+        <div>
+            <h2>Traits de lieu</h2>
+            <table>
+                <t t-foreach="location_traits" t-as="group">
+                    <tr class="o_group"><td colspan="2" t-out="group[0]"/></tr>
+                    <tr t-foreach="group[1]" t-as="trait">
+                        <td class="o_name" t-out="trait.name"/>
+                        <td t-out="trait.description"/>
+                    </tr>
+                </t>
+            </table>
+        </div>
+    </template>
+
+    <!-- Game aid for the table, in French: all rules and traits on A4 pages -->
+    <template id="report_rules_reference">
+        <t t-call="web.basic_layout">
+            <div class="o_battle_rules">
+                <t t-call="odoo_battle.report_rules_style"/>
+                <h1>LG Battle — Aide de jeu</h1>
+
+                <div class="o_keep">
+                        <h2>Bonus avant le jet</h2>
+                        <table>
+                            <tr><td class="o_name">Caractéristiques</td><td>Rage en attaque, Volonté en défense, Gnose dans l'Umbra : moyenne du camp pondérée par la menace. L'écart donne le bonus, par demi-point (avantage), +2 maximum.</td></tr>
+                            <tr><td class="o_name">Taille</td><td>+1 au camp ayant au moins 50 % de taille en plus.</td></tr>
+                            <tr><td class="o_name">Moral</td><td>-1 si moral Ébranlé ou pire.</td></tr>
+                            <tr><td class="o_name">Commandement</td><td>actions de commandement, traits (Commandement, Fortifié…).</td></tr>
+                            <tr><td class="o_name">Bonus du MJ</td><td>Avantage (+0,5), Bonus (+1), Bonus et Avantage (+1,5), Double Bonus (+2), Écrasant (+3).</td></tr>
+                            <tr><td class="o_name">Arrondi</td><td>les avantages s'additionnent ; un demi-point restant est perdu.</td></tr>
+                            <tr><td class="o_name">Jet</td><td>3 dés (-1, 0, +1) + bonus : score de -4 à +4.</td></tr>
+                        </table>
+                    </div>
+                    <div class="o_keep">
+                        <h2>Blessures</h2>
+                        <table>
+                            <tr><td class="o_name">Dégâts</td><td>1 blessure tous les <t t-out="damage_per_wound"/> points de dégâts reçus.</td></tr>
+                            <tr><td class="o_name">Gravement blessé</td><td>-1 caractéristique.</td></tr>
+                            <tr><td class="o_name">Critique</td><td>-1 caractéristique, -1 dégâts et résistance.</td></tr>
+                            <tr><td class="o_name">Hors combat</td><td>ne combat plus.</td></tr>
+                        </table>
+                    </div>
+                    <div class="o_keep">
+                        <h2>Actions de commandement</h2>
+                        <table>
+                            <tr t-foreach="commands" t-as="command">
+                                <td class="o_name" t-out="command[0]"/>
+                                <td t-out="command[1]"/>
+                            </tr>
+                        </table>
+                    </div>
+
+                <div class="o_keep">
+                    <h2>Résultats (pour chaque camp, selon son score)</h2>
+                    <table>
+                        <tr>
+                            <th>Score</th><th>Résultat</th>
+                            <th class="o_center">Attaque : dégâts / résistance</th>
+                            <th class="o_center">Défense : dégâts / résistance</th>
+                            <th>Accorde (tour suivant)</th>
+                            <th class="o_center">Lieu</th>
+                        </tr>
+                        <tr t-foreach="outcomes" t-as="outcome">
+                            <td class="o_center" t-out="'%+d' % outcome['score']"/>
+                            <td t-out="outcome['name']"/>
+                            <td class="o_center" t-out="outcome['attack']"/>
+                            <td class="o_center" t-out="outcome['defense']"/>
+                            <td t-out="outcome['granted']"/>
+                            <td class="o_center"><t t-if="outcome['shift']">avance</t></td>
+                        </tr>
+                    </table>
+                </div>
+
+                <t t-call="odoo_battle.report_rules_traits"/>
+            </div>
+        </t>
+    </template>
+
+    <!-- Traits only, for players: all unit and location traits with their rules -->
+    <template id="report_traits_reference">
+        <t t-call="web.basic_layout">
+            <div class="o_battle_rules">
+                <t t-call="odoo_battle.report_rules_style"/>
+                <h1>LG Battle — Traits</h1>
+                <t t-call="odoo_battle.report_rules_traits"/>
+            </div>
+        </t>
+    </template>
+</odoo>

@@ -11,6 +11,9 @@ SHEETS_PER_PAGE = 10
 # in a smaller font (3 lines instead of 2) if they still do not fit
 TRAITS_LINE_CHARS = 36
 TRAITS_MERGED_CHARS = 66
+# suffix of traits applying in a single stance, for players to see at a glance
+# whether a unit is an assault or a defense one
+STANCE_SUFFIXES = {'attack': '\u00a0(A)', 'defense': '\u00a0(D)'}
 
 
 class ReportBattleUnitSheet(models.AbstractModel):
@@ -43,7 +46,10 @@ class ReportBattleUnitSheet(models.AbstractModel):
         is_unit = bool(record) and record._name == 'battle.unit'
         template = record.battle_unit_template_id if is_unit else record
         # non-breaking hyphens: 'Contre-Attaque' never split on two lines
-        battle_traits = [name.replace('-', '\u2011') for name in traits.filtered(lambda trait: trait.effect != 'lore').mapped('name')]
+        battle_traits = [
+            trait.name.replace('-', '\u2011') + STANCE_SUFFIXES.get(trait.stance, '')
+            for trait in traits.filtered(lambda trait: trait.effect != 'lore')
+        ]
         lore_traits = [name.replace('-', '\u2011') for name in traits.filtered(lambda trait: trait.effect == 'lore').mapped('name')]
         traits_length = len(', '.join(battle_traits)) + (len(', '.join(lore_traits)) + 6 if lore_traits else 0)
         return {

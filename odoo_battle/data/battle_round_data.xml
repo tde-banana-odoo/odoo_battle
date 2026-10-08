@@ -87,6 +87,13 @@
     </record>
         <record id="battle_round_3_result_king_industries" model="battle.result">
             <field name="battle_location_id" ref="battle_location_king_industries"/>
+            <field name="battle_location_effect_ids" eval="[
+                (5, 0),
+                (0, 0, {
+                    'battle_faction_id': ref('battle_faction_loch_chon'),
+                    'battle_trait_id': ref('battle_trait_heroic_defense'),
+                }),
+            ]"/>
             <field name="battle_outcome_id" ref="battle_outcome_clear_defeat"/>
             <field name="result_score">-3</field>
             <field name="battle_round_id" ref="battle_round_3"/>

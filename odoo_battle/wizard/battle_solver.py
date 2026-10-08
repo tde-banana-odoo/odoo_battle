@@ -12,6 +12,7 @@ from odoo.fields import Command
 
 from odoo.addons.odoo_battle.const import (
     COMMAND_BONUS,
+    COMMAND_BONUS_MAX,
     COMMAND_RATES,
     COMMAND_STANCES,
     DAMAGE_PER_WOUND,
@@ -897,8 +898,9 @@ class BattleSolver(models.TransientModel):
             detail = _("%(initiator)s vs %(responder)s", initiator=counts[0], responder=counts[1])
             if command_type in COMMAND_RATES:
                 detail = f"{self._format_command_rates(command_type)} ({detail})"
-            bonus = COMMAND_BONUS.get(command_type, 0)
-            lines.append(self._prepare_bonus_line('leadership', label, detail, bonus * counts[0], bonus * counts[1]))
+            bonus, maximum = COMMAND_BONUS.get(command_type, 0), COMMAND_BONUS_MAX.get(command_type)
+            initiator, responder = (bonus * count if maximum is None else min(bonus * count, maximum) for count in counts)
+            lines.append(self._prepare_bonus_line('leadership', label, detail, initiator, responder))
         return lines
 
     @api.model
@@ -925,12 +927,14 @@ class BattleSolver(models.TransientModel):
         for side in SIDES:
             for trait, _position in self._get_side_traits(side):
                 traits |= trait
-        bonus_traits = traits.filtered(lambda trait: trait.effect == 'bonus').sorted(
+        bonus_traits = traits.filtered(lambda trait: trait.effect in ('bonus', 'advantage')).sorted(
             lambda trait: (trait.target != 'location', trait.sequence, trait.id)
         )
         lines = []
         for trait in bonus_traits:
-            initiator, responder = (self._get_trait_value(trait, side) for side in SIDES)
+            # an advantage is half a bonus point
+            factor = 0.5 if trait.effect == 'advantage' else 1
+            initiator, responder = (self._get_trait_value(trait, side) * factor for side in SIDES)
             if not initiator and not responder:
                 continue
             detail = _(
@@ -1223,9 +1227,11 @@ class BattleSolver(models.TransientModel):
 
     @api.model
     def _get_damage_distribution(self, lines: BattleSolverLine, damage: int, state: LinesState) -> dict[BattleSolverLine, int]:
-        """ Spread ``damage`` points one by one over fighting frontline units,
-        then support units once no frontline unit is fighting anymore, given
-        units ``state``. Returns {line: damage points}. """
+        """ Spread ``damage`` points over fighting frontline units, then
+        support units once no frontline unit is fighting anymore, given units
+        ``state``: in turns, each unit taking as many points as its size (more
+        people, more wounds; small units absorb more). Returns {line: damage
+        points}. """
         counters = {line: state[line][0] for line in lines}
         wound_states = {line: int(state[line][1]) for line in lines}
         distribution = Counter()
@@ -1234,14 +1240,15 @@ class BattleSolver(models.TransientModel):
             fighting = [line for line in pool if wound_states[line] > 0]
             while damage and fighting:
                 for line in fighting:
-                    if not damage:
-                        break
-                    distribution[line] += 1
-                    damage -= 1
-                    counters[line] += 1
-                    if counters[line] >= DAMAGE_PER_WOUND:
-                        counters[line] = 0
-                        wound_states[line] -= 1
+                    for _point in range(max(line.battle_unit_id.size, 1)):
+                        if not damage or not wound_states[line]:
+                            break
+                        distribution[line] += 1
+                        damage -= 1
+                        counters[line] += 1
+                        if counters[line] >= DAMAGE_PER_WOUND:
+                            counters[line] = 0
+                            wound_states[line] -= 1
                 fighting = [line for line in pool if wound_states[line] > 0]
         return dict(distribution)
 

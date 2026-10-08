@@ -23,7 +23,7 @@ class TestBattleReport(BattleCommon):
             {'name': 'Test Werewolf 1', 'faction': 'Test Good', 'menace': 3, 'size': 2, 'rage': 4, 'gnosis': 3,
              'willpower': 5, 'damage': 2, 'resistance': 12},
         )
-        self.assertEqual((sheet['battle_traits'], sheet['lore_traits']), (['Fureur'], ['Test Lore']))
+        self.assertEqual((sheet['battle_traits'], sheet['lore_traits']), (['Fureur\u00a0(A)'], ['Test Lore']), 'Attack trait: (A) suffix')
         self.assertFalse(sheet['traits_merged'], 'Short combat traits: own line, lore on the next one')
         self.assertTrue(sheet['image'].startswith('data:image/svg+xml;base64,'))
         glyph = base64.b64decode(sheet['image'].split(',', 1)[1])
@@ -37,12 +37,12 @@ class TestBattleReport(BattleCommon):
         self.assertIn(b'Test Werewolf 1', html)
 
         # long combat traits wrap over the lore line
-        self.unit_werewolf_1.sudo().battle_trait_ids += self.trait_leadership + self.trait_counter + self.trait_assassin
+        self.unit_werewolf_1.sudo().battle_trait_ids += self.trait_leadership + self.trait_counter
         sheet_long = Report._get_report_values(self.unit_werewolf_1.ids)['pages'][0][0]
         self.assertEqual((sheet_long['traits_merged'], sheet_long['traits_small']), (True, False))
-        self.assertIn('Contre\u2011Attaque', sheet_long['battle_traits'], 'Non-breaking hyphen, never split')
+        self.assertIn('Contre\u2011Attaque\u00a0(D)', sheet_long['battle_traits'], 'Non-breaking hyphen and space, never split')
         # even longer: smaller font, 3 lines
-        self.unit_werewolf_1.sudo().battle_trait_ids += self.trait_tactics + self.trait_diversion + self.trait_support_fire
+        self.unit_werewolf_1.sudo().battle_trait_ids += self.trait_assassin + self.trait_tactics + self.trait_diversion + self.trait_support_fire
         self.assertTrue(Report._get_report_values(self.unit_werewolf_1.ids)['pages'][0][0]['traits_small'])
 
         # template short name below the glyph, e.g. 'LG 3'
@@ -101,3 +101,29 @@ class TestBattleReport(BattleCommon):
 
         html = self.env['ir.actions.report']._render_qweb_html('odoo_battle.action_report_location_sheet', locations[0].ids)[0]
         self.assertNotIn('Lié à'.encode(), html, 'No twin location')
+
+    @users('battle_user')
+    def test_rules_reference(self):
+        """ Game aid: rules, outcomes, command actions (effects from the rules
+        constants), unit traits with their stance, location traits """
+        values = self.env['report.odoo_battle.report_rules_reference']._get_report_values([])
+        commands = dict(values['commands'])
+        self.assertEqual(commands['Soutien de Zone'], '+1 au bonus par action (+2 max par camp)')
+        self.assertEqual(commands['Retraite'], 'dégâts ×0 %, résistance ×200 % ; les unités quittent ensuite la zone')
+        self.assertEqual([outcome['score'] for outcome in values['outcomes']], list(range(-4, 5)))
+        groups = dict(values['unit_traits'])
+        self.assertIn(self.trait_fury, groups['Dégâts'], 'Traits grouped by sequence, as in data')
+        self.assertIn(self.trait_leadership, groups['Tactique'])
+        html = self.env['ir.actions.report']._render_qweb_html('odoo_battle.action_report_rules_reference', [])[0]
+        for expected in (self.trait_fury.name, self.trait_fortified.name, 'Victoire écrasante'):
+            self.assertIn(expected.encode(), html)
+
+    @users('battle_user')
+    def test_traits_reference(self):
+        """ Traits reference, for players: all traits, without other rules """
+        html = self.env['ir.actions.report']._render_qweb_html('odoo_battle.action_report_traits_reference', [])[0]
+        for expected in (self.trait_fury.name, self.trait_fortified.name):
+            self.assertIn(expected.encode(), html)
+        for hidden in ('Victoire écrasante', 'Actions de commandement'):
+            self.assertNotIn(hidden.encode(), html)
+

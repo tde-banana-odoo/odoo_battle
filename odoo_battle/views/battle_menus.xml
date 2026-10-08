@@ -22,6 +22,8 @@
             <menuitem id="battle_outcome_menu" name="Outcomes" action="odoo_battle.battle_outcome_action" sequence="20"/>
             <menuitem id="battle_unit_template_menu" name="Unit Templates" action="odoo_battle.battle_unit_template_action" sequence="30"/>
             <menuitem id="battle_unit_sheet_wizard_menu" name="Print Blank Sheets" action="odoo_battle.battle_unit_sheet_wizard_action" sequence="40"/>
+            <menuitem id="battle_rules_reference_menu" name="Print Rules Reference" action="odoo_battle.action_report_rules_reference" sequence="50"/>
+            <menuitem id="battle_traits_reference_menu" name="Print Traits Reference" action="odoo_battle.action_report_traits_reference" sequence="60"/>
         </menuitem>
     </menuitem>
 </odoo>

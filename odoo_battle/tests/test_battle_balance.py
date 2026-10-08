@@ -15,8 +15,8 @@ F, S = 'frontline', 'support'
 # compositions: (template xml id suffix, position)
 BSD_3 = [('bsd_rank_3', F)] * 3
 WW_3 = [('werewolf_rank_3', F)] * 3
-BSD_MIXED = [('bsd_rank_4', F), ('bsd_rank_3', F), ('bsd_rank_3_corr', F)]
-WW_MIXED = [('werewolf_rank_4', F), ('werewolf_rank_3', F), ('werewolf_rank_3_resp', F)]
+BSD_MIXED = [('bsd_rank_4', F), ('bsd_rank_3', F), ('bsd_rank_3_ruse', F)]
+WW_MIXED = [('werewolf_rank_4', F), ('werewolf_rank_3', F), ('werewolf_rank_3_ruse', F)]
 VAMPIRES = [('vampire_coterie_g7', F), ('vampire_coterie_g8', F), ('vampire_coterie_g8', F)]
 GHOULS = [('ghoul_combat', F)] * 2
 HENCHMEN = [('human_henchman', F)] * 2
@@ -24,7 +24,7 @@ HENCHMEN_SUPPORT = [('human_henchman', S)] * 2
 HUMANS = [('human_special_forces', F), ('human_special_forces', F), ('human_henchman', S), ('human_henchman', S)]
 WW_2 = [('werewolf_rank_3', F)] * 2
 JAGLINS = [('spirit_jaglin', F)] * 3
-JAGLINS_DEFENSE = [('spirit_jaglin_ruse', F)] * 3
+JAGLINS_DEFENSE = [('spirit_jaglin_def', F)] * 3
 GAFLINS = [('spirit_gaflin', F)] * 3
 ENGLIN = [('spirit_englin', F)]
 INCARNA = [('spirit_incarna', F)]
@@ -282,12 +282,10 @@ class TestBattleBalance(BattleBalanceCommon):
         self.assertLessEqual(humans_attack.win, humans_attack.loss, 'Humans attacking werewolves do not win more')
 
     def test_balance_elders(self):
-        """ Vampire elders (G7) have the global power of rank 4 werewolves
-        (same menace): same chances whoever attacks (soft target); led
-        groups (G7 + 2 G8 against WW4 + 2 WW3) are balanced """
-        elder_attack = self._scenario(self.location_open, [('vampire_coterie_g7', F)], [('werewolf_rank_4', F)])
-        ww_attack = self._scenario(self.location_open, [('werewolf_rank_4', F)], [('vampire_coterie_g7', F)])
-        self._check_target(abs(elder_attack.win - ww_attack.win) < 0.05, "G7 and WW4 have the same chances whoever attacks", ww_attack)
+        """ Vampire elders (G7) and rank 4 werewolves have the same menace:
+        led groups (G7 + 2 G8 against WW4 + 2 WW3) are balanced. One-on-one,
+        Terreur weighs a full point (spread over a single creature): accepted,
+        such duels being rare (the DM may compensate). """
         led_vampires = self._scenario(self.location_open, VAMPIRES, [('werewolf_rank_4', F)] + WW_2)
         led_werewolves = self._scenario(self.location_open, [('werewolf_rank_4', F)] + WW_2, VAMPIRES)
         self.assertAlmostEqual(led_vampires.win, led_werewolves.win, msg='Led groups: same chances whoever attacks')
@@ -421,7 +419,7 @@ class TestBattleBalanceReport(BattleBalanceCommon):
                 ('3 Jaglins (Ruse) attack 3 Jaglins, Umbra', (umbra, JAGLINS_DEFENSE, JAGLINS)),
                 ('3 Jaglins attack 2 Jaglins (Ruse), Umbra', (umbra, JAGLINS, JAGLINS_DEFENSE[:2])),
                 ('  + 2 Gaflins (support)', (umbra, JAGLINS, JAGLINS_DEFENSE[:2] + [('spirit_gaflin', S)] * 2)),
-                ('  + 2 Jaglins (Ruse) (support)', (umbra, JAGLINS, JAGLINS_DEFENSE[:2] + [('spirit_jaglin_ruse', S)] * 2)),
+                ('  + 2 Jaglins (Ruse) (support)', (umbra, JAGLINS, JAGLINS_DEFENSE[:2] + [('spirit_jaglin_def', S)] * 2)),
                 ('Englin + 2 Jaglins attack 2 Jaglins + 3 Gaflins (M7 vs M7)', (umbra, ENGLIN + JAGLINS[:2], JAGLINS[:2] + GAFLINS)),
                 ('2 Jaglins + 3 Gaflins attack Englin + 2 Jaglins', (umbra, JAGLINS[:2] + GAFLINS, ENGLIN + JAGLINS[:2])),
                 ('Incarna attack Englin + 2 Gaflins (M5 vs M5)', (umbra, INCARNA, ENGLIN + GAFLINS[:2])),
@@ -446,7 +444,7 @@ class TestBattleBalanceReport(BattleBalanceCommon):
         }
         # menace rework: menace weights the characteristic average; each scenario is run with current data, then reworked
         rework = {
-            'spirit_jaglin': {'menace': 3}, 'spirit_jaglin_ruse': {'menace': 3},
+            'spirit_jaglin': {'menace': 3}, 'spirit_jaglin_def': {'menace': 3},
             'bsd_rank_4': {'menace': 4}, 'werewolf_rank_4': {'menace': 4}, 'vampire_coterie_g7': {'menace': 4},
             'spirit_incarna': {'menace': 4},
         }

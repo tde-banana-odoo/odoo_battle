@@ -50,6 +50,7 @@ class BattleTrait(models.Model):
     effect = fields.Selection(
         [
             ('bonus', 'Battle Bonus'),
+            ('advantage', 'Advantage'),
             ('damage', 'Damage'),
             ('resistance', 'Resistance'),
             ('damage_rate', 'Damage Rate'),
@@ -68,7 +69,7 @@ class BattleTrait(models.Model):
             ('lore', 'Lore (manual)'),
         ],
         string="Effect", default='lore', required=True,
-        help="Battle Bonus: added before rolling. "
+        help="Battle Bonus: added before rolling. Advantage: half a bonus point per value point, adding up with others. "
              "Damage, Resistance: added to the side damage (before enemy resistance) or resistance. "
              "Damage Rate, Resistance Rate: change (in %, e.g. -25) of the side frontline damage or resistance, "
              "multiplied with outcome and command actions rates. "

@@ -74,12 +74,13 @@ class TestBattleSolver(BattleSolverCommon):
         solver = self._new_solver_form(self.location_ww).save()
         with patch.object(BattleSolver, '_roll_dice', return_value=[1, 1, 0]):
             solver.action_launch()
-        # clear-cut victory: (9 x 150% + fureur 6) - (4 x 100%) = 15 damage, counters starting at 1: defense werewolves
-        # and henchman 1 take 4 (wounded, counter 2), henchman 2 takes 3 (wounded, counter 1); first defense werewolf
-        # prefilled to heal and mend, as most wounded / damaged
+        # clear-cut victory: (9 x 150% + fureur 6) - (4 x 100%) = 15 damage, spread by size (henchmen: size 2),
+        # counters starting at 1: defense werewolves take 3 (wounded, counter 1), henchman 1 takes 5 (badly wounded,
+        # counter 0), henchman 2 takes 4 (wounded, counter 2): henchman 1 prefilled to heal (most wounded), henchman 2
+        # to mend (most damaged)
         defense_1, defense_2 = (solver.responder_line_ids.filtered(lambda line, unit=unit: line.battle_unit_id == unit) for unit in self.ww_defense)
-        self.assertEqual((solver.heal_unit_ids, solver.mend_unit_ids), (self.ww_defense[0], self.ww_defense[0]))
-        self.assertEqual((defense_1.wound_state_after, defense_2.wound_state_after), ('4', '3'))
+        self.assertEqual((solver.heal_unit_ids, solver.mend_unit_ids), (self.ww_henchmen[0], self.ww_henchmen[1]))
+        self.assertEqual((defense_1.wound_state_after, defense_2.wound_state_after), ('3', '3'))
         self.assertEqual(solver._get_heal_mend_reminders(), ['Test Heal: 1 heals (Responders)', 'Test Mend: 1 mends (Responders)'])
         self.assertIn('Heal / Mend', solver.result_summary)
 
@@ -89,10 +90,10 @@ class TestBattleSolver(BattleSolverCommon):
         solver.action_apply()
         self.assertEqual(
             [(unit.wound_state, unit.damage_counter) for unit in self.ww_defense + self.ww_henchmen],
-            [('3', 0), ('4', 2), ('3', 2), ('3', 0)],
+            [('3', 1), ('4', 1), ('2', 0), ('3', 0)],
         )
         result_line = solver.battle_result_id.battle_result_line_ids.filtered(lambda line: line.battle_unit_id == self.ww_defense[1])
-        self.assertEqual((result_line.damage, result_line.wounds), (4, 0), 'Wound received then healed')
+        self.assertEqual((result_line.damage, result_line.wounds), (3, 0), 'Wound received then healed')
 
     @users('battle_admin')
     def test_battle_lore_reminders(self):
@@ -130,16 +131,17 @@ class TestBattleSolver(BattleSolverCommon):
         assassin.target_unit_id = self.ww_henchmen[0]
         with patch.object(BattleSolver, '_roll_dice', return_value=[1, 1, 1]):
             solver.action_launch()
-        # major victory: (9 x 200% + fureur 6) - (4 x 100%, routed defense) = 20 damage to responders, spread
-        # evenly (counters start at 1: 5 damage give 2 wounds); henchman 1 also assassinated
+        # major victory: (9 x 200% + fureur 6) - (4 x 100%, routed defense) = 20 damage to responders, spread by size
+        # (henchmen: size 2): 4 to each defense werewolf, 6 to each henchman (counters start at 1); henchman 1 also
+        # assassinated
         lines = solver.responder_line_ids.sorted(lambda line: line.battle_unit_id.id)
         self.assertEqual(
             [(line.battle_unit_id, line.damage_received, line.wounds_received, line.wound_state_after) for line in lines],
             [
-                (self.ww_defense[0], 5, 0, '2'),
-                (self.ww_defense[1], 5, 0, '2'),
-                (self.ww_henchmen[0], 5, 1, '1'),
-                (self.ww_henchmen[1], 5, 0, '2'),
+                (self.ww_defense[0], 4, 0, '3'),
+                (self.ww_defense[1], 4, 0, '3'),
+                (self.ww_henchmen[0], 6, 1, '1'),
+                (self.ww_henchmen[1], 6, 0, '2'),
             ],
         )
         self.assertRecordValues(solver, [{
@@ -158,12 +160,12 @@ class TestBattleSolver(BattleSolverCommon):
         solver.responder_stance = 'defense'
         solver.write({'location_status_after': 'contested', 'responder_granted_trait_ids': [Command.clear()]})
         solver.action_apply()
-        self.assertEqual(self.ww_defense.mapped('wound_state') + self.ww_henchmen.mapped('wound_state'), ['2', '2', '1', '4'])
+        self.assertEqual(self.ww_defense.mapped('wound_state') + self.ww_henchmen.mapped('wound_state'), ['3', '3', '1', '4'])
         self.assertRecordValues(self.location_ww, [{'status': 'contested', 'held_by_faction_id': self.faction_good.id}])
         self.assertEqual(solver.battle_result_id.battle_location_effect_ids.battle_trait_id, self.trait_breakthrough)
         self.assertRecordValues(solver.battle_result_id.battle_result_line_ids.filtered(lambda line: line.side == 'responder'), [
             {'battle_unit_id': unit.id, 'damage': damage, 'wounds': wounds}
-            for unit, damage, wounds in [(self.ww_defense[0], 5, 2), (self.ww_defense[1], 5, 2), (self.ww_henchmen[0], 5, 3), (self.ww_henchmen[1], 0, 0)]
+            for unit, damage, wounds in [(self.ww_defense[0], 4, 1), (self.ww_defense[1], 4, 1), (self.ww_henchmen[0], 6, 3), (self.ww_henchmen[1], 0, 0)]
         ])
 
     @users('battle_admin')
@@ -288,10 +290,11 @@ class TestBattleSolver(BattleSolverCommon):
         solver.action_launch()
         self.assertRecordValues(solver, [{'dice_roll': '-1 -1 +0', 'result_score': -1}])
 
-        # wavering morale: initiators reroll their highest die, applied when rolling
+        # forced reroll: initiators reroll their highest die, applied when rolling
+        forced = self.env['battle.trait'].sudo().create({'name': 'Test Forced Reroll', 'target': 'location', 'effect': 'forced_reroll'})
         self.env['battle.location.effect'].sudo().create({
             'battle_location_id': self.location_ww.id, 'battle_faction_id': self.faction_good.id,
-            'round_number': self.battle_round.round_number, 'battle_trait_id': self.trait_wavering.id,
+            'round_number': self.battle_round.round_number, 'battle_trait_id': forced.id,
         })
         solver = self._new_solver_form(self.location_ww).save()
         self.assertEqual((solver.initiator_forced_rerolls, solver.responder_forced_rerolls), (1, 0))
@@ -328,8 +331,9 @@ class TestBattleSolver(BattleSolverCommon):
 
     @users('battle_admin')
     def test_battle_damage_distribution(self):
-        """ Damage is spread evenly over fighting frontline units, support
-        units being hit only once frontline is out of combat """
+        """ Damage is spread over fighting frontline units, each taking as
+        many points as its size per turn, support units being hit only once
+        frontline is out of combat """
         offense = self.ww_offense
         solver = self._new_solver_form(self.location_ww).save()
         self._set_lines(solver, 'initiator', frontline=offense[:2], support=offense[2])
@@ -342,6 +346,13 @@ class TestBattleSolver(BattleSolverCommon):
                 offense[:2].sudo().wound_state = state
                 lines = solver.initiator_line_ids
                 self.assertEqual(solver._get_damage_distribution(lines, damage, solver._get_lines_state(lines)), expected)
+
+        # more people, more wounds: henchmen (size 2) take twice the share of defense werewolves (size 1)
+        lines = solver.responder_line_ids.sorted(lambda line: line.battle_unit_id.id)
+        self.assertEqual(
+            solver._get_damage_distribution(lines, 6, solver._get_lines_state(lines)),
+            dict(zip(lines, [1, 1, 2, 2], strict=True)),
+        )
 
     @users('battle_admin')
     def test_battle_location(self):
@@ -454,6 +465,20 @@ class TestBattleSolver(BattleSolverCommon):
         lines = {line['name']: (line['initiator'], line['responder']) for line in solver._get_bonus_lines()}
         self.assertEqual(lines['Location Support'], (1, 0))
 
+        # location support adds up to +2 per side; retreat: no damage dealt, doubled resistance
+        self.battle_round.sudo().write({
+            'defender_command_action_count': 6,
+            'defender_command_action_ids': [
+                Command.create({'camp': 'defender', 'command_type': 'location_support', 'battle_location_id': location_vw.id})
+                for _index in range(2)
+            ] + [Command.create({'camp': 'defender', 'command_type': 'retreat', 'battle_location_id': location_vw.id})],
+        })
+        solver = self._new_solver_form(location_vw).save()
+        lines = {line['name']: (line['initiator'], line['responder']) for line in solver._get_bonus_lines()}
+        self.assertEqual(lines['Location Support'], (2, 0), '3 actions: +2 at most')
+        self.assertEqual(solver._format_command_rates('retreat'), 'Damage -100%, Resistance +100%')
+        self.assertEqual(solver._get_side_damage('initiator', tie), 0, 'Retreating: no damage dealt')
+
     @users('battle_admin')
     def test_bonus_traits(self):
         """ Battle bonus traits: unique ones (commandement) count once per
@@ -488,6 +513,22 @@ class TestBattleSolver(BattleSolverCommon):
         lines = {line['name']: (line['initiator'], line['responder']) for line in solver._get_bonus_lines()}
         self.assertEqual(lines['Characteristics'], (1.5, 0))
         self.assertEqual((solver.initiator_rerolls, solver.responder_rerolls), (0, 0))
+
+        # advantage (e.g. Retranché): half a bonus point
+        entrenched = self.env.ref('odoo_battle.battle_trait_entrenched')
+        self.location_vw.sudo().battle_trait_ids = entrenched
+        solver.invalidate_recordset()
+        lines = {line['name']: (line['initiator'], line['responder']) for line in solver._get_bonus_lines()}
+        self.assertEqual(lines[entrenched.name], (0, 0.5), 'Holders defending: +0.5')
+
+        # negative advantage, e.g. Moral Vacillant (after a major defeat): -0.5
+        self.env['battle.location.effect'].sudo().create({
+            'battle_location_id': self.location_vw.id, 'battle_faction_id': self.faction_good.id,
+            'round_number': round_number, 'battle_trait_id': self.trait_wavering.id,
+        })
+        solver.invalidate_recordset()
+        lines = {line['name']: (line['initiator'], line['responder']) for line in solver._get_bonus_lines()}
+        self.assertEqual(lines[self.trait_wavering.name], (0, -0.5))
 
         # tactique: one reroll per holder (2 defense werewolves)
         solver = self._new_solver_form(self.location_ww).save()
@@ -583,7 +624,7 @@ class TestBattleSolver(BattleSolverCommon):
     @users('battle_admin')
     def test_sides_out_of_battle(self):
         """ Units can be put out of the battle manually (e.g. scouts), by
-        ambush (responders in support) or by assassination (frontline holder,
+        ambush (from support) or by assassination (frontline holder,
         wounding its target before rolling, possibly out of combat) """
         self.ww_henchmen[0].sudo().battle_trait_ids = self.trait_ambush
         solver = self._new_solver_form(self.location_ww).save()

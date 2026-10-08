@@ -8,17 +8,16 @@
         <field name="held_by_faction_id" ref="battle_faction_kiker"/>
     </record>
     <record id="battle_location_hills" model="battle.location">
-        <field name="name">Hills</field>
+        <field name="name">Collines</field>
         <field name="sequence">10</field>
         <field name="battle_trait_ids" eval="[Command.set([
-            ref('battle_trait_fortified'),
+            ref('battle_trait_entrenched'),
             ref('battle_trait_tagged'),
-            ref('battle_trait_resupplied'),
         ])]"/>
         <field name="status">contested</field>
     </record>
     <record id="battle_location_hills_umbra" model="battle.location">
-        <field name="name">Hills (Umbra)</field>
+        <field name="name">Collines (Umbra)</field>
         <field name="sequence">15</field>
         <field name="is_umbra" eval="True"/>
         <field name="battle_trait_ids" eval="[Command.set([
@@ -59,6 +58,9 @@
         <field name="name">Bois (Umbra)</field>
         <field name="is_umbra" eval="True"/>
         <field name="sequence">45</field>
+        <field name="battle_trait_ids" eval="[Command.set([
+            ref('battle_trait_entrenched'),
+        ])]"/>
         <field name="status">held</field>
         <field name="held_by_faction_id" ref="battle_faction_loch_chon"/>
     </record>
@@ -66,7 +68,7 @@
         <field name="name">Loch Chon</field>
         <field name="sequence">50</field>
         <field name="battle_trait_ids" eval="[Command.set([
-            ref('battle_trait_fortified'),
+            ref('battle_trait_entrenched'),
             ref('battle_trait_resupplied'),
             ref('battle_trait_tagged'),
         ])]"/>
@@ -78,11 +80,11 @@
         <field name="is_umbra" eval="True"/>
         <field name="sequence">55</field>
         <field name="battle_trait_ids" eval="[Command.set([
+            ref('battle_trait_entrenched'),
             ref('battle_trait_obstacled'),
             ref('battle_trait_dangerous'),
             ref('battle_trait_trapped'),
             ref('battle_trait_resupplied'),
-            ref('battle_trait_tagged'),
         ])]"/>
         <field name="status">held</field>
         <field name="held_by_faction_id" ref="battle_faction_loch_chon"/>
@@ -92,9 +94,8 @@
         <field name="sequence">60</field>
         <field name="battle_trait_ids" eval="[Command.set([
             ref('battle_trait_obstacled'),
-            ref('battle_trait_fortified'),
-            ref('battle_trait_resupplied'),
-            ref('battle_trait_tagged'),
+            ref('battle_trait_entrenched'),
+            ref('battle_trait_trapped'),
         ])]"/>
         <field name="status">held</field>
         <field name="held_by_faction_id" ref="battle_faction_loch_chon"/>
@@ -114,7 +115,8 @@
         <field name="battle_trait_ids" eval="[Command.set([
             ref('battle_trait_fortified'),
             ref('battle_trait_resupplied'),
-            ref('battle_trait_tagged'),
+            ref('battle_trait_field_hospital'),
+            ref('battle_trait_it_node'),
         ])]"/>
         <field name="status">held</field>
         <field name="held_by_faction_id" ref="battle_faction_loch_chon"/>
@@ -123,8 +125,10 @@
         <field name="name">Walkhill</field>
         <field name="sequence">90</field>
         <field name="battle_trait_ids" eval="[Command.set([
-            ref('battle_trait_fortified'),
+            ref('battle_trait_entrenched'),
             ref('battle_trait_tagged'),
+            ref('battle_trait_resupplied'),
+            ref('battle_trait_it_node'),
         ])]"/>
         <field name="status">held</field>
         <field name="held_by_faction_id" ref="battle_faction_kiker"/>
@@ -133,12 +137,18 @@
         <field name="name">Walkhill (Umbra)</field>
         <field name="is_umbra" eval="True"/>
         <field name="sequence">95</field>
+        <field name="battle_trait_ids" eval="[Command.set([
+            ref('battle_trait_it_node'),
+        ])]"/>
         <field name="status">contested</field>
     </record>
     <record id="battle_location_king_industries" model="battle.location">
         <field name="name">King Industries</field>
         <field name="sequence">100</field>
         <field name="status">held</field>
+        <field name="battle_trait_ids" eval="[Command.set([
+            ref('battle_trait_obstacled'),
+        ])]"/>
         <field name="held_by_faction_id" ref="battle_faction_loch_chon"/>
     </record>
 

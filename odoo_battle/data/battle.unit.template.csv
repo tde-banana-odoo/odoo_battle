@@ -1,21 +1,22 @@
 id,name,short_name,sequence,unit_type,menace,size,rage,willpower,gnosis,damage,resistance,battle_trait_ids/id
 battle_unit_template_bsd_rank_4,Danseurs de la Spirale Noire Rang 4,DSN 4,10,bsd,5,1,3,2,2,5,4,"battle_trait_leadership,battle_trait_fury,battle_trait_massacre,battle_trait_lore_fetish"
-battle_unit_template_bsd_rank_3,Danseurs de la Spirale Noire Rang 3,DSN 3,15,bsd,4,1,3,2,1,4,3,"battle_trait_tactics,battle_trait_fury"
-battle_unit_template_bsd_rank_3_ruse,Danseurs de la Spirale Noire Rang 3 (Ruse),DSN 3,16,bsd,4,1,2,3,1,4,4,"battle_trait_ambush"
-battle_unit_template_bsd_rank_3_corr,Danseurs de la Spirale Noire Rang 3 (Corrompus),DSN 3,17,bsd,4,1,2,2,2,3,3,"battle_trait_diversion,battle_trait_assassin"
-battle_unit_template_bsd_rank_2,Danseurs de la Spirale Noire Rang 2,DSN 2,20,bsd,3,1,2,1,1,4,2,
-battle_unit_template_bsd_rank_2_ruse,Danseurs de la Spirale Noire Rang 2 (Ruse),DSN 2,21,bsd,3,1,1,2,1,2,3,"battle_trait_counter_attack"
-battle_unit_template_bsd_rank_2_corr,Danseurs de la Spirale Noire Rang 2 (Corrompus),DSN 2,22,bsd,3,1,1,1,2,2,2,"battle_trait_defensive_retreat"
+battle_unit_template_bsd_rank_3,Danseurs de la Spirale Noire Rang 3 (Assaut),DSN 3,15,bsd,4,1,3,2,1,4,3,"battle_trait_tactics,battle_trait_fury"
+battle_unit_template_bsd_rank_3_def,Danseurs de la Spirale Noire Rang 3 (Défense),DSN 3,16,bsd,4,1,2,3,1,4,4,"battle_trait_ambush"
+battle_unit_template_bsd_rank_3_ruse,Danseurs de la Spirale Noire Rang 3 (Ruse),DSN 3,17,bsd,4,1,2,2,2,3,3,"battle_trait_diversion,battle_trait_assassin"
+battle_unit_template_bsd_rank_2,Danseurs de la Spirale Noire Rang 2 (Assaut),DSN 2,20,bsd,3,1,2,1,1,4,2,
+battle_unit_template_bsd_rank_2_def,Danseurs de la Spirale Noire Rang 2 (Défense),DSN 2,21,bsd,3,1,1,2,1,2,3,"battle_trait_counter_attack"
+battle_unit_template_bsd_rank_2_ruse,Danseurs de la Spirale Noire Rang 2 (Ruse),DSN 2,22,bsd,3,1,1,1,2,3,2,"battle_trait_defensive_retreat"
 
 battle_unit_template_werewolf_rank_4,Loups-Garous Rang 4,LG 4,30,werewolf,5,1,3,2,2,5,4,"battle_trait_leadership,battle_trait_counter_attack,battle_trait_massacre,battle_trait_lore_fetish"
-battle_unit_template_werewolf_rank_3,Loups-Garous Rang 3,LG 3,35,werewolf,4,1,3,2,1,4,3,"battle_trait_tactics,battle_trait_counter_attack"
-battle_unit_template_werewolf_rank_3_ruse,Loups-Garous Rang 3 (Ruse),LG 3,36,werewolf,4,1,2,3,1,4,4,"battle_trait_ambush"
-battle_unit_template_werewolf_rank_3_resp,Loups-Garous Rang 3 (Respect),LG 3,37,werewolf,4,1,2,2,2,3,3,"battle_trait_diversion,battle_trait_last_stand"
-battle_unit_template_werewolf_rank_2,Loups-Garous Rang 2,LG 2,40,werewolf,3,1,2,1,1,4,2,
-battle_unit_template_werewolf_rank_2_ruse,Loups-Garous Rang 2 (Ruse),LG 2,41,werewolf,3,1,1,2,1,2,3,"battle_trait_tactical_assault"
-battle_unit_template_werewolf_rank_2_resp,Loups-Garous Rang 2 (Respect),LG 2,42,werewolf,3,1,1,1,2,2,2,"battle_trait_discipline"
+battle_unit_template_werewolf_rank_3,Loups-Garous Rang 3 (Assaut),LG 3,35,werewolf,4,1,3,2,1,4,3,"battle_trait_tactics,battle_trait_counter_attack"
+battle_unit_template_werewolf_rank_3_def,Loups-Garous Rang 3 (Défense),LG 3,36,werewolf,4,1,2,3,1,4,4,"battle_trait_ambush"
+battle_unit_template_werewolf_rank_3_ruse,Loups-Garous Rang 3 (Ruse),LG 3,37,werewolf,4,1,2,2,2,3,3,"battle_trait_diversion,battle_trait_last_stand"
+battle_unit_template_werewolf_rank_2,Loups-Garous Rang 2 (Assaut),LG 2,40,werewolf,3,1,2,1,1,4,2,
+battle_unit_template_werewolf_rank_2_def,Loups-Garous Rang 2 (Défense),LG 2,41,werewolf,3,1,1,2,1,2,3,"battle_trait_tactical_assault"
+battle_unit_template_werewolf_rank_2_ruse,Loups-Garous Rang 2 (Ruse),LG 2,42,werewolf,3,1,1,1,2,3,2,"battle_trait_discipline"
 
-battle_unit_template_fera_rank_3,Fera Rang 3,Fera 3,45,fera,4,1,2,2,2,3,3,"battle_trait_diversion,battle_trait_defensive_retreat"
+battle_unit_template_fera_rank_3,Fera Rang 3 (Assaut),Fera 3,45,fera,4,1,3,1,2,3,2,"battle_trait_counter_attack,battle_trait_fury"
+battle_unit_template_fera_rank_3_def,Fera Rang 3 (Défense),Fera 3,46,fera,4,1,1,3,2,2,3,"battle_trait_barrage_fire,battle_trait_defensive_retreat,battle_trait_scavenger"
 
 battle_unit_template_vampire_coterie_g7,Coterie Vampire G7,Vamp. G7,50,vampire,5,1,2,3,2,4,6,"battle_trait_leadership,battle_trait_fury,battle_trait_regeneration,battle_trait_terror"
 battle_unit_template_vampire_coterie_g8,Coterie Vampire G8,Vamp. G8,55,vampire,4,1,2,2,2,4,3,"battle_trait_tactical_assault,battle_trait_fear"
@@ -24,21 +25,22 @@ battle_unit_template_vampire_coterie_g8_ruse,Coterie Vampire G8 (Ruse),Vamp. G8,
 battle_unit_template_ghoul_combat,Goules de Combat,Goules+,70,ghoul,3,1,2,2,0,4,2,"battle_trait_scavenger,battle_trait_terror"
 battle_unit_template_ghoul,Goules,Goules,75,ghoul,2,1,1,1,1,3,1,"battle_trait_last_stand"
 
-battle_unit_template_human_mechanized,Infanterie Mécanisée,Méca,80,human_armored,3,2,2,2,1,3,3,"battle_trait_tactical_assault,battle_trait_support_fire"
-battle_unit_template_human_special_forces,Forces Spéciales,FS,85,human,2,2,1,1,1,2,2,"battle_trait_tactical_assault"
-battle_unit_template_human_special_forces_ruse,Forces Spéciales (Ruse),FS,87,human,2,2,1,1,1,2,2,"battle_trait_discipline"
-battle_unit_template_human_henchman,Hommes de Main,HdM,90,human,1,2,0,0,0,1,1,"battle_trait_support_fire"
-battle_unit_template_human_henchman_ruse,Hommes de Main (Ruse),HdM,92,human,1,2,0,0,0,1,1,"battle_trait_barrage_fire"
-battle_unit_template_human_std,Humains,Humains,95,human,0,2,0,0,0,1,1,
+battle_unit_template_human_mechanized,Infanterie Mécanisée,Méca,80,human_armored,3,2,2,2,1,3,3,"battle_trait_tactics,battle_trait_tactical_assault,battle_trait_support_fire"
+battle_unit_template_human_special_forces,Forces Spéciales (Assaut),FS,85,human,2,2,1,1,1,2,2,"battle_trait_tactical_assault"
+battle_unit_template_human_special_forces_def,Forces Spéciales (Défense),FS,87,human,2,2,1,1,1,2,2,"battle_trait_discipline"
+battle_unit_template_human_henchman,Hommes de Main (Assaut),HdM,90,human,1,2,1,0,0,1,1,"battle_trait_support_fire"
+battle_unit_template_human_henchman_def,Hommes de Main (Défense),HdM,91,human,1,2,0,1,0,1,1,"battle_trait_discipline"
+battle_unit_template_human_henchman_ruse,Hommes de Main (Ruse),HdM,92,human,1,2,0,0,1,1,1,"battle_trait_barrage_fire"
+battle_unit_template_human_std,Humains,Humains,95,human,0,2,0,0,0,1,0,
 
-battle_unit_template_fomori_engineered,Fomoris Améliorés,Fomoris+,100,fomori,2,1,2,1,0,2,4,"battle_trait_defensive_retreat"
-battle_unit_template_fomori,Fomoris,Fomoris,105,fomori,1,2,1,0,0,1,2,"battle_trait_fanatic"
+battle_unit_template_fomori_engineered,Fomoris Améliorés,Fomoris+,100,fomori,2,1,1,1,0,3,3,"battle_trait_defensive_retreat"
+battle_unit_template_fomori,Fomoris,Fomoris,105,fomori,1,2,0,1,0,1,2,"battle_trait_fanatic"
 battle_unit_template_possessed_elite,Possédés Élite,Possédés+,110,possessed,2,1,1,1,1,3,1,"battle_trait_fury"
-battle_unit_template_possessed,Possédés,Possédés,115,possessed,1,2,0,1,0,2,0,"battle_trait_fanatic,battle_trait_lore_fire"
+battle_unit_template_possessed,Possédés,Possédés,115,possessed,1,2,1,0,0,2,1,"battle_trait_fanatic,battle_trait_lore_fire"
 
 battle_unit_template_spirit_incarna,Incarna,Incarna,130,spirit,5,1,1,2,4,4,4,"battle_trait_leadership"
 battle_unit_template_spirit_englin,Englin,Englin,132,spirit,3,1,2,2,3,4,3,"battle_trait_massacre"
-battle_unit_template_spirit_jaglin,Jaglin,Jaglin,135,spirit,2,2,1,1,2,3,2,"battle_trait_fury"
-battle_unit_template_spirit_jaglin_ruse,Jaglin (Ruse),Jaglin,136,spirit,2,2,0,2,2,2,3,"battle_trait_counter_attack"
-battle_unit_template_spirit_gaflin,Gaflin,Gaflin,140,spirit,1,2,0,0,1,1,2,
-battle_unit_template_spirit_gaflin_ruse,Gaflin (Ruse),Gaflin,141,spirit,1,2,0,0,1,2,1,
+battle_unit_template_spirit_jaglin,Jaglin (Assaut),Jaglin,135,spirit,2,2,1,1,2,3,2,"battle_trait_fury"
+battle_unit_template_spirit_jaglin_def,Jaglin (Défense),Jaglin,136,spirit,2,2,0,2,2,2,3,"battle_trait_counter_attack"
+battle_unit_template_spirit_gaflin,Gaflin (Assaut),Gaflin,140,spirit,1,2,0,0,1,2,1,
+battle_unit_template_spirit_gaflin_def,Gaflin (Défense),Gaflin,141,spirit,1,2,0,0,1,1,2,
