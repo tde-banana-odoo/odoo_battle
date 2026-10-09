@@ -5,6 +5,9 @@
         <field name="model">battle.unit</field>
         <field name="arch" type="xml">
             <form string="Unit">
+                <header>
+                    <field name="wound_state" widget="statusbar" options="{'clickable': '1'}"/>
+                </header>
                 <sheet>
                     <widget name="web_ribbon" title="Dead" bg_color="text-bg-danger" invisible="not is_dead"/>
                     <field name="image_1920" widget="image" class="oe_avatar" options="{'preview_image': 'avatar_128'}"/>
@@ -20,7 +23,6 @@
                         <group>
                             <field name="battle_faction_id"/>
                             <field name="battle_location_id"/>
-                            <field name="wound_state"/>
                             <field name="damage_counter"/>
                             <field name="is_dead"/>
                         </group>
@@ -54,6 +56,7 @@
                     <filter name="groupby_unit_type" string="Unit Type" context="{'group_by': 'unit_type'}"/>
                     <filter name="groupby_origin" string="Origin" context="{'group_by': 'origin'}"/>
                     <filter name="groupby_template" string="Template" context="{'group_by': 'battle_unit_template_id'}"/>
+                    <filter name="groupby_template_code" string="Template Code" context="{'group_by': 'template_short_name'}"/>
                     <filter name="groupby_location" string="Location" context="{'group_by': 'battle_location_id'}"/>
                 </group>
             </search>
@@ -68,10 +71,11 @@
                 <field name="is_dead" column_invisible="1"/>
                 <field name="avatar_128" widget="image" options="{'size': [24, 24]}" string=" "/>
                 <field name="name"/>
-                <field name="unit_type"/>
-                <field name="origin" optional="show"/>
+                <field name="template_short_name" string="Template" width="95px" optional="show"/>
+                <field name="unit_type" optional="hide"/>
+                <field name="origin" optional="hide"/>
                 <field name="battle_faction_id"/>
-                <field name="battle_unit_template_id" widget="many2one_avatar" optional="hide"/>
+                <field name="battle_unit_template_id" string="Template Name" widget="many2one_avatar" optional="hide"/>
                 <field name="battle_location_id"/>
                 <field name="wound_state" widget="badge" width="115px" optional="show"
                     decoration-success="wound_state == '4'" decoration-warning="wound_state in ('3', '2')"

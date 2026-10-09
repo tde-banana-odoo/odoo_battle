@@ -48,6 +48,7 @@ class BattleUnit(models.Model):
     )
     is_fighting = fields.Boolean("Fighting", compute='_compute_is_fighting', store=True, help="Alive and not out of combat")
     battle_unit_template_id = fields.Many2one('battle.unit.template', string="Template", tracking=True)
+    template_short_name = fields.Char("Template Code", related='battle_unit_template_id.short_name', store=True)
     # type, statistics and traits: from template, editable
     unit_type = _template_field(fields.Selection, 'unit_type')
     menace = _template_field(fields.Integer, 'menace')

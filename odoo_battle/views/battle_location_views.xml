@@ -97,10 +97,11 @@
                     decoration-success="status == 'free'"
                     decoration-warning="status == 'contested'"
                     decoration-info="status == 'held'"/>
-                <field name="held_by_faction_id"/>
-                <field name="forces_summary"/>
+                <field name="held_by_faction_color" column_invisible="1"/>
+                <field name="held_by_faction_id" widget="badge" options="{'color_field': 'held_by_faction_color'}"/>
+                <field name="forces_display" string="Forces"/>
                 <field name="battle_trait_ids" widget="many2many_tags"/>
-                <field name="is_umbra" optional="show"/>
+                <field name="is_umbra" optional="hide"/>
                 <field name="is_external" column_invisible="1"/>
             </list>
         </field>

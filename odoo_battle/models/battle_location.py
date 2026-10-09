@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import typing
 
+from markupsafe import Markup
+
 from odoo import api, fields, models, _
 from odoo.exceptions import ValidationError
 
@@ -36,6 +38,7 @@ class BattleLocation(models.Model):
         'battle.faction', string="Held By",
         compute='_compute_held_by_faction_id', store=True, readonly=False,
     )
+    held_by_faction_color = fields.Integer("Holder Color", related='held_by_faction_id.color')
     # properties
     is_umbra = fields.Boolean("Umbra", help="Spirit world: battles use Gnosis instead of Rage or Willpower.")
     is_external = fields.Boolean(
@@ -56,6 +59,7 @@ class BattleLocation(models.Model):
         "Forces", compute='_compute_forces_summary',
         help="Fighting units per faction, with their menace, e.g. 'Kiker (9, M23)'",
     )
+    forces_display = fields.Html("Forces Display", compute='_compute_forces_summary', sanitize=False)
 
     @api.constrains('status', 'held_by_faction_id')
     def _check_held_by_faction_id(self):
@@ -76,8 +80,12 @@ class BattleLocation(models.Model):
     @api.depends('battle_unit_ids.is_fighting', 'battle_unit_ids.battle_faction_id', 'battle_unit_ids.menace')
     def _compute_forces_summary(self):
         for location in self:
-            location.forces_summary = ', '.join(
-                f"{faction.name} ({count}, M{menace})" for faction, count, menace in location._get_forces()
+            forces = location._get_forces()
+            location.forces_summary = ', '.join(f"{faction.name} ({count}, M{menace})" for faction, count, menace in forces)
+            # one badge per faction, in its color
+            location.forces_display = Markup(' ').join(
+                Markup('<span class="badge o_badge_color_%s">%s (%s, M%s)</span>') % (faction.color, faction.name, count, menace)
+                for faction, count, menace in forces
             )
 
     @api.depends('name', 'is_external')
