@@ -11,6 +11,7 @@
         'security/ir.access.csv',
         'wizard/battle_solver_views.xml',
         'wizard/battle_unit_sheet_wizard_views.xml',
+        'wizard/battle_grant_wizard_views.xml',
         'report/battle_unit_sheet_templates.xml',
         'report/battle_location_sheet_templates.xml',
         'report/battle_rules_reference_templates.xml',
@@ -23,6 +24,7 @@
         'views/battle_trait_views.xml',
         'views/battle_unit_template_views.xml',
         'views/battle_unit_views.xml',
+        'views/battle_note_views.xml',
         'views/battle_dashboard_views.xml',
         'views/battle_menus.xml',
         'data/battle_trait_data.xml',
@@ -33,6 +35,7 @@
         'data/battle.unit.template.csv',
         'data/battle.unit.csv',
         'data/battle_round_data.xml',
+        'data/battle_note_data.xml',
     ],
     'assets': {
         'web.assets_backend': [

@@ -1,5 +1,6 @@
 from . import test_battle_balance
 from . import test_battle_faction
+from . import test_battle_grant_wizard
 from . import test_battle_leader
 from . import test_battle_location
 from . import test_battle_report

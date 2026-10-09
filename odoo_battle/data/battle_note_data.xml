@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- DM notes for upcoming rounds; done state is kept on update (not set here) -->
+    <record id="battle_note_healing_glory" model="battle.note">
+        <field name="name">Soins / Gloire G/B/M</field>
+        <field name="round_number">4</field>
+        <field name="sequence">0</field>
+    </record>
+    <record id="battle_note_duel_route_centre" model="battle.note">
+        <field name="name">Duel Glyndŵr / CJ on Route du Centre</field>
+        <field name="round_number">4</field>
+        <field name="sequence">10</field>
+        <field name="battle_location_id" ref="battle_location_route_centre"/>
+    </record>
+    <record id="battle_note_kiker_diversion" model="battle.note">
+        <field name="name">Diversion Kiker + rush Criquets</field>
+        <field name="round_number">4</field>
+        <field name="sequence">20</field>
+    </record>
+    <record id="battle_note_king_ritual" model="battle.note">
+        <field name="name">Rituel de Protection King craque</field>
+        <field name="round_number">4</field>
+        <field name="sequence">30</field>
+        <field name="battle_location_id" ref="battle_location_king_industries"/>
+    </record>
+    <record id="battle_note_nihilacs_curse" model="battle.note">
+        <field name="name">Malédiction Nihilacs</field>
+        <field name="sequence">10</field>
+        <field name="battle_location_id" ref="battle_location_hills_umbra"/>
+    </record>
+    <record id="battle_note_choir_ritual" model="battle.note">
+        <field name="name">Arrivée du Choeur Rituel</field>
+        <field name="sequence">20</field>
+        <field name="battle_location_id" ref="battle_location_marais"/>
+    </record>
+    <record id="battle_note_lance_dada" model="battle.note">
+        <field name="name">Lance Dada</field>
+        <field name="sequence">30</field>
+        <field name="battle_location_id" ref="battle_location_marais"/>
+    </record>
+    <record id="battle_note_helios_naturae" model="battle.note">
+        <field name="name">Note sur Helios et Naturae Bois</field>
+        <field name="sequence">40</field>
+    </record>
+    <record id="battle_note_gaia_arrival" model="battle.note">
+        <field name="name">Arrivée de Gaïa au premier soleil</field>
+        <field name="sequence">600</field>
+    </record>
+    <record id="battle_note_viktoria_arrival" model="battle.note">
+        <field name="name">Arrivée de Viktoria après appel des SdlO</field>
+        <field name="sequence">610</field>
+    </record>
+</odoo>

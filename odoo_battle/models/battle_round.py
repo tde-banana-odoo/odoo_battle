@@ -160,11 +160,21 @@ class BattleRound(models.Model):
                 })
         pending_ids = {location['id'] for location in pending}
         location_results = {result.battle_location_id: result for result in results}
+        is_admin = self.env.user.has_group('base.group_system')
+        notes = self.env['battle.note']._get_dashboard_notes(current.round_number) if is_admin else self.env['battle.note']
         return {
-            'is_admin': self.env.user.has_group('base.group_system'),
+            'is_admin': is_admin,
+            'notes': [{
+                'id': note.id,
+                'name': note.name,
+                'round_number': note.round_number,
+                'about': ', '.join(name for name in (note.battle_location_id.name, note.battle_faction_id.name) if name),  # location, faction
+                'is_done': note.is_done,
+            } for note in notes],
             'round': {
                 'id': current.id,
                 'name': current.display_name,
+                'round_number': current.round_number,
                 'caern_state': current.caern_state,
                 'caern_label': label(current, 'caern_state'),
             } if current else False,

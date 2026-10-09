@@ -16,6 +16,7 @@ class BattleTrait(models.Model):
     _name = 'battle.trait'
     _description = "Trait"
     _order = 'sequence asc, id asc'
+    _rec_names_search = ['name', 'description']
 
     name = fields.Char(required=True, translate=True)
     sequence = fields.Integer()
@@ -88,6 +89,17 @@ class BattleTrait(models.Model):
     is_unique = fields.Boolean(
         "Once per Side", help="Counts only once per side in a battle, whatever the number of units having it.",
     )
+
+    @api.depends('name', 'description')
+    @api.depends_context('battle_trait_description')
+    def _compute_display_name(self):
+        """ Name, followed by the description when choosing a trait (context
+        key ``battle_trait_description``), e.g. 'Fureur — Attaque : +2 dégâts.' """
+        if not self.env.context.get('battle_trait_description'):
+            return super()._compute_display_name()
+        for trait in self:
+            description = ' '.join((trait.description or '').split())
+            trait.display_name = f"{trait.name} — {description}" if description else trait.name
 
     @api.constrains('effect', 'condition', 'position', 'target', 'side')
     def _check_effect_condition(self):

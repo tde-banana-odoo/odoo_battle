@@ -5,6 +5,16 @@ from odoo.tests import users
 
 class TestBattleTraitInternals(BattleCommon):
 
+    def test_display_name(self):
+        """ Name only, or followed by the description when choosing a trait;
+        traits are searched by description too """
+        self.assertEqual(self.trait_fury.display_name, "Fureur")
+        self.assertEqual(
+            self.trait_fury.with_context(battle_trait_description=True).display_name,
+            "Fureur — En attaque, en 1re ligne, si victoire : +2 dégâts.",
+        )
+        self.assertIn(self.trait_fury, self.env['battle.trait'].search([('display_name', 'ilike', 'si victoire')]))
+
     def test_applies(self):
         """ Traits apply depending on the stance and result of their side
         (and on the side itself for location traits); before rolling (no

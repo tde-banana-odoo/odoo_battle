@@ -1,6 +1,6 @@
 from odoo import api, models
 
-from odoo.addons.odoo_battle.const import COMMAND_BONUS, COMMAND_BONUS_MAX, COMMAND_RATES, COMMAND_STANCES, DAMAGE_PER_WOUND
+from odoo.addons.odoo_battle.const import DAMAGE_PER_WOUND
 
 # printed in French, for players at the table
 OUTCOME_NAMES = {
@@ -20,10 +20,6 @@ TRAIT_GROUPS = [
     (400, "Après la bataille"), (500, "Lore"),
     (600, "Lieux"), (650, "Accordés par le MJ"), (700, "Accordés par les résultats"),
 ]
-COMMAND_NOTES = {
-    'retreat': "les unités quittent ensuite la zone",
-    'attack_unstoppable': "accordée en jeu de rôle",
-}
 
 
 class ReportBattleRulesReference(models.AbstractModel):
@@ -47,7 +43,10 @@ class ReportBattleRulesReference(models.AbstractModel):
                 }
                 for outcome in self.env['battle.outcome'].search([])
             ],
-            'commands': [(COMMAND_NAMES.get(command_type, command_type), self._get_command_rule(command_type)) for command_type in COMMAND_NAMES],
+            'commands': [
+                (COMMAND_NAMES.get(command_type, command_type), self.env['battle.command.action']._get_command_rule(command_type))
+                for command_type in COMMAND_NAMES
+            ],
             'damage_per_wound': DAMAGE_PER_WOUND,
             'unit_traits': self._get_trait_groups(traits.filtered(lambda trait: trait.target == 'unit')),
             'location_traits': self._get_trait_groups(traits.filtered(lambda trait: trait.target == 'location')),
@@ -63,26 +62,6 @@ class ReportBattleRulesReference(models.AbstractModel):
                 groups.append((label, []))
             groups[-1][1].append(trait)
         return groups
-
-    @api.model
-    def _get_command_rule(self, command_type: str) -> str:
-        """ Effect of a command action, in French, from the rules constants """
-        parts = []
-        if command_type in COMMAND_BONUS:
-            rule = f"+{COMMAND_BONUS[command_type]} au bonus par action"
-            if command_type in COMMAND_BONUS_MAX:
-                rule += f" (+{COMMAND_BONUS_MAX[command_type]} max par camp)"
-            parts.append(rule)
-        rates = COMMAND_RATES.get(command_type, {})
-        for stat, label in (('damage', "dégâts"), ('resistance', "résistance")):
-            if rates.get(stat, 100) != 100:
-                parts.append(f"{label} ×{rates[stat]} %")
-        rule = ', '.join(parts)
-        if COMMAND_STANCES.get(command_type) == 'attack':
-            rule = f"en attaque : {rule}"
-        if command_type in COMMAND_NOTES:
-            rule += f" ; {COMMAND_NOTES[command_type]}"
-        return rule
 
 
 class ReportBattleTraitsReference(models.AbstractModel):

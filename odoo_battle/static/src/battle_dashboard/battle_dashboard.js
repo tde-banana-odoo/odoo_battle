@@ -36,6 +36,18 @@ export class BattleDashboard extends Component {
         this.action.doAction(action, { onClose: () => this.load() });
     }
 
+    openNote(noteId = false) {
+        this.action.doAction(
+            { type: "ir.actions.act_window", res_model: "battle.note", res_id: noteId, views: [[false, "form"]], target: "new" },
+            { onClose: () => this.load() },
+        );
+    }
+
+    async toggleNote(noteId) {
+        await this.orm.call("battle.note", "action_toggle_done", [[noteId]]);
+        await this.load();
+    }
+
     async startNextRound() {
         await this.orm.call("battle.round", "action_start_next_round", []);
         await this.load();

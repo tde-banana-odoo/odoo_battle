@@ -417,7 +417,7 @@ class TestBattleSolver(BattleSolverCommon):
     @users('battle_admin')
     def test_command_actions(self):
         """ Command actions picked by a camp in the location for the round:
-        Location Support gives +1 (per action), Hold On / Full Attack change
+        Battle Support gives +1 (per action), Hold On / Full Attack change
         frontline damage and resistance rates (on top of outcome ones). They
         apply to the side of the camp, initiating or responding. Unstoppable
         Attack only applies for attacking sides. """
@@ -438,14 +438,14 @@ class TestBattleSolver(BattleSolverCommon):
         })
         solver = self._new_solver_form(self.location_ww).save()
         lines = {line['name']: (line['initiator'], line['responder']) for line in solver._get_bonus_lines()}
-        self.assertEqual((lines['Location Support'], lines['Full Attack'], lines['Hold On']), ((1, 0), (0, 0), (0, 0)))
+        self.assertEqual((lines['Battle Support'], lines['Full Attack'], lines['Hold On']), ((1, 0), (0, 0), (0, 0)))
         self.assertEqual(self._get_bonus(solver), (2 + 1, 1, 1 + 1))
 
         # tie: initiators attack (100% / 50%) in full and unstoppable attack, responders defend (50% / 150%) holding on
         tie = self.env['battle.outcome']._get_by_score()[0]
         self.assertEqual(
             solver._format_stat_breakdown(solver._get_side_stat_breakdown('initiator', tie, 'damage')),
-            '9 × 100% (Tied, Attack) × 125% (Unstoppable Attack (RP)) × 150% (Full Attack) = 16',
+            '9 × 100% (Tied, Attack) × 125% (Unstoppable Attack) × 150% (Full Attack) = 16',
         )
         self.assertEqual(
             solver._format_stat_breakdown(solver._get_side_stat_breakdown('responder', tie, 'resistance')),
@@ -463,7 +463,7 @@ class TestBattleSolver(BattleSolverCommon):
         # held by aggressors: defenders initiate, with their support
         solver = self._new_solver_form(location_vw).save()
         lines = {line['name']: (line['initiator'], line['responder']) for line in solver._get_bonus_lines()}
-        self.assertEqual(lines['Location Support'], (1, 0))
+        self.assertEqual(lines['Battle Support'], (1, 0))
 
         # location support adds up to +2 per side; retreat: no damage dealt, doubled resistance
         self.battle_round.sudo().write({
@@ -475,7 +475,7 @@ class TestBattleSolver(BattleSolverCommon):
         })
         solver = self._new_solver_form(location_vw).save()
         lines = {line['name']: (line['initiator'], line['responder']) for line in solver._get_bonus_lines()}
-        self.assertEqual(lines['Location Support'], (2, 0), '3 actions: +2 at most')
+        self.assertEqual(lines['Battle Support'], (2, 0), '3 actions: +2 at most')
         self.assertEqual(solver._format_command_rates('retreat'), 'Damage -100%, Resistance +100%')
         self.assertEqual(solver._get_side_damage('initiator', tie), 0, 'Retreating: no damage dealt')
 
@@ -699,6 +699,27 @@ class TestBattleSolver(BattleSolverCommon):
         self.assertFalse(solver.is_outdated, 'Back as simulated')
         solver.responder_stance = 'attack'
         self.assertTrue(solver.is_outdated)
+
+    @users('battle_admin')
+    def test_simulate_balance_warnings(self):
+        """ Simulation flags oddly supported battles: a side crushed by
+        numbers even when winning or on a tie, a side receiving no damage even
+        when losing """
+        solver = self._new_solver_form(self.location_ww).save()
+        self.assertEqual(solver._get_balance_warnings(), [])
+
+        # 6 military join the 3 offense werewolves: defenders bleed whatever the result
+        self._create_units(self.location_ww, self.faction_good, self.template_military, 6, 'WW Crowd')
+        solver = self._new_solver_form(self.location_ww).save()
+        warning = "Test Bad lose about 5 of their 16 wound levels even when winning or on a tie: crushed by numbers."
+        self.assertEqual(solver._get_balance_warnings(), [warning])
+        solver.action_simulate()
+        self.assertIn(warning, solver.simulation_summary)
+
+        # werewolves holding the place behind huge resistance: never damaged
+        self.vw_werewolves.sudo().resistance = 20
+        solver = self._new_solver_form(self.location_vw).save()
+        self.assertEqual(solver._get_balance_warnings(), ["Test Good receive no damage, even when losing."])
 
 
 class TestBattleSolverAccess(BattleSolverCommon):

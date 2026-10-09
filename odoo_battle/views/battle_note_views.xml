@@ -1,0 +1,57 @@
+<?xml version="1.0"?>
+<odoo>
+    <record id="battle_note_view_form" model="ir.ui.view">
+        <field name="name">battle.note.view.form</field>
+        <field name="model">battle.note</field>
+        <field name="arch" type="xml">
+            <form string="Note">
+                <sheet>
+                    <group>
+                        <field name="name" placeholder="e.g. begin Kiker ritual at Marais"/>
+                        <field name="round_number" placeholder="Any round"/>
+                        <field name="battle_location_id" options="{'no_create': True}"/>
+                        <field name="battle_faction_id" options="{'no_create': True}"/>
+                        <field name="is_done"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="battle_note_view_list" model="ir.ui.view">
+        <field name="name">battle.note.view.list</field>
+        <field name="model">battle.note</field>
+        <field name="arch" type="xml">
+            <list string="Notes" editable="bottom" decoration-muted="is_done">
+                <field name="sequence" widget="handle"/>
+                <field name="round_number" width="70px"/>
+                <field name="name"/>
+                <field name="battle_location_id" options="{'no_create': True}"/>
+                <field name="battle_faction_id" options="{'no_create': True}"/>
+                <field name="is_done" widget="boolean_toggle"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="battle_note_view_search" model="ir.ui.view">
+        <field name="name">battle.note.view.search</field>
+        <field name="model">battle.note</field>
+        <field name="arch" type="xml">
+            <search string="Notes">
+                <field name="name"/>
+                <field name="battle_location_id"/>
+                <field name="battle_faction_id"/>
+                <filter name="filter_todo" string="To Do" domain="[('is_done', '=', False)]"/>
+                <filter name="filter_done" string="Done" domain="[('is_done', '=', True)]"/>
+                <filter name="groupby_round" string="Round" context="{'group_by': 'round_number'}"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="battle_note_action" model="ir.actions.act_window">
+        <field name="name">Notes</field>
+        <field name="res_model">battle.note</field>
+        <field name="view_mode">list,form</field>
+        <field name="context">{'search_default_filter_todo': 1}</field>
+    </record>
+</odoo>

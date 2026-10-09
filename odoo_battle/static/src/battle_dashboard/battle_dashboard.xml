@@ -41,6 +41,32 @@
                         </tbody>
                     </table>
 
+                    <t t-if="data.is_admin">
+                        <div class="d-flex align-items-center gap-3 mb-2">
+                            <h4 class="mb-0">Notes</h4>
+                            <button class="btn btn-sm btn-secondary" t-on-click="() => this.openNote()">Add</button>
+                        </div>
+                        <p t-if="!data.notes?.length" class="text-muted">No note for upcoming rounds.</p>
+                        <table t-else="" class="table table-sm table-hover align-middle">
+                            <tbody>
+                                <tr t-foreach="data.notes" t-as="note" t-key="note.id"
+                                    t-att-class="{ 'text-muted text-decoration-line-through': note.is_done, 'table-warning': !note.is_done and data.round and note.round_number == data.round.round_number }">
+                                    <td class="text-nowrap" style="width: 4rem">
+                                        <span t-if="note.round_number" t-out="'R' + note.round_number"/>
+                                        <span t-else="" class="text-muted">-</span>
+                                    </td>
+                                    <td class="cursor-pointer" t-on-click="() => this.openNote(note.id)">
+                                        <t t-out="note.name"/>
+                                        <span t-if="note.about" class="small text-muted ms-1">(<t t-out="note.about"/>)</span>
+                                    </td>
+                                    <td class="text-end" style="width: 5rem">
+                                        <button class="btn btn-sm btn-link p-0" t-on-click="() => this.toggleNote(note.id)" t-out="note.is_done ? 'Undo' : 'Done'"/>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </t>
+
                     <h4>Factions</h4>
                     <table class="table table-sm table-hover">
                         <thead>

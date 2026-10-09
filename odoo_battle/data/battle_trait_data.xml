@@ -29,10 +29,10 @@
         <field name="stance">any</field>
         <field name="position">any</field>
         <field name="condition">any</field>
-        <field name="effect">diversion</field>
+        <field name="effect">advantage</field>
         <field name="value">1</field>
         <field name="is_unique" eval="True"/>
-        <field name="description">-1 à la caractéristique adverse, réparti sur sa taille (une fois par camp, cumulable avec Diversion).</field>
+        <field name="description">+0,5 au bonus (une fois par camp).</field>
     </record>
     <record id="battle_trait_tactics" model="battle.trait">
         <field name="name">Tactique</field>
@@ -231,6 +231,17 @@
         <field name="is_unique" eval="False"/>
         <field name="description">Redoutable contre les vampires (lore).</field>
     </record>
+    <record id="battle_trait_lore_curse_death" model="battle.trait">
+        <field name="name">Léthéen</field>
+        <field name="sequence">515</field>
+        <field name="stance">any</field>
+        <field name="position">any</field>
+        <field name="condition">any</field>
+        <field name="effect">lore</field>
+        <field name="value">1</field>
+        <field name="is_unique" eval="False"/>
+        <field name="description">Condamne à l'oubli (lore).</field>
+    </record>
     <record id="battle_trait_scout" model="battle.trait">
         <field name="name">Éclaireur</field>
         <field name="sequence">520</field>
@@ -376,7 +387,7 @@
     </record>
 
     <!-- Location traits granted manually to a faction for a round, as location effects -->
-    <record id="battle_trait_water_spirit" model="battle.trait">
+    <record id="battle_trait_spirit_protection" model="battle.trait">
         <field name="name">Protection Spirituelle</field>
         <field name="sequence">650</field>
         <field name="target">location</field>
@@ -387,6 +398,18 @@
         <field name="value">25</field>
         <field name="is_unique" eval="True"/>
         <field name="description">+25% de résistance (une fois par camp).</field>
+    </record>
+    <record id="battle_trait_malediction" model="battle.trait">
+        <field name="name">Malédiction</field>
+        <field name="sequence">652</field>
+        <field name="target">location</field>
+        <field name="side">any</field>
+        <field name="stance">any</field>
+        <field name="condition">any</field>
+        <field name="effect">resistance_rate</field>
+        <field name="value">-25</field>
+        <field name="is_unique" eval="True"/>
+        <field name="description">-25% de résistance (une fois par camp).</field>
     </record>
     <record id="battle_trait_spirit_rage" model="battle.trait">
         <field name="name">Rage Spirituelle</field>

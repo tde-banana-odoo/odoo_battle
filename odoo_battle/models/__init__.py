@@ -6,6 +6,7 @@ from . import battle_unit_template
 from . import battle_unit
 from . import battle_location
 from . import battle_location_effect
+from . import battle_note
 from . import battle_command_action
 from . import battle_trait
 from . import battle_round

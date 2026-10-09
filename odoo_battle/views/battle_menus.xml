@@ -16,6 +16,8 @@
             <menuitem id="battle_round_menu" name="Rounds" action="odoo_battle.battle_round_action" sequence="10"/>
             <menuitem id="battle_result_menu" name="Results" action="odoo_battle.battle_result_action" sequence="20"/>
             <menuitem id="battle_solver_menu" name="Solver" action="odoo_battle.battle_solver_action" groups="base.group_system" sequence="30"/>
+            <menuitem id="battle_note_menu" name="Notes" action="odoo_battle.battle_note_action" groups="base.group_system" sequence="35"/>
+            <menuitem id="battle_grant_wizard_menu" name="Grant Bonus" action="odoo_battle.battle_grant_wizard_action" groups="base.group_system" sequence="40"/>
         </menuitem>
         <menuitem id="battle_config_menu_head" name="Configuration" groups="base.group_system" sequence="100">
             <menuitem id="battle_trait_menu" name="Traits" action="odoo_battle.battle_trait_action" sequence="10"/>

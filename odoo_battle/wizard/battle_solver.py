@@ -11,6 +11,7 @@ from odoo.exceptions import UserError
 from odoo.fields import Command
 
 from odoo.addons.odoo_battle.const import (
+    BALANCE_CRUSHED_RATIO,
     COMMAND_BONUS,
     COMMAND_BONUS_MAX,
     COMMAND_RATES,
@@ -318,7 +319,7 @@ class BattleSolver(models.TransientModel):
             chances = solver._get_score_chances()
             rows = [(outcome, chances.get(outcome.score, 0), *solver._get_damage(outcome)) for outcome in outcomes]
             solver.simulation_summary = self.env['ir.qweb']._render(
-                'odoo_battle.battle_solver_simulation_summary', {'rows': rows},
+                'odoo_battle.battle_solver_simulation_summary', {'rows': rows, 'warnings': solver._get_balance_warnings()},
             )
 
     @api.depends(
@@ -886,7 +887,7 @@ class BattleSolver(models.TransientModel):
 
     def _get_command_bonus_lines(self) -> list[BonusLine]:
         """ One line per command action picked in the location by at least
-        one side: its bonus (e.g. Location Support), or its effect on damage
+        one side: its bonus (e.g. Battle Support), or its effect on damage
         and resistance as detail (e.g. Hold On) """
         types = dict(self.env['battle.command.action']._fields['command_type']._description_selection(self.env))
         actions = {side: self._get_side_command_actions(side) for side in SIDES}
@@ -1277,6 +1278,49 @@ class BattleSolver(models.TransientModel):
         for total, chance in self._get_roll_chances().items():
             chances[self._get_score(total)] += chance
         return dict(chances)
+
+    def _get_balance_warnings(self) -> list[str]:
+        """ Oddly supported battles, over all possible scores, for the DM to
+        balance them (e.g. a trait, a retreat): a side crushed by numbers,
+        losing BALANCE_CRUSHED_RATIO of its wound levels on average (2 at
+        least) even when it wins or ties; a side receiving no damage even
+        when it loses. """
+        self.ensure_one()
+        outcomes = self.env['battle.outcome']._get_by_score()
+        lines = {side: self._get_lines(side) for side in SIDES}
+        if not all(lines.values()):
+            return []
+        levels = {side: sum(int(state) for state in lines[side].battle_unit_id.mapped('wound_state')) for side in SIDES}
+        lost, not_losing, losing, damaged = Counter(), Counter(), Counter(), set()
+        for score, chance in self._get_score_chances().items():
+            if not chance or score not in outcomes:
+                continue
+            side_scores = {'initiator': score, 'responder': -score}
+            for line, (damage, wounds) in self._get_unit_consequences(outcomes[score]).items():
+                unit = line.battle_unit_id
+                if side_scores[line.side] >= 0:
+                    _counter, after = unit._get_state_after(unit.damage_counter, unit.wound_state, damage, wounds)
+                    lost[line.side] += chance * (int(unit.wound_state) - int(after))
+            for side, side_damage in zip(('responder', 'initiator'), self._get_damage(outcomes[score])):
+                if side_scores[side] >= 0:
+                    not_losing[side] += chance
+                else:
+                    losing[side] += chance
+                    if side_damage:
+                        damaged.add(side)
+
+        warnings = []
+        for side in SIDES:
+            factions = ', '.join(self[f'{side}_faction_ids'].sorted().mapped('name'))
+            expected = lost[side] / not_losing[side] if not_losing[side] else 0
+            if round(expected) >= 2 and expected >= BALANCE_CRUSHED_RATIO * levels[side]:  # a single wound is no crush
+                warnings.append(_(
+                    "%(factions)s lose about %(lost)s of their %(levels)s wound levels even when winning or on a tie: crushed by numbers.",
+                    factions=factions, lost=round(expected), levels=levels[side],
+                ))
+            if losing[side] and side not in damaged:
+                warnings.append(_("%(factions)s receive no damage, even when losing.", factions=factions))
+        return warnings
 
     def _get_score(self, roll_total: int) -> int:
         """ Score given a dice roll total: bonus added, capped to outcomes """

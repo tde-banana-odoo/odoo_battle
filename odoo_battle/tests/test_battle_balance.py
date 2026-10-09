@@ -283,9 +283,8 @@ class TestBattleBalance(BattleBalanceCommon):
 
     def test_balance_elders(self):
         """ Vampire elders (G7) and rank 4 werewolves have the same menace:
-        led groups (G7 + 2 G8 against WW4 + 2 WW3) are balanced. One-on-one,
-        Terreur weighs a full point (spread over a single creature): accepted,
-        such duels being rare (the DM may compensate). """
+        led groups (G7 + 2 G8 against WW4 + 2 WW3) are balanced. Terreur is a
+        flat advantage (+0.5), whatever the size of the enemy. """
         led_vampires = self._scenario(self.location_open, VAMPIRES, [('werewolf_rank_4', F)] + WW_2)
         led_werewolves = self._scenario(self.location_open, [('werewolf_rank_4', F)] + WW_2, VAMPIRES)
         self.assertAlmostEqual(led_vampires.win, led_werewolves.win, msg='Led groups: same chances whoever attacks')
@@ -398,9 +397,9 @@ class TestBattleBalanceReport(BattleBalanceCommon):
                 ('2 WW3 attack 4 FS + 4 HdMr (support), open', (open_, WW_2, [('human_special_forces', F)] * 4 + [('human_henchman_ruse', S)] * 4)),
                 ('  same, fortified + Hold On', (fortified, WW_2, [('human_special_forces', F)] * 4 + [('human_henchman_ruse', S)] * 4,
                                                  'attack', 'defense', None, [('responder', 'hold_on')])),
-                ('  same, fortified + Location Support', (fortified, WW_2, [('human_special_forces', F)] * 4 + [('human_henchman_ruse', S)] * 4,
+                ('  same, fortified + Battle Support', (fortified, WW_2, [('human_special_forces', F)] * 4 + [('human_henchman_ruse', S)] * 4,
                                                           'attack', 'defense', None, [('responder', 'location_support')])),
-                ('3 WW3 attack 4 FS + 4 HdMr, fortified + Location Support', (fortified, WW_3, [('human_special_forces', F)] * 4 + [('human_henchman_ruse', S)] * 4,
+                ('3 WW3 attack 4 FS + 4 HdMr, fortified + Battle Support', (fortified, WW_3, [('human_special_forces', F)] * 4 + [('human_henchman_ruse', S)] * 4,
                                                                              'attack', 'defense', None, [('responder', 'location_support')])),
             ],
             'Kiker chaff (fomori, possessed)': [

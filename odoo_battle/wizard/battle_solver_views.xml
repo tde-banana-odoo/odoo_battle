@@ -236,6 +236,9 @@
     </template>
 
     <template id="battle_solver_simulation_summary">
+        <div t-if="warnings" role="alert" class="alert alert-warning small py-2 mb-2">
+            <div t-foreach="warnings" t-as="warning" t-out="warning"/>
+        </div>
         <table class="table table-sm">
             <thead>
                 <tr class="small text-muted">

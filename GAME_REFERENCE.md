@@ -27,10 +27,10 @@ added to the dice.
 
 | Source | Rule |
 |---|---|
-| Characteristics | **Quality.** **Gnosis** in the Umbra, otherwise **Rage** when attacking, **Willpower** when defending. **Average** of the side's units (frontline and support), **weighted by menace** (by size if the side has no menace): elites drive it, small units weigh little, menace-0 units (civilians) not at all. Wound maluses are weighted the same way; the enemy's Diversion / Terreur values are spread over the side's size (they matter less for bigger sides). Rounded to the half point. The side with the better average gets the **difference**, in half points (an *advantage* = 0.5), capped at **+2**: e.g. Rage 3 vs Willpower 2 → +1; 2.5 vs 2 → +0.5. |
+| Characteristics | **Quality.** **Gnosis** in the Umbra, otherwise **Rage** when attacking, **Willpower** when defending. **Average** of the side's units (frontline and support), **weighted by menace** (by size if the side has no menace): elites drive it, small units weigh little, menace-0 units (civilians) not at all. Wound maluses are weighted the same way; the enemy's Diversion values are spread over the side's size (they matter less for bigger sides). Rounded to the half point. The side with the better average gets the **difference**, in half points (an *advantage* = 0.5), capped at **+2**: e.g. Rage 3 vs Willpower 2 → +1; 2.5 vs 2 → +0.5. |
 | Size | **Numbers.** **+1** to the side having at least 50% more size, all units counted (never +2). Size rates apply first, e.g. Obstacles −25% for attackers. |
 | Morale | **−1** if the camp's morale is 2 (Shaken) or less. |
-| Command actions | Location Support: +1 per action. |
+| Command actions | Battle Support: +1 per action. |
 | Traits | `bonus` traits of units and location, and those granted for the round (Percée, Défense Héroïque). |
 | DM Bonus | per side, chosen by the DM (e.g. a good idea): Advantage (+0.5), Bonus (+1), Bonus and Advantage (+1.5), Double Bonus (+2), Overwhelming (+3). |
 
@@ -133,10 +133,10 @@ command actions (its leadership successes).
 
 | Action | Effect |
 |---|---|
-| Location Support | +1 bonus per action, **+2 at most per side** (in game, usually 1, more by role-play) |
+| Battle Support | +1 bonus per action, **+2 at most per side** (in game, usually 1, more by role-play) |
 | Hold On | damage ×75%, resistance ×150% |
 | Full Attack | damage ×150%, resistance ×75% |
-| Unstoppable Attack (RP) | damage ×125%, only when attacking; allowed by role-play |
+| Unstoppable Attack | damage ×125%, only when attacking; allowed by role-play |
 | Retreat | covered retreat: damage ×0%, resistance ×200%; the DM then moves the units out (location lost) |
 
 Rates apply once per side, whatever the number of actions, and multiply the
@@ -150,7 +150,7 @@ bonus, current outcome rates, average damage over the dice distribution.
 | Attacker's command (defender: none) | Dealt | Taken | Victory or better |
 |---|---|---|---|
 | none | 1.1 | 4.1 | 15% |
-| Location Support | 3.3 | 1.8 | **37%** |
+| Battle Support | 3.3 | 1.8 | **37%** |
 | Full Attack | 5.9 | 5.8 | 15% |
 | Unstoppable Attack | 2.7 | 4.1 | 15% |
 | Hold On | 0.3 | 2.5 | 15% |
@@ -158,18 +158,18 @@ bonus, current outcome rates, average damage over the dice distribution.
 | Defender's command (attacker: none) | Dealt | Taken |
 |---|---|---|
 | none | 4.1 | 1.1 |
-| Location Support | 7.5 | 0.3 |
+| Battle Support | 7.5 | 0.3 |
 | Hold On | 2.1 | 0.1 |
 | Full Attack | 9.1 | 2.9 |
 
-- **Location Support is by far the strongest:** +1 shifts the whole dice
+- **Battle Support is by far the strongest:** +1 shifts the whole dice
   distribution (Victory or better: 15% → 37%). Cumulative, it reaches 70%
   with two actions and 96% with three: a camp with 3 actions can all but
   decide one battle. This is the main balance issue.
 - **Full Attack is a fair gamble:** about twice the damage dealt and taken.
 - **Hold On is a delaying action:** both sides take less; very efficient for
   defenders holding a position, nearly useless for an attacker.
-- **Unstoppable Attack (RP):** pure bonus with no downside, acceptable as it
+- **Unstoppable Attack:** pure bonus with no downside, acceptable as it
   is granted by role-play.
 - **On equal forces, attacking without support is costly** (dealt 1.1,
   taken 4.1): by design, an attacker needs a bonus advantage or a command.
@@ -187,7 +187,7 @@ once per side.
 | **Tactics** | | | | |
 | Commandement | always | +1 bonus, once per side | 4 | 12 |
 | Diversion | always | −2 to the enemy's compared characteristic, once per side | 4 | 5 |
-| Terreur | always | −1 to the enemy's compared characteristic, once per side (adds to Diversion) | 2 | 3 |
+| Terreur | always | advantage +0.5, once per side, whatever the enemy size | 2 | 3 |
 | Tactique | always | 1 die reroll per holder | 2 | 4 |
 | **Before the roll** | | | | |
 | Assassin | frontline | 1 wound to a chosen enemy unit | 2 | 5 |
@@ -251,6 +251,7 @@ frontline) and Size Rate (±% on size), used by location traits
 | Obstacles | attacking | size −25% for the size bonus (the advance is slowed) | 2 |
 | **Granted manually** to a faction for a round, as a location effect | | | |
 | Protection Spirituelle | always | resistance +25%, once per side (e.g. Loch Chon's water spirit; offsets most of Impraticable) | — |
+| Malédiction | always | resistance −25%, once per side (inverse of Protection Spirituelle) | — |
 | Rage Spirituelle | always | damage +25%, once per side | — |
 | **Granted by outcomes** for the next round, to the side's factions | | | |
 | Percée | attacking | +1 bonus, once per side | — |
@@ -485,7 +486,7 @@ Each bonus point is worth about 25 points of winning chance (−2: 4%, 0:
 | G7 + 2 G8 vs WW4 + 2 WW3, either attacking | 0 | 37 / 37 |
 | 3 WW3 attack G7 + 2 G8, + 2 henchmen (front or support) | −1 | 15 / 63 |
 | … + 2 Combat Ghouls | −2 | 4 / 85 |
-| 2 WW3 attack 4 FS + 4 HdM, open / Fortifié + Location Support | +1 / −1 | 63 / 15 — 15 / 63 |
+| 2 WW3 attack 4 FS + 4 HdM, open / Fortifié + Battle Support | +1 / −1 | 63 / 15 — 15 / 63 |
 | 3 WW3 attack 3 Jaglins, Umbra / outside | −2 / +1 | 4 / 85 — 63 / 15 |
 | 3 WW3 attack Incarna + 2 Gaflins, Umbra | −4 | 0 / 100 |
 
@@ -506,8 +507,25 @@ charge should favor assault spirits (mechanism kept).
 
 **Battle length:** winners almost never take wounds; losers take 1 to 3
 (10–25% of a 3-unit side's wound levels): a side is worn out after 4 to 8
-lost battles, battles are not auto-resolved. Winners bleeding a little would
-need the losing side's damage to rise (outcome rates): not changed for now.
+lost battles, battles are not auto-resolved. Outcome table kept (analysis of
+2026-10-09, all 68 scenarios and campaigns):
+- with balanced stats (damage ≈ resistance), a tie and a narrow win (+1) deal
+  nothing to either side; the table is monotonic (a better score never deals
+  less nor takes more, whatever the stances), any change must keep it so;
+- raising the losing defender's damage at −1 only ("D3") breaks it: a narrow
+  attacker win would cost more than a tie;
+- the monotonic variant (defense damage 75% at −2, −1 and 0, "P1") gives
+  damage points, not wounds (62 of 68 scenarios unchanged), and acts as an
+  attack cost over campaigns (open 3 vs 3: attacker broken 30% → 38%,
+  fortified 58% → 75%): it strengthens defense again, dropped;
+- lowering winning defense resistance (+1/+2) changes nothing in balanced
+  fights (a losing attacker deals 100% vs 125%+), and +1 below the tie would
+  break monotonicity;
+- a flat attack cost (attacker always takes 1 wound) wipes out a +1 edge
+  (open 3 vs 3: 30% → 47%): rejected;
+- only a direct wound from the narrow loser (−1/−2) makes balanced winners
+  bleed (~0.8 wound); possible DM ruling at the table, not coded.
+Instead, the solver simulation flags oddly supported battles (see 9).
 
 **Soft target not met:** G7 vs WW4 one-on-one: G7 attacking wins 63%, WW4
 attacking wins 15%. Terreur on a single unit weighs a full −1 (spread over
@@ -527,14 +545,16 @@ size 1). Accept (an elder is scarier one-on-one) or remove Terreur from G7.
 - Trait values and support fire are added after the rates, which are
   multiplied together and rounded down once.
 - Hold On and Full Attack apply once per side and multiply outcome rates.
-  Location Support is cumulative. Unstoppable Attack is granted by
+  Battle Support is cumulative. Unstoppable Attack is granted by
   role-play, noted "(RP)" in its name, with no extra code.
 - Morale and leadership are per camp, on the round; there's no camp model.
 - **Bonus rules (2026-10-08):** characteristics compared as averages
   weighted by menace (quality), size bonus for numbers; half points
   (advantages) add up, final bonus rounded toward zero; DM bonus as a
   selection (Advantage … Overwhelming). Menace is not a bonus by itself.
-  Diversion / Terreur spread over the side's size.
+  Diversion spread over the side's size. Terreur is a flat advantage, +0.5
+  once per side, whatever the enemy size (2026-10-09; it was −1 spread over
+  size: a full point one-on-one, nothing against big stacks).
 - Wound maluses: Badly Wounded −1 characteristic; Critical −1 characteristic
   and −1 damage/resistance. Assassin wounds don't add a malus for the same
   battle.
@@ -561,7 +581,7 @@ size 1). Accept (an elder is scarier one-on-one) or remove Terreur from G7.
   Ravitaillé, Walkhill gains it.
 - Moral Vacillant (granted by a major defeat) is a −0.5 advantage instead
   of a forced reroll: computed by the solver, a crushed side can recover.
-- Command actions: Location Support +2 at most per side; Retreat is a
+- Command actions: Battle Support +2 at most per side; Retreat is a
   covered retreat (damage ×0%, resistance ×200%). Embuscade works in any
   stance (from support). Terreur one-on-one accepted.
 - Templates renamed by role: (Assaut), (Défense), (Ruse) for BSD, werewolves,
@@ -598,6 +618,23 @@ size 1). Accept (an elder is scarier one-on-one) or remove Terreur from G7.
 - No migrations, version 1.0. Data is force-updated during development.
 - Printed sheets: square cards, black-and-white glyphs to color by hand (red /
   green / orange), wounds and damage filled in by hand.
+- Outcome table kept as is (see 8b). The solver simulation shows a warning
+  for oddly supported battles: a side losing 25% or more of its wound levels
+  (on average, 2 at least) even when winning or on a tie (crushed by numbers,
+  `BALANCE_CRUSHED_RATIO`), or a side receiving no damage even when losing
+  (hiding behind a stack). On the balance scenarios: 6 of 68 flagged, all
+  stacks (Vampires + Goules or Humains, 8 humans fortified, a lone G7).
+  Then up to the DM: a trait, a retreat, a ruling.
+- DM bonuses go through one wizard, **Battles > Grant Bonus** (also in the
+  Action menu of units and locations): a unit trait (several units at once),
+  a location trait for good, a location effect (trait for a faction in a
+  location during a round, future rounds allowed), or an extra command
+  action (the faction camp's command actions count is raised by one). An
+  optional note is logged on units and rounds.
+- DM notes for upcoming rounds (`battle.note`, admins only): text, optional
+  round, location and faction. On the dashboard by round (no round last),
+  current round highlighted, Done / Undo; done notes are hidden once their
+  round is past (or if they have no round). All notes in Battles > Notes.
 
 ---
 
@@ -628,6 +665,9 @@ Not decided; to come back to.
     would be a Damage trait.
   - Self-only Régénération / Nécrophage: no longer needed, since Heal and
     Mend are solver choices.
+- **Balance warnings, step 2:** suggest the DM-granted traits (Défense
+  Héroïque, Protection Spirituelle, Rage Spirituelle…) that would remove a
+  warning, by re-evaluating the battle with each one added to the weak side.
 - **Technical roadmap:**
   - move battle rules from the transient solver into a reusable rules model,
     for balance tests and batch solving;

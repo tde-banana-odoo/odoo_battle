@@ -1,0 +1,65 @@
+<?xml version="1.0"?>
+<odoo>
+    <record id="battle_grant_wizard_view_form" model="ir.ui.view">
+        <field name="name">battle.grant.wizard.view.form</field>
+        <field name="model">battle.grant.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Grant Bonus">
+                <p class="text-muted">
+                    Help (or hinder) players in one place: a trait for units, a location trait for good or for a
+                    faction during a round, or an extra command action for a faction camp.
+                </p>
+                <group>
+                    <field name="grant_type" widget="radio"/>
+                    <field name="battle_trait_id" invisible="grant_type == 'command'" required="grant_type != 'command'"
+                        domain="[('target', '=', 'unit' if grant_type == 'unit' else 'location')]"
+                        options="{'no_create': True, 'no_open': True}" context="{'battle_trait_description': True}"/>
+                    <field name="command_type" invisible="grant_type != 'command'" required="grant_type == 'command'"/>
+                    <field name="command_rule" invisible="grant_type != 'command' or not command_type" class="text-muted"/>
+                    <field name="battle_unit_ids" widget="many2many_tags" invisible="grant_type != 'unit'" required="grant_type == 'unit'"
+                        domain="[('is_dead', '=', False)]" options="{'no_create': True}"/>
+                    <field name="battle_location_id" invisible="grant_type == 'unit'" required="grant_type != 'unit'"
+                        domain="[('is_external', '=', False)]" options="{'no_create': True, 'no_open': True}"/>
+                    <field name="battle_faction_id" invisible="grant_type not in ('location_round', 'command')"
+                        required="grant_type in ('location_round', 'command')" options="{'no_create': True, 'no_open': True}"/>
+                    <field name="round_number" invisible="grant_type not in ('location_round', 'command')"
+                        required="grant_type in ('location_round', 'command')"/>
+                    <field name="note" placeholder="e.g. role-play success"/>
+                </group>
+                <div class="text-muted small" invisible="grant_type != 'command'">
+                    The faction camp gets one more command action for the round.
+                </div>
+                <footer>
+                    <button name="action_grant" type="object" string="Grant" class="btn-primary"/>
+                    <button special="cancel" string="Cancel" class="btn-secondary"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="battle_grant_wizard_action" model="ir.actions.act_window">
+        <field name="name">Grant Bonus</field>
+        <field name="res_model">battle.grant.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+    <!-- from units and locations (Action menu), prefilled with them -->
+    <record id="battle_grant_wizard_action_unit" model="ir.actions.act_window">
+        <field name="name">Grant Bonus</field>
+        <field name="res_model">battle.grant.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="group_ids" eval="[(4, ref('base.group_system'))]"/>
+        <field name="binding_model_id" ref="model_battle_unit"/>
+    </record>
+
+    <record id="battle_grant_wizard_action_location" model="ir.actions.act_window">
+        <field name="name">Grant Bonus</field>
+        <field name="res_model">battle.grant.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="group_ids" eval="[(4, ref('base.group_system'))]"/>
+        <field name="binding_model_id" ref="model_battle_location"/>
+    </record>
+</odoo>

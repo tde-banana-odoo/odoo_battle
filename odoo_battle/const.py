@@ -18,11 +18,11 @@ CAERN_STATES = [('4', 'Full Power'), ('3', 'Weakened'), ('2', 'Damaged'), ('1', 
 
 # command actions picked by camps in locations, thanks to leadership successes
 COMMAND_TYPES = [
-    ('location_support', 'Location Support'),
+    ('location_support', 'Battle Support'),
     ('hold_on', 'Hold On'),
     ('full_attack', 'Full Attack'),
     ('retreat', 'Retreat'),
-    ('attack_unstoppable', 'Unstoppable Attack (RP)'),  # allowed by role-play only
+    ('attack_unstoppable', 'Unstoppable Attack'),  # allowed by role-play only
 ]
 # rates (%) applied on a side frontline damage and resistance, on top of
 # outcome rates; once per side whatever the number of actions
@@ -59,6 +59,9 @@ UNIT_TYPES = [
 WOUND_STATES = [('4', 'Unhurt'), ('3', 'Wounded'), ('2', 'Badly Wounded'), ('1', 'Critical'), ('0', 'Out of Combat')]
 # damage accumulates on units: every DAMAGE_PER_WOUND points, a wound is added
 DAMAGE_PER_WOUND = 3
+# simulation warning: a side losing this share of its wound levels (on
+# average) even when it wins or ties is crushed by numbers
+BALANCE_CRUSHED_RATIO = 0.25
 # battle maluses of wounded units, per wound state (unhurt and wounded: none,
 # out of combat: does not fight); damage and resistance never go below 0
 WOUND_MALUSES = {

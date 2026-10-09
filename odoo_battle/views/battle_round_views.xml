@@ -60,7 +60,7 @@
                                 <list editable="bottom">
                                     <field name="battle_location_id" options="{'no_create': True}"/>
                                     <field name="battle_faction_id" options="{'no_create': True}"/>
-                                    <field name="battle_trait_id" options="{'no_create': True}"/>
+                                    <field name="battle_trait_id" options="{'no_create': True}" context="{'battle_trait_description': True}"/>
                                     <field name="battle_result_id"/>
                                 </list>
                             </field>
@@ -80,7 +80,7 @@
             <form string="Leadership">
                 <p class="text-muted">
                     Each camp rolls its leadership: morale, and successes giving command actions. Each command action may
-                    be used in a location, or not at all: Location Support (+1 bonus, +2 at most per side), Hold On
+                    be used in a location, or not at all: Battle Support (+1 bonus, +2 at most per side), Hold On
                     (resistance +50%, damage -25%), Full Attack (damage +50%, resistance -25%), Retreat (covered retreat:
                     damage 0%, resistance ×2, units then move out), Unstoppable Attack (RP: allowed by role-play only,
                     damage +25% when attacking).

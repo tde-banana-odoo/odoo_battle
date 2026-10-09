@@ -1,11 +1,17 @@
 from odoo import api, fields, models
 
-from odoo.addons.odoo_battle.const import CAMPS, COMMAND_TYPES
+from odoo.addons.odoo_battle.const import CAMPS, COMMAND_BONUS, COMMAND_BONUS_MAX, COMMAND_RATES, COMMAND_STANCES, COMMAND_TYPES
+
+# printed after the rule of some actions, in French
+COMMAND_NOTES = {
+    'retreat': "les unités quittent ensuite la zone",
+    'attack_unstoppable': "accordée en jeu de rôle",
+}
 
 
 class BattleCommandAction(models.Model):
     """ Command action picked by a camp for a round in a location, thanks to
-    its leadership successes: Location Support (+1 bonus, +2 at most per
+    its leadership successes: Battle Support (+1 bonus, +2 at most per
     side), Hold On (more resistance, less damage), Full Attack (more damage,
     less resistance), Retreat (covered retreat: no damage dealt, doubled
     resistance; the DM then moves units out), Unstoppable Attack (more
@@ -27,6 +33,27 @@ class BattleCommandAction(models.Model):
         types = dict(self._fields['command_type']._description_selection(self.env))
         for action in self:
             action.display_name = f"{types.get(action.command_type, '')} ({action.battle_location_id.name or ''})"
+
+    @api.model
+    def _get_command_rule(self, command_type: str) -> str:
+        """ Effect of a command action, in French, from the rules constants,
+        e.g. '+1 au bonus par action (+2 max par camp)' """
+        parts = []
+        if command_type in COMMAND_BONUS:
+            rule = f"+{COMMAND_BONUS[command_type]} au bonus par action"
+            if command_type in COMMAND_BONUS_MAX:
+                rule += f" (+{COMMAND_BONUS_MAX[command_type]} max par camp)"
+            parts.append(rule)
+        rates = COMMAND_RATES.get(command_type, {})
+        for stat, label in (('damage', "dégâts"), ('resistance', "résistance")):
+            if rates.get(stat, 100) != 100:
+                parts.append(f"{label} ×{rates[stat]} %")
+        rule = ', '.join(parts)
+        if COMMAND_STANCES.get(command_type) == 'attack':
+            rule = f"en attaque : {rule}"
+        if command_type in COMMAND_NOTES:
+            rule += f" ; {COMMAND_NOTES[command_type]}"
+        return rule
 
     @api.constrains('battle_round_id', 'camp')
     def _check_command_action_count(self):

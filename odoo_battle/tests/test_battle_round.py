@@ -6,7 +6,7 @@ from odoo.addons.odoo_battle.tests.common import BattleCommon
 from odoo.addons.odoo_battle.wizard.battle_solver import BattleSolver
 from odoo.exceptions import UserError, ValidationError
 from odoo.fields import Command
-from odoo.tests import tagged, users
+from odoo.tests import HttpCase, tagged, users
 from odoo.tools import mute_logger
 
 
@@ -286,3 +286,62 @@ class TestBattleRoundInternals(BattleCommon):
         ]:
             with self.subTest(values=values), self.assertRaises(ValidationError):
                 battle_round.write(values)
+
+
+class TestBattleNote(BattleCommon):
+
+    @users('battle_admin')
+    def test_dashboard_notes(self):
+        """ DM notes on the dashboard, by round (notes without round last);
+        done ones are hidden once their round is past (or without round),
+        kept as a reminder for the current and future rounds """
+        current = self.battle_round.round_number
+        Note = self.env['battle.note']
+        self.env['battle.note'].search([]).unlink()  # game data notes
+        later, undated, past_todo, past_done, current_done, undated_done = Note.create([
+            {'name': 'Tell players they feel sick', 'round_number': current + 2, 'battle_faction_id': self.faction_good.id},
+            {'name': 'Kiker ritual', 'battle_location_id': self.location_isca.id},
+            {'name': 'Forgotten', 'round_number': current - 1},
+            {'name': 'Old news', 'round_number': current - 1, 'is_done': True},
+            {'name': 'Done this round', 'round_number': current, 'is_done': True},
+            {'name': 'Done whenever', 'is_done': True},
+        ])
+        notes = self.env['battle.round'].get_dashboard_data()['notes']
+        self.assertEqual([note['id'] for note in notes], (past_todo + current_done + later + undated).ids)
+        self.assertEqual(notes[-1], {
+            'id': undated.id, 'name': 'Kiker ritual', 'round_number': 0, 'about': 'Isca Augusta', 'is_done': False,
+        })
+
+        # same round (or no round): by sequence
+        first_undated = Note.create({'name': 'Prepare the finale', 'sequence': 1})
+        same_round = Note.create({'name': 'Before feeling sick', 'round_number': current + 2, 'sequence': 1})
+        notes = self.env['battle.round'].get_dashboard_data()['notes']
+        self.assertEqual([note['id'] for note in notes], (past_todo + current_done + same_round + later + first_undated + undated).ids)
+
+        later.action_toggle_done()
+        self.assertTrue(later.is_done)
+        later.action_toggle_done()
+        self.assertFalse(later.is_done)
+
+    @users('battle_user')
+    def test_dashboard_notes_access(self):
+        """ Notes are for the DM only """
+        self.assertEqual(self.env['battle.round'].get_dashboard_data()['notes'], [])
+
+
+@tagged('post_install', '-at_install')
+class TestBattleDashboardUi(HttpCase):
+
+    def test_dashboard(self):
+        """ Dashboard renders, with DM notes """
+        self.env['battle.note'].create([
+            {'name': 'Begin Kiker ritual', 'round_number': 99, 'battle_faction_id': self.env.ref('odoo_battle.battle_faction_kiker').id},
+            {'name': 'Undated note', 'battle_location_id': self.env.ref('odoo_battle.battle_location_marais').id},
+        ])
+        self.browser_js(
+            '/odoo/action-odoo_battle.battle_dashboard_action',
+            "if (document.body.textContent.includes('Begin Kiker ritual') && document.body.textContent.includes('(Marais)')) { console.log('test successful'); }"
+            " else { console.error('note not shown'); }",
+            ready="!!document.querySelector('.o_action h4')",
+            login='admin',
+        )
