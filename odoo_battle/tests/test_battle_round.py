@@ -345,3 +345,31 @@ class TestBattleDashboardUi(HttpCase):
             ready="!!document.querySelector('.o_action h4')",
             login='admin',
         )
+
+    def test_solver_form(self):
+        """ Solver opens from the dashboard, with the DM bonus and the
+        characteristic boost of each side """
+        # own battle to solve, whatever the game state
+        location = self.env['battle.location'].create({'name': 'UI Test Field'})
+        template = self.env.ref('odoo_battle.battle_unit_template_werewolf_rank_3')
+        self.env['battle.unit'].create([{
+            'name': f'UI Test {faction.name}', 'battle_unit_template_id': template.id,
+            'battle_faction_id': faction.id, 'battle_location_id': location.id,
+        } for faction in self.env.ref('odoo_battle.battle_faction_kiker') + self.env.ref('odoo_battle.battle_faction_loch_chon')])
+        self.browser_js(
+            '/odoo/action-odoo_battle.battle_dashboard_action',
+            """(async () => {
+                const row = [...document.querySelectorAll('tr')].find(tr => tr.textContent.includes('UI Test Field') && tr.querySelector('button'));
+                [...row.querySelectorAll('button')].find(button => button.textContent.trim() === 'Solve').click();
+                for (let i = 0; i < 100; i++) {
+                    if (document.querySelectorAll('.o_field_widget[name$=_characteristic_boost] input').length === 2) {
+                        console.log('test successful');
+                        return;
+                    }
+                    await new Promise((resolve) => setTimeout(resolve, 100));
+                }
+                console.error('solver form without boost inputs');
+            })();""",
+            ready="!!document.querySelector('.o_action h4')",
+            login='admin',
+        )

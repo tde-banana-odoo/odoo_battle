@@ -27,7 +27,7 @@ added to the dice.
 
 | Source | Rule |
 |---|---|
-| Characteristics | **Quality.** **Gnosis** in the Umbra, otherwise **Rage** when attacking, **Willpower** when defending. **Average** of the side's units (frontline and support), **weighted by menace** (by size if the side has no menace): elites drive it, small units weigh little, menace-0 units (civilians) not at all. Wound maluses are weighted the same way; the enemy's Diversion values are spread over the side's size (they matter less for bigger sides). Rounded to the half point. The side with the better average gets the **difference**, in half points (an *advantage* = 0.5), capped at **+2**: e.g. Rage 3 vs Willpower 2 → +1; 2.5 vs 2 → +0.5. |
+| Characteristics | **Quality.** **Gnosis** in the Umbra, otherwise **Rage** when attacking, **Willpower** when defending. **Average** of the side's units (frontline and support), **weighted by menace** (by size if the side has no menace): elites drive it, small units weigh little, menace-0 units (civilians) not at all. Wound maluses are weighted the same way; the enemy's Diversion values are spread over the side's size (they matter less for bigger sides); the DM **characteristic boost** of a side (solver, e.g. +2 or −2) is spread over its own size the same way. Rounded to the half point. The side with the better average gets the **difference**, in half points (an *advantage* = 0.5), capped at **+2**: e.g. Rage 3 vs Willpower 2 → +1; 2.5 vs 2 → +0.5. |
 | Size | **Numbers.** **+1** to the side having at least 50% more size, all units counted (never +2). Size rates apply first, e.g. Obstacles −25% for attackers. |
 | Morale | **−1** if the camp's morale is 2 (Shaken) or less. |
 | Command actions | Battle Support: +1 per action. |
@@ -615,7 +615,12 @@ size 1). Accept (an elder is scarier one-on-one) or remove Terreur from G7.
 - `battle.leader` is labelled "Leader" everywhere, with no model rename.
   Fields are renamed only when confusing.
 - Unit types stay a selection; rules live on templates.
-- No migrations, version 1.0. Data is force-updated during development.
+- No migrations, version 1.0. Since the game started (2026-10-10), game
+  state is not overwritten by updates: faction, location, leader, round and
+  note data files are `noupdate="1"`; units (CSV, which has no noupdate
+  attribute) are flagged noupdate in the database (`ir.model.data`). Rules
+  (traits, outcomes, unit templates) still follow their files. New units
+  added to the CSV are created by an update, then must be flagged too.
 - Printed sheets: square cards, black-and-white glyphs to color by hand (red /
   green / orange), wounds and damage filled in by hand.
 - Outcome table kept as is (see 8b). The solver simulation shows a warning

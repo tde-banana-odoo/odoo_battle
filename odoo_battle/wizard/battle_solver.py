@@ -126,6 +126,16 @@ class BattleSolver(models.TransientModel):
         DM_BONUSES, string="Responders DM Bonus", default='0', required=True,
         help="Bonus given by the DM to the side, e.g. for a good idea. An advantage (+0.5) adds up with others.",
     )
+    initiator_characteristic_boost = fields.Integer(
+        "Initiators Characteristic Boost",
+        help="Points added by the DM to the side compared characteristic (Rage, Willpower or Gnosis), spread over the "
+             "side size like Diversion: e.g. +2 for a side of size 4 is +0.5. Negative to hinder the side.",
+    )
+    responder_characteristic_boost = fields.Integer(
+        "Responders Characteristic Boost",
+        help="Points added by the DM to the side compared characteristic (Rage, Willpower or Gnosis), spread over the "
+             "side size like Diversion: e.g. +2 for a side of size 4 is +0.5. Negative to hinder the side.",
+    )
     # units, each in frontline or support
     initiator_line_ids = fields.One2many(
         'battle.solver.line', 'battle_solver_id', string="Initiator Units", domain=[('side', '=', 'initiator')],
@@ -297,7 +307,8 @@ class BattleSolver(models.TransientModel):
     # trigger recomputation on transient models, only a new request does
     @api.depends(
         'battle_location_id', 'initiator_faction_ids', 'initiator_stance', 'responder_faction_ids', 'responder_stance',
-        'initiator_dm_bonus', 'responder_dm_bonus', *LINES_DEPENDS,
+        'initiator_dm_bonus', 'responder_dm_bonus', 'initiator_characteristic_boost', 'responder_characteristic_boost',
+        *LINES_DEPENDS,
     )
     def _compute_bonus(self):
         for solver in self:
@@ -324,7 +335,8 @@ class BattleSolver(models.TransientModel):
 
     @api.depends(
         'mode', 'battle_signature', 'battle_location_id', 'initiator_stance', 'responder_stance',
-        'initiator_dm_bonus', 'responder_dm_bonus', *LINES_DEPENDS,
+        'initiator_dm_bonus', 'responder_dm_bonus', 'initiator_characteristic_boost', 'responder_characteristic_boost',
+        *LINES_DEPENDS,
     )
     def _compute_is_outdated(self):
         """ A simulation or launched battle is outdated when sides, stances or
@@ -788,7 +800,8 @@ class BattleSolver(models.TransientModel):
         )
         return repr((
             self.battle_location_id.id, self.initiator_stance, self.responder_stance,
-            self.initiator_dm_bonus, self.responder_dm_bonus, lines,
+            self.initiator_dm_bonus, self.responder_dm_bonus,
+            self.initiator_characteristic_boost, self.responder_characteristic_boost, lines,
         ))
 
     def _get_lines_state(self, lines: BattleSolverLine) -> LinesState:
@@ -959,8 +972,9 @@ class BattleSolver(models.TransientModel):
         weighted by their menace (by their size if the side has no menace),
         minus their wounds maluses; the enemy Diversion traits remove their
         value spread over the side creatures (size), so that they matter less
-        for bigger sides. Returns its value and detail, e.g. 'Willpower 2.5
-        (wounds -0.5, diversion -0.5)' """
+        for bigger sides; the DM characteristic boost of the side is spread the
+        same way. Returns its value and detail, e.g. 'Willpower 2.5 (wounds
+        -0.5, diversion -0.5)' """
         stat = self._get_side_stat(side)
         enemy = 'responder' if side == 'initiator' else 'initiator'
         stat_labels = {'gnosis': _("Gnosis"), 'rage': _("Rage"), 'willpower': _("Willpower")}
@@ -973,17 +987,20 @@ class BattleSolver(models.TransientModel):
         healthy = sum(unit[stat] * weights[unit] for unit in units) / weight
         wounded = healthy - sum(unit._get_wound_malus('characteristic') * weights[unit] for unit in units) / weight
         diverted = wounded - self._get_side_trait_value(enemy, 'diversion') / size
+        boosted = diverted + self[f'{side}_characteristic_boost'] / size
 
         def half_points(points):
             return math.floor(2 * points + 0.5)
 
-        value = half_points(diverted)
+        value = half_points(boosted)
         detail = f"{stat_labels[stat]} {value / 2:g}"
         parts = []
         if half_points(wounded) != half_points(healthy):
             parts.append(_("wounds %(malus)+g", malus=(half_points(wounded) - half_points(healthy)) / 2))
-        if value != half_points(wounded):
-            parts.append(_("diversion %(diversion)+g", diversion=(value - half_points(wounded)) / 2))
+        if half_points(diverted) != half_points(wounded):
+            parts.append(_("diversion %(diversion)+g", diversion=(half_points(diverted) - half_points(wounded)) / 2))
+        if value != half_points(diverted):
+            parts.append(_("boost %(boost)+g", boost=(value - half_points(diverted)) / 2))
         if parts:
             detail += f" ({', '.join(parts)})"
         return value, detail

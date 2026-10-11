@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<odoo>
+<odoo noupdate="1">  <!-- game state, changed while playing: not overwritten by module updates -->
     <!-- DM notes for upcoming rounds; done state is kept on update (not set here) -->
     <record id="battle_note_healing_glory" model="battle.note">
         <field name="name">Soins / Gloire G/B/M</field>

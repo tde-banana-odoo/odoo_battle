@@ -269,6 +269,36 @@ class TestBattleSolver(BattleSolverCommon):
                 self.assertEqual(solver._format_stat_breakdown(solver._get_side_stat_breakdown(side, tie, stat)), expected)
 
     @users('battle_admin')
+    def test_battle_characteristic_boost(self):
+        """ The DM may boost (or hinder) a side characteristic: points spread
+        over the side size, like Diversion, then rounded to the half point;
+        changing it outdates a simulation """
+        solver = self._new_solver_form(self.location_ww).save()
+        # Rage 3 (3 offense werewolves, size 3) vs Willpower (1 + 1 - 1 - 1, weighted by menace 3/3/1/1) 0.5 (size 2 + 2x2 = 6)
+        self.assertIn('Rage 3 vs Willpower 0.5', solver.bonus_summary)
+        solver.action_simulate()
+        self.assertFalse(solver.is_outdated)
+
+        # +3 spread over size 6: +0.5; -3 spread over size 3: -1
+        solver.write({'responder_characteristic_boost': 3, 'initiator_characteristic_boost': -3})
+        self.assertTrue(solver.is_outdated, 'Boost changes the battle')
+        solver.invalidate_recordset()
+        self.assertIn('Rage 2 (boost -1) vs Willpower 1 (boost +0.5)', solver.bonus_summary)
+        lines = {line['name']: (line['initiator'], line['responder']) for line in solver._get_bonus_lines()}
+        self.assertEqual(lines['Characteristics'], (1, 0), 'Rage 2 vs Willpower 1: +1 instead of +2 (capped)')
+
+        # small boosts may be lost in rounding: +1 over size 6 is +0.17
+        solver.write({'responder_characteristic_boost': 1, 'initiator_characteristic_boost': 0})
+        solver.invalidate_recordset()
+        self.assertIn('Rage 3 vs Willpower 0.5', solver.bonus_summary)
+
+        # adds up with the enemy diversion, each shown on its own: 3 - 2/3 = 2.33 (2.5), + 2/3 = 3
+        self.ww_defense[0].sudo().battle_trait_ids = [Command.link(self.trait_diversion.id)]
+        solver.write({'initiator_characteristic_boost': 2})
+        solver.invalidate_recordset()
+        self.assertIn('Rage 3 (diversion -0.5, boost +0.5)', solver.bonus_summary)
+
+    @users('battle_admin')
     def test_battle_dice(self):
         """ Dice are entered from the table (with a score preview) or rolled,
         then used to solve the battle """

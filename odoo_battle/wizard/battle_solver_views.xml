@@ -34,6 +34,10 @@
                         <span class="text-muted small">DM Bonus</span>
                         <field name="initiator_dm_bonus" class="o_battle_solver_bonus_input" readonly="mode == 'done'"/>
                     </span>
+                    <span class="o_battle_solver_bonus text-nowrap" title="Points added to the side characteristic (Rage, Willpower or Gnosis), spread over its size like Diversion: e.g. +2 for a size 4 side is +0.5; negative to hinder">
+                        <span class="text-muted small">Boost</span>
+                        <field name="initiator_characteristic_boost" class="o_battle_solver_bonus_input" readonly="mode == 'done'"/>
+                    </span>
                     <field name="initiator_lines_summary" class="w-auto text-muted small" invisible="not initiator_folded"/>
                 </div>
                 <field name="initiator_line_ids" context="{'default_side': 'initiator'}" invisible="initiator_folded" readonly="mode == 'done'">
@@ -77,6 +81,10 @@
                     <span class="o_battle_solver_bonus text-nowrap" title="Bonus given by the DM to the side (e.g. a good idea); an advantage (+0.5) adds up with others">
                         <span class="text-muted small">DM Bonus</span>
                         <field name="responder_dm_bonus" class="o_battle_solver_bonus_input" readonly="mode == 'done'"/>
+                    </span>
+                    <span class="o_battle_solver_bonus text-nowrap" title="Points added to the side characteristic (Rage, Willpower or Gnosis), spread over its size like Diversion: e.g. +2 for a size 4 side is +0.5; negative to hinder">
+                        <span class="text-muted small">Boost</span>
+                        <field name="responder_characteristic_boost" class="o_battle_solver_bonus_input" readonly="mode == 'done'"/>
                     </span>
                     <field name="responder_lines_summary" class="w-auto text-muted small" invisible="not responder_folded"/>
                 </div>

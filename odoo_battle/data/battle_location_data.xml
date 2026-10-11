@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<odoo>
+<odoo noupdate="1">  <!-- game state, changed while playing: not overwritten by module updates -->
     <record id="battle_location_enclos" model="battle.location">
         <field name="name">Enclos</field>
         <field name="is_umbra" eval="True"/>
